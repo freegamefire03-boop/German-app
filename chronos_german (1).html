@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Chronos German — Verb Mastery</title>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --surface: #151b2b;
+            --surface-light: #1e2740;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --haben: #f59e0b;
+            --sein: #10b981;
+            --machen: #38bdf8;
+            --tun: #f43f5e;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Background particles */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        @keyframes float {
+            0%   { transform: translateY(100vh) rotate(0deg);   opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 20px 20px calc(20px + var(--safe-bottom));
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .screen.active { display: block; animation: fadeIn 0.4s ease; }
+        #splash.active  { display: flex; }           /* keep splash as flex */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Splash ─────────────────────────────────── */
+        #splash {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 0;
+        }
+        .splash-icon {
+            font-size: 4.5rem;
+            margin-bottom: 16px;
+            animation: float-icon 4s ease-in-out infinite;
+        }
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0);    }
+            50%       { transform: translateY(-10px); }
+        }
+        .logo {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+        .tagline {
+            color: var(--text-dim);
+            font-size: 1rem;
+            margin-bottom: 36px;
+            max-width: 280px;
+            line-height: 1.5;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            min-height: 54px;
+            touch-action: manipulation;
+        }
+        .btn-primary.splash-btn {
+            animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(99,102,241,0.3); }
+            50%       { box-shadow: 0 6px 36px rgba(99,102,241,0.6), 0 0 60px rgba(168,85,247,0.2); }
+        }
+        .btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.4); animation: none; }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .splash-features {
+            margin-top: 36px;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* ── Stats bar ────────────────────────────────── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 10px 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-icon { font-size: 1.1rem; line-height: 1; }
+        .stat-value { font-weight: 700; font-size: 0.95rem; line-height: 1.2; }
+        .stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .hearts .stat-value { color: var(--danger); }
+        .xp     .stat-value { color: var(--warning); }
+        .streak .stat-value { color: orange; }
+        .level  .stat-value { color: var(--accent); }
+
+        /* XP progress bar */
+        .xp-progress-wrap {
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .xp-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #a855f7);
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        /* ── Verb cards ───────────────────────────────── */
+        .verb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .verb-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .verb-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--verb-color);
+            opacity: 0.8;
+        }
+        .verb-card:hover  { transform: translateY(-4px); border-color: var(--verb-color); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .verb-card:active { transform: scale(0.97); }
+        .verb-name    { font-size: 1.8rem; font-weight: 700; margin-bottom: 2px; }
+        .verb-meaning { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 14px; }
+
+        .mastery-ring {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: conic-gradient(var(--verb-color) var(--progress), rgba(255,255,255,0.05) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .mastery-ring::after {
+            content: '';
+            position: absolute;
+            width: 44px; height: 44px;
+            background: var(--surface);
+            border-radius: 50%;
+        }
+        .mastery-ring span { position: relative; z-index: 1; }
+
+        /* ── Tense grid ───────────────────────────────── */
+        .tense-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+        }
+        .tense-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px 18px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            border: 1px solid rgba(255,255,255,0.05);
+            touch-action: manipulation;
+        }
+        .tense-card:hover  { background: var(--surface-light); transform: translateX(4px); }
+        .tense-card:active { transform: scale(0.98); }
+        .tense-card.locked { opacity: 0.4; cursor: not-allowed; }
+        .tense-card.locked:hover  { transform: none; background: var(--surface); }
+        .tense-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 3px;
+        }
+        .tense-emoji { font-size: 1rem; flex-shrink: 0; }
+        .tense-name  { font-weight: 700; font-size: 1rem; }
+        .tense-desc  { font-size: 0.78rem; color: var(--text-dim); margin-bottom: 10px; }
+        .tense-progress {
+            height: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .tense-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* ── Challenge screen ─────────────────────────── */
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 8px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            color: var(--text);
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            min-height: 44px;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+        .back-btn:hover  { background: rgba(255,255,255,0.12); }
+        .back-btn:active { transform: scale(0.96); }
+
+        .question-card {
+            background: var(--surface);
+            border-radius: 22px;
+            padding: 36px 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .question-verb {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .question-hint { color: var(--text-dim); font-size: 0.85rem; }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            align-items: stretch;
+        }
+        .answer-input {
+            flex: 1;
+            background: var(--surface-light);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-size: 16px; /* Prevents iOS zoom */
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-height: 54px;
+        }
+        .answer-input:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+        .answer-input.correct { border-color: var(--success); background: rgba(16,185,129,0.1); }
+        .answer-input.wrong   { border-color: var(--danger);  background: rgba(239,68,68,0.1); animation: shake 0.45s; }
+        @keyframes shake { 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-8px); } 75%{ transform:translateX(8px); } }
+
+        /* Check button inside input row */
+        .input-area .btn-primary {
+            padding: 14px 22px;
+            font-size: 0.95rem;
+            border-radius: 14px;
+            min-height: 54px;
+            flex-shrink: 0;
+            animation: none;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .option-btn {
+            background: var(--surface-light);
+            border: 2px solid rgba(255,255,255,0.08);
+            color: var(--text);
+            padding: 14px 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+            min-height: 56px;
+            touch-action: manipulation;
+            line-height: 1.2;
+        }
+        .option-btn:hover   { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+        .option-btn:active  { transform: scale(0.97); }
+        .option-btn.correct { background: rgba(16,185,129,0.2);  border-color: var(--success); }
+        .option-btn.wrong   { background: rgba(239,68,68,0.2);   border-color: var(--danger); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+        .feedback {
+            text-align: center;
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: none;
+        }
+        .feedback.show    { display: block; animation: slideUp 0.25s ease; }
+        .feedback.correct { background: rgba(16,185,129,0.15); color: var(--success); }
+        .feedback.wrong   { background: rgba(239,68,68,0.15);  color: var(--danger); }
+        @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 18px;
+        }
+        .dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: all 0.25s; }
+        .dot.active  { background: var(--accent); transform: scale(1.3); }
+        .dot.correct { background: var(--success); }
+        .dot.wrong   { background: var(--danger); }
+
+        /* Continue button */
+        #next-btn {
+            width: 100%;
+            margin-top: 4px;
+            padding: 16px;
+            font-size: 1rem;
+            border-radius: 16px;
+            animation: none;
+        }
+
+        /* ── Results ──────────────────────────────────── */
+        .results-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 36px 28px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .results-stars { font-size: 2.8rem; margin-bottom: 12px; }
+        .results-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+        .results-xp    { color: var(--warning); font-size: 1.1rem; font-weight: 600; margin-bottom: 24px; }
+
+        .review-list {
+            text-align: left;
+            margin: 20px 0;
+            max-height: 320px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .review-item {
+            background: var(--surface-light);
+            padding: 11px 14px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .review-item .q { font-weight: 600; font-size: 0.9rem; }
+        .review-item .a { color: var(--text-dim); font-size: 0.82rem; margin-top: 2px; }
+        .review-item .status { font-size: 1.1rem; flex-shrink: 0; }
+
+        /* ── Confetti ─────────────────────────────────── */
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px; height: 10px;
+            top: -10px;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+            0%   { transform:translateY(0) rotate(0deg);   opacity:1; }
+            100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
+        }
+
+        /* ── Modal ────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 32px 28px;
+            max-width: 380px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .modal h2 { margin-bottom: 12px; }
+        .modal p  { color: var(--text-dim); margin-bottom: 24px; font-size: 0.95rem; line-height: 1.5; }
+        .modal-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            min-height: 46px;
+            touch-action: manipulation;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+        .btn-danger {
+            background: rgba(239,68,68,0.2);
+            color: var(--danger);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            min-height: 46px;
+            touch-action: manipulation;
+        }
+        .btn-danger:hover { background: rgba(239,68,68,0.35); }
+
+        /* ── Speed bar ────────────────────────────────── */
+        .speed-bar { height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+        .speed-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+
+        /* ── Daily banner ─────────────────────────────── */
+        .daily-banner {
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15));
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
+            touch-action: manipulation;
+            gap: 12px;
+        }
+        .daily-banner:hover  { transform: scale(1.01); border-color: rgba(99,102,241,0.45); }
+        .daily-banner:active { transform: scale(0.98); }
+        .daily-title { font-weight: 700; font-size: 0.95rem; }
+        .daily-sub   { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+        .daily-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            min-height: 40px;
+            touch-action: manipulation;
+        }
+
+        /* ── Responsive ───────────────────────────────── */
+        @media (max-width: 600px) {
+            .screen { padding: 12px 12px calc(16px + var(--safe-bottom)); }
+
+            .logo { font-size: 2.4rem; }
+            .splash-icon { font-size: 3.5rem; }
+            .tagline { font-size: 0.9rem; }
+            .btn-primary { padding: 15px 36px; font-size: 1rem; }
+
+            .stats-bar { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+            .stat { padding: 8px 4px; border-radius: 12px; }
+            .stat-icon { font-size: 0.95rem; }
+            .stat-value { font-size: 0.85rem; }
+            .stat-label { font-size: 0.58rem; }
+
+            .verb-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .verb-card { padding: 14px 12px; border-radius: 16px; }
+            .verb-name { font-size: 1.5rem; }
+            .verb-meaning { font-size: 0.78rem; }
+            .mastery-ring { width: 48px; height: 48px; }
+            .mastery-ring::after { width: 37px; height: 37px; }
+            .mastery-ring span { font-size: 0.72rem; }
+
+            .tense-grid { grid-template-columns: 1fr; }
+
+            .challenge-header { margin-bottom: 12px; }
+            .back-btn { padding: 9px 13px; font-size: 0.85rem; }
+
+            .question-card { padding: 22px 16px; border-radius: 18px; margin-bottom: 14px; }
+            .question-text { font-size: 1.25rem; }
+            .question-hint { font-size: 0.8rem; }
+
+            /* Stack input + Check button vertically on small screens */
+            .input-area { flex-direction: column; gap: 8px; }
+            .input-area .btn-primary { width: 100%; }
+
+            .options-grid { grid-template-columns: 1fr; gap: 8px; }
+            .option-btn { min-height: 52px; font-size: 0.95rem; }
+
+            .results-card { padding: 24px 16px; }
+            .results-title { font-size: 1.3rem; }
+            .results-xp { font-size: 1rem; }
+
+            .daily-banner { padding: 13px 14px; }
+            .daily-btn { padding: 8px 16px; }
+
+            .progress-dots { gap: 5px; }
+            .dot { width: 8px; height: 8px; }
+        }
+
+        /* Extra small */
+        @media (max-width: 360px) {
+            .logo { font-size: 2rem; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .verb-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Scrollbar ────────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--surface-light); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="confetti-container" id="confetti"></div>
+
+    <!-- Splash Screen -->
+    <div class="screen active" id="splash">
+        <div class="splash-icon">⏳</div>
+        <div class="logo">Chronos German</div>
+        <div class="tagline">Master the fabric of time through German verbs</div>
+        <button class="btn-primary splash-btn" onclick="app.start()">Enter the Academy</button>
+        <div class="splash-features">
+            <div>🔒 Progress saves automatically to this browser</div>
+            <div>No account needed · No installation · Completely free</div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="screen" id="dashboard">
+        <div class="stats-bar">
+            <div class="stat level">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-value" id="dash-level">1</span>
+                <span class="stat-label">Level</span>
+            </div>
+            <div class="stat xp">
+                <span class="stat-icon">✦</span>
+                <span class="stat-value" id="dash-xp">0</span>
+                <span class="stat-label">XP</span>
+            </div>
+            <div class="stat streak">
+                <span class="stat-icon">🔥</span>
+                <span class="stat-value" id="dash-streak">0</span>
+                <span class="stat-label">Streak</span>
+            </div>
+            <div class="stat hearts">
+                <span class="stat-icon">❤️</span>
+                <span class="stat-value" id="dash-hearts">5</span>
+                <span class="stat-label">Hearts</span>
+            </div>
+        </div>
+        <div class="xp-progress-wrap">
+            <div class="xp-progress-fill" id="xp-progress-fill" style="width: 0%;"></div>
+        </div>
+
+        <div class="daily-banner" onclick="app.startDaily()">
+            <div>
+                <div class="daily-title">🌟 Daily Time Warp</div>
+                <div class="daily-sub">Mixed tenses · Bonus XP · Streak protection</div>
+            </div>
+            <button class="daily-btn">Start</button>
+        </div>
+
+        <h2 style="margin-bottom: 14px; font-size: 1.2rem;">Choose Your Verb</h2>
+        <div class="verb-grid" id="verb-grid"></div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn-secondary" onclick="app.showResetModal()">⚙️ Reset All Progress</button>
+        </div>
+    </div>
+
+    <!-- Verb Realm -->
+    <div class="screen" id="verb-realm">
+        <div class="challenge-header">
+            <button class="back-btn" onclick="app.showDashboard()">← Back</button>
+            <div style="text-align: center; flex: 1;">
+                <div id="realm-verb" style="font-size: 1.4rem; font-weight: 700;"></div>
+                <div id="realm-meaning" style="color: var(--text-dim); font-size: 0.85rem;"></div>
+            </div>
+            <div style="width: 64px;"></div>
+        </div>
+        <div class="tense-grid" id="tense-grid"></div>
+    </div>
+
+    <!-- Challenge -->
+    <div class="screen" id="challenge">
+        <div class="challenge-header">
+            <button class="back-btn" onclick="app.quitChallenge()">← Quit</button>
+            <div style="text-align: center; flex: 1;">
+                <div id="chal-verb" style="font-weight: 700; font-size: 1rem;"></div>
+                <div id="chal-tense" style="color: var(--text-dim); font-size: 0.8rem;"></div>
+            </div>
+            <div style="min-width: 48px; text-align: right; font-weight: 700; font-size: 0.95rem;" id="chal-score"></div>
+        </div>
+
+        <div class="speed-bar" id="speed-bar" style="display: none;">
+            <div class="speed-fill" id="speed-fill" style="width: 100%;"></div>
+        </div>
+        <div class="progress-dots" id="progress-dots"></div>
+
+        <div class="question-card">
+            <div class="question-verb" id="q-verb"></div>
+            <div class="question-text" id="q-text"></div>
+            <div class="question-hint" id="q-hint"></div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div id="input-container">
+            <div class="input-area" id="text-input-area">
+                <input type="text" class="answer-input" id="answer-input"
+                       placeholder="Type your answer…"
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <button class="btn-primary" onclick="app.submitAnswer()">Check ✓</button>
+            </div>
+            <div class="options-grid" id="options-grid" style="display: none;"></div>
+        </div>
+
+        <button class="btn-primary" id="next-btn" style="width: 100%; display: none; margin-top: 8px;" onclick="app.nextQuestion()">Continue →</button>
+    </div>
+
+    <!-- Results -->
+    <div class="screen" id="results">
+        <div class="results-card">
+            <div class="results-stars" id="result-stars">⭐</div>
+            <div class="results-title" id="result-title">Session Complete!</div>
+            <div class="results-xp" id="result-xp">+0 XP</div>
+            <div class="review-list" id="review-list"></div>
+            <button class="btn-primary" onclick="app.showDashboard()" style="width: 100%; animation: none;">Return to Academy</button>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div class="modal-overlay" id="reset-modal">
+        <div class="modal">
+            <h2>Reset Progress?</h2>
+            <p>This will erase all your mastery data, XP, and streak. This cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="app.hideResetModal()">Cancel</button>
+                <button class="btn-danger" onclick="app.resetProgress()">Reset Everything</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================== DATA =====================
+        const pronouns      = ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"];
+        const pronounLabels = ["I", "you (singular)", "he/she/it", "we", "you (plural)", "they/you (formal)"];
+
+        const tenseEmojis = {
+            present: "🕐", simplePast: "📜", perfect: "✅",
+            pluperfect: "⏮️", future: "🚀", futurePerfect: "🔮",
+            subjunctive: "💭", imperative: "📣"
+        };
+
+        const verbs = {
+            haben: {
+                meaning: "to have",
+                color: "#f59e0b",
+                tenses: {
+                    present:      { name:"Present",         desc:"Actions happening now",           type:"simple",
+                                    forms:["habe","hast","hat","haben","habt","haben"] },
+                    simplePast:   { name:"Simple Past",     desc:"Narrative & written past",        type:"simple",
+                                    forms:["hatte","hattest","hatte","hatten","hattet","hatten"] },
+                    perfect:      { name:"Perfect",         desc:"Spoken past (have + had)",        type:"compound", aux:"haben", participle:"gehabt",
+                                    forms:["habe gehabt","hast gehabt","hat gehabt","haben gehabt","habt gehabt","haben gehabt"] },
+                    pluperfect:   { name:"Pluperfect",      desc:"Past before past",                type:"compound", aux:"hatte", participle:"gehabt",
+                                    forms:["hatte gehabt","hattest gehabt","hatte gehabt","hatten gehabt","hattet gehabt","hatten gehabt"] },
+                    future:       { name:"Future",          desc:"Will have",                       type:"compound", aux:"werden", infinitive:"haben",
+                                    forms:["werde haben","wirst haben","wird haben","werden haben","werdet haben","werden haben"] },
+                    futurePerfect:{ name:"Future Perfect",  desc:"Will have had",                   type:"compound", aux:"werden", participle:"gehabt", infinitive:"haben",
+                                    forms:["werde gehabt haben","wirst gehabt haben","wird gehabt haben","werden gehabt haben","werdet gehabt haben","werden gehabt haben"] },
+                    subjunctive:  { name:"Subjunctive II",  desc:"Hypothetical / wishes",           type:"simple",
+                                    forms:["hätte","hättest","hätte","hätten","hättet","hätten"] },
+                    imperative:   { name:"Imperative",      desc:"Commands",                        type:"imperative",
+                                    forms:["hab(e)!","habt!","haben Sie!"] }
+                }
+            },
+            sein: {
+                meaning: "to be",
+                color: "#10b981",
+                tenses: {
+                    present:      { name:"Present",         desc:"Actions happening now",           type:"simple",
+                                    forms:["bin","bist","ist","sind","seid","sind"] },
+                    simplePast:   { name:"Simple Past",     desc:"Narrative & written past",        type:"simple",
+                                    forms:["war","warst","war","waren","wart","waren"] },
+                    perfect:      { name:"Perfect",         desc:"Spoken past (have + been)",       type:"compound", aux:"sein", participle:"gewesen",
+                                    forms:["bin gewesen","bist gewesen","ist gewesen","sind gewesen","seid gewesen","sind gewesen"] },
+                    pluperfect:   { name:"Pluperfect",      desc:"Past before past",                type:"compound", aux:"war", participle:"gewesen",
+                                    forms:["war gewesen","warst gewesen","war gewesen","waren gewesen","wart gewesen","waren gewesen"] },
+                    future:       { name:"Future",          desc:"Will be",                         type:"compound", aux:"werden", infinitive:"sein",
+                                    forms:["werde sein","wirst sein","wird sein","werden sein","werdet sein","werden sein"] },
+                    futurePerfect:{ name:"Future Perfect",  desc:"Will have been",                  type:"compound", aux:"werden", participle:"gewesen", infinitive:"sein",
+                                    forms:["werde gewesen sein","wirst gewesen sein","wird gewesen sein","werden gewesen sein","werdet gewesen sein","werden gewesen sein"] },
+                    subjunctive:  { name:"Subjunctive II",  desc:"Hypothetical / wishes",           type:"simple",
+                                    forms:["wäre","wär(e)st","wäre","wären","wärt","wären"] },
+                    imperative:   { name:"Imperative",      desc:"Commands",                        type:"imperative",
+                                    forms:["sei!","seid!","seien Sie!"] }
+                }
+            },
+            machen: {
+                meaning: "to do / to make",
+                color: "#38bdf8",
+                tenses: {
+                    present:      { name:"Present",         desc:"Actions happening now",           type:"simple",
+                                    forms:["mache","machst","macht","machen","macht","machen"] },
+                    simplePast:   { name:"Simple Past",     desc:"Narrative & written past",        type:"simple",
+                                    forms:["machte","machtest","machte","machten","machtet","machten"] },
+                    perfect:      { name:"Perfect",         desc:"Spoken past (have + done)",       type:"compound", aux:"haben", participle:"gemacht",
+                                    forms:["habe gemacht","hast gemacht","hat gemacht","haben gemacht","habt gemacht","haben gemacht"] },
+                    pluperfect:   { name:"Pluperfect",      desc:"Past before past",                type:"compound", aux:"hatte", participle:"gemacht",
+                                    forms:["hatte gemacht","hattest gemacht","hatte gemacht","hatten gemacht","hattet gemacht","hatten gemacht"] },
+                    future:       { name:"Future",          desc:"Will do",                         type:"compound", aux:"werden", infinitive:"machen",
+                                    forms:["werde machen","wirst machen","wird machen","werden machen","werdet machen","werden machen"] },
+                    futurePerfect:{ name:"Future Perfect",  desc:"Will have done",                  type:"compound", aux:"werden", participle:"gemacht", infinitive:"machen",
+                                    forms:["werde gemacht haben","wirst gemacht haben","wird gemacht haben","werden gemacht haben","werdet gemacht haben","werden gemacht haben"] },
+                    subjunctive:  { name:"Subjunctive II",  desc:"Hypothetical / wishes",           type:"simple",
+                                    forms:["machte","machtest","machte","machten","machtet","machten"] },
+                    imperative:   { name:"Imperative",      desc:"Commands",                        type:"imperative",
+                                    forms:["mach(e)!","macht!","machen Sie!"] }
+                }
+            },
+            tun: {
+                meaning: "to do",
+                color: "#f43f5e",
+                tenses: {
+                    present:      { name:"Present",         desc:"Actions happening now",           type:"simple",
+                                    forms:["tue","tust","tut","tun","tut","tun"] },
+                    simplePast:   { name:"Simple Past",     desc:"Narrative & written past",        type:"simple",
+                                    forms:["tat","tatest","tat","taten","tatet","taten"] },
+                    perfect:      { name:"Perfect",         desc:"Spoken past (have + done)",       type:"compound", aux:"haben", participle:"getan",
+                                    forms:["habe getan","hast getan","hat getan","haben getan","habt getan","haben getan"] },
+                    pluperfect:   { name:"Pluperfect",      desc:"Past before past",                type:"compound", aux:"hatte", participle:"getan",
+                                    forms:["hatte getan","hattest getan","hatte getan","hatten getan","hattet getan","hatten getan"] },
+                    future:       { name:"Future",          desc:"Will do",                         type:"compound", aux:"werden", infinitive:"tun",
+                                    forms:["werde tun","wirst tun","wird tun","werden tun","werdet tun","werden tun"] },
+                    futurePerfect:{ name:"Future Perfect",  desc:"Will have done",                  type:"compound", aux:"werden", participle:"getan", infinitive:"tun",
+                                    forms:["werde getan haben","wirst getan haben","wird getan haben","werden getan haben","werdet getan haben","werden getan haben"] },
+                    subjunctive:  { name:"Subjunctive II",  desc:"Hypothetical / wishes",           type:"simple",
+                                    forms:["täte","tätest","täte","täten","tätet","täten"] },
+                    imperative:   { name:"Imperative",      desc:"Commands",                        type:"imperative",
+                                    forms:["tu(e)!","tut!","tun Sie!"] }
+                }
+            }
+        };
+
+        const tenseOrder = ["present","simplePast","perfect","pluperfect","future","futurePerfect","subjunctive","imperative"];
+
+        // ===================== APP =====================
+        const app = {
+            progress: null,
+            currentVerb: null,
+            currentTense: null,
+            questions: [],
+            currentQ: 0,
+            correctCount: 0,
+            xpGained: 0,
+            combo: 0,
+            isDaily: false,
+            speedMode: false,
+            speedTimer: null,
+
+            init() {
+                this.loadProgress();
+                this.createParticles();
+                this.updateDashboard();
+
+                // Enter key support
+                document.getElementById('answer-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.submitAnswer();
+                });
+            },
+
+            loadProgress() {
+                const saved = localStorage.getItem('chronos_german_progress');
+                if (saved) {
+                    this.progress = JSON.parse(saved);
+                } else {
+                    this.progress = {
+                        xp: 0, level: 1, streak: 0,
+                        lastVisit: new Date().toDateString(),
+                        hearts: 5, maxHearts: 5,
+                        verbMastery: {}, dailyCompleted: null
+                    };
+                    for (let v in verbs) {
+                        this.progress.verbMastery[v] = {};
+                        tenseOrder.forEach(t => this.progress.verbMastery[v][t] = 0);
+                    }
+                }
+                // Check streak
+                const today     = new Date().toDateString();
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                if (this.progress.lastVisit === yesterday) {
+                    // streak continues
+                } else if (this.progress.lastVisit !== today) {
+                    this.progress.streak = 0;
+                }
+                this.progress.lastVisit = today;
+                this.saveProgress();
+            },
+
+            saveProgress() {
+                localStorage.setItem('chronos_german_progress', JSON.stringify(this.progress));
+            },
+
+            createParticles() {
+                const container = document.getElementById('particles');
+                for (let i = 0; i < 25; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.animationDelay    = Math.random() * 15 + 's';
+                    p.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    container.appendChild(p);
+                }
+            },
+
+            start() {
+                this.showScreen('dashboard');
+                this.updateDashboard();
+            },
+
+            showScreen(id) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                const el = document.getElementById(id);
+                el.classList.add('active');
+                // Reliable cross-browser scroll to top
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            },
+
+            updateDashboard() {
+                document.getElementById('dash-level').textContent  = this.progress.level;
+                document.getElementById('dash-xp').textContent     = this.progress.xp;
+                document.getElementById('dash-streak').textContent = this.progress.streak;
+                document.getElementById('dash-hearts').textContent = this.progress.hearts;
+
+                // XP progress bar
+                const xpInLevel = this.progress.xp % 200;
+                document.getElementById('xp-progress-fill').style.width = (xpInLevel / 200 * 100) + '%';
+
+                const grid = document.getElementById('verb-grid');
+                grid.innerHTML = '';
+
+                for (let v in verbs) {
+                    const verb    = verbs[v];
+                    const mastery = this.progress.verbMastery[v];
+                    const total   = Object.values(mastery).reduce((a,b) => a+b, 0);
+                    const avg     = Math.round(total / tenseOrder.length);
+
+                    const card = document.createElement('div');
+                    card.className = 'verb-card';
+                    card.style.setProperty('--verb-color', verb.color);
+                    card.style.setProperty('--progress', avg + '%');
+                    card.innerHTML = `
+                        <div class="verb-name" style="color:${verb.color}">${v}</div>
+                        <div class="verb-meaning">${verb.meaning}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div class="mastery-ring" style="--verb-color:${verb.color};--progress:${avg}%">
+                                <span>${avg}%</span>
+                            </div>
+                            <div style="text-align:right;color:var(--text-dim);font-size:0.8rem;">
+                                <div style="font-weight:700;color:var(--text)">${Object.values(mastery).filter(m=>m>=80).length}/8</div>
+                                <div style="font-size:0.72rem;">tenses mastered</div>
+                            </div>
+                        </div>
+                    `;
+                    card.onclick = () => this.showVerbRealm(v);
+                    grid.appendChild(card);
+                }
+            },
+
+            showVerbRealm(verbKey) {
+                this.currentVerb = verbKey;
+                const verb = verbs[verbKey];
+                const realmVerb = document.getElementById('realm-verb');
+                realmVerb.textContent = verbKey;
+                realmVerb.style.color = verb.color;
+                document.getElementById('realm-meaning').textContent = verb.meaning;
+
+                const grid = document.getElementById('tense-grid');
+                grid.innerHTML = '';
+
+                tenseOrder.forEach((t, i) => {
+                    const tense       = verb.tenses[t];
+                    const mastery     = this.progress.verbMastery[verbKey][t];
+                    const prevMastery = i > 0 ? this.progress.verbMastery[verbKey][tenseOrder[i-1]] : 100;
+                    const locked      = i > 0 && prevMastery < 50;
+                    const emoji       = tenseEmojis[t] || '📖';
+
+                    const card = document.createElement('div');
+                    card.className = 'tense-card' + (locked ? ' locked' : '');
+                    card.innerHTML = `
+                        <div class="tense-header">
+                            <span class="tense-emoji">${emoji}</span>
+                            <span class="tense-name">${tense.name}</span>
+                        </div>
+                        <div class="tense-desc">${tense.desc}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div class="tense-progress" style="flex:1;margin-right:10px;">
+                                <div class="tense-progress-bar" style="width:${mastery}%;background:${verb.color}"></div>
+                            </div>
+                            <span style="font-size:0.82rem;font-weight:700;color:${verb.color}">${mastery}%</span>
+                        </div>
+                        ${locked ? '<div style="margin-top:7px;font-size:0.75rem;color:var(--text-dim);">🔒 Master previous tense to unlock</div>' : ''}
+                    `;
+                    if (!locked) card.onclick = () => this.startChallenge(verbKey, t);
+                    grid.appendChild(card);
+                });
+
+                this.showScreen('verb-realm');
+            },
+
+            startChallenge(verb, tense, isDaily = false) {
+                if (this.progress.hearts <= 0 && !isDaily) {
+                    alert("No hearts left! Come back tomorrow or practice what you've learned.");
+                    return;
+                }
+
+                this.currentVerb  = verb;
+                this.currentTense = tense;
+                this.isDaily      = isDaily;
+                this.currentQ     = 0;
+                this.correctCount = 0;
+                this.xpGained     = 0;
+                this.combo        = 0;
+                this.questions    = this.generateQuestions(verb, tense, isDaily);
+                this.speedMode    = isDaily;
+
+                const chalVerb = document.getElementById('chal-verb');
+                chalVerb.textContent = isDaily ? "Daily Warp" : verb;
+                chalVerb.style.color = isDaily ? 'var(--accent)' : verbs[verb].color;
+                document.getElementById('chal-tense').textContent  = isDaily ? "Mixed tenses across all verbs" : verbs[verb].tenses[tense].name;
+                document.getElementById('chal-score').textContent  = `0/${this.questions.length}`;
+
+                const dots = document.getElementById('progress-dots');
+                dots.innerHTML = '';
+                this.questions.forEach(() => {
+                    const d = document.createElement('div');
+                    d.className = 'dot';
+                    dots.appendChild(d);
+                });
+
+                document.getElementById('speed-bar').style.display = this.speedMode ? 'block' : 'none';
+
+                this.showQuestion();
+                this.showScreen('challenge');
+            },
+
+            startDaily() {
+                if (this.progress.dailyCompleted === new Date().toDateString()) {
+                    alert("You've already completed today's challenge! Come back tomorrow.");
+                    return;
+                }
+                this.startChallenge(null, null, true);
+            },
+
+            generateQuestions(verb, tense, isDaily) {
+                if (isDaily) {
+                    const allCombos = [];
+                    for (let v in verbs) {
+                        tenseOrder.forEach(t => {
+                            const tenseData = verbs[v].tenses[t];
+                            const count = tenseData.type === 'imperative' ? 3 : 6;
+                            for (let i = 0; i < count; i++) allCombos.push({ verb: v, tense: t, person: i });
+                        });
+                    }
+                    for (let i = allCombos.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [allCombos[i], allCombos[j]] = [allCombos[j], allCombos[i]];
+                    }
+                    return allCombos.slice(0, 10).map(c => this.createQuestion(c.verb, c.tense, c.person));
+                } else {
+                    const tenseData = verbs[verb].tenses[tense];
+                    const count = tenseData.type === 'imperative' ? 3 : 6;
+                    const indices = [];
+                    for (let i = 0; i < count; i++) indices.push(i);
+                    for (let i = indices.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [indices[i], indices[j]] = [indices[j], indices[i]];
+                    }
+                    while (indices.length < 8) indices.push(Math.floor(Math.random() * count));
+                    return indices.map(i => this.createQuestion(verb, tense, i));
+                }
+            },
+
+            createQuestion(verb, tense, person) {
+                const tenseData  = verbs[verb].tenses[tense];
+                const answer     = tenseData.forms[person];
+                const isImperative = tenseData.type === 'imperative';
+                const isCompound   = tenseData.type === 'compound';
+
+                let questionText, hint;
+                if (isImperative) {
+                    const targets = ["du (singular you)", "ihr (plural you)", "Sie (formal you)"];
+                    questionText = `Conjugate "${verb}" in the ${tenseData.name} for ${targets[person]}`;
+                    hint = "Command form";
+                } else {
+                    questionText = `Conjugate "${verb}" — ${pronouns[person]} (${pronounLabels[person]})`;
+                    hint = `${tenseData.name} tense`;
+                    if (isCompound) {
+                        if (tense === 'perfect' || tense === 'pluperfect') {
+                            hint += ` · uses ${tenseData.aux} + ${tenseData.participle}`;
+                        } else if (tense === 'future') {
+                            hint += ` · uses ${tenseData.aux} + ${tenseData.infinitive}`;
+                        } else if (tense === 'futurePerfect') {
+                            hint += ` · uses ${tenseData.aux} + ${tenseData.participle} + ${tenseData.infinitive}`;
+                        }
+                    }
+                }
+
+                const options = [answer];
+                const allForms = tenseData.forms;
+                while (options.length < 4) {
+                    const rand = allForms[Math.floor(Math.random() * allForms.length)];
+                    if (!options.includes(rand)) options.push(rand);
+                }
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+
+                const useText = Math.random() > 0.5;
+                return { verb, tense, person, answer, questionText, hint, options, useText };
+            },
+
+            showQuestion() {
+                const q = this.questions[this.currentQ];
+                document.getElementById('q-verb').textContent = q.verb + (this.isDaily ? '' : ` · ${verbs[q.verb].tenses[q.tense].name}`);
+                document.getElementById('q-text').textContent = q.questionText;
+                document.getElementById('q-hint').textContent = q.hint;
+
+                const fb = document.getElementById('feedback');
+                fb.className = 'feedback';
+                fb.innerHTML = '';
+                document.getElementById('next-btn').style.display = 'none';
+
+                const dots = document.querySelectorAll('.dot');
+                dots.forEach((d, i) => { d.className = 'dot' + (i === this.currentQ ? ' active' : ''); });
+
+                if (q.useText) {
+                    document.getElementById('text-input-area').style.display = 'flex';
+                    document.getElementById('options-grid').style.display = 'none';
+                    const input = document.getElementById('answer-input');
+                    input.value = '';
+                    input.className = 'answer-input';
+                    input.disabled = false;
+                    // Small delay to avoid focus stealing keyboard flash on mobile
+                    setTimeout(() => input.focus(), 100);
+                } else {
+                    document.getElementById('text-input-area').style.display = 'none';
+                    const og = document.getElementById('options-grid');
+                    og.style.display = 'grid';
+                    og.innerHTML = '';
+                    q.options.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.textContent = opt;
+                        btn.onclick = () => this.submitOption(opt);
+                        og.appendChild(btn);
+                    });
+                }
+
+                if (this.speedMode) this.startSpeedTimer();
+            },
+
+            startSpeedTimer() {
+                clearTimeout(this.speedTimer);
+                const fill = document.getElementById('speed-fill');
+                fill.style.transition = 'none';
+                fill.style.width = '100%';
+                setTimeout(() => {
+                    fill.style.transition = 'width 30s linear';
+                    fill.style.width = '0%';
+                }, 50);
+                this.speedTimer = setTimeout(() => this.submitAnswer(true), 30000);
+            },
+
+            submitAnswer(timedOut = false) {
+                const q = this.questions[this.currentQ];
+                if (!q.useText && !timedOut) return;
+
+                const input   = document.getElementById('answer-input');
+                const userAns = timedOut ? "" : input.value.trim().toLowerCase();
+                const correct = userAns === q.answer.toLowerCase();
+
+                this.handleResult(correct, q.answer);
+
+                if (!timedOut) {
+                    input.disabled = true;
+                    input.className = 'answer-input ' + (correct ? 'correct' : 'wrong');
+                    if (!correct) input.value = q.answer;
+                }
+            },
+
+            submitOption(opt) {
+                const q = this.questions[this.currentQ];
+                const correct = opt === q.answer;
+                this.handleResult(correct, q.answer);
+
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === q.answer) btn.classList.add('correct');
+                    else if (btn.textContent === opt && !correct) btn.classList.add('wrong');
+                });
+            },
+
+            handleResult(correct, answer) {
+                clearTimeout(this.speedTimer);
+                const dots = document.querySelectorAll('.dot');
+                dots[this.currentQ].classList.remove('active');
+                dots[this.currentQ].classList.add(correct ? 'correct' : 'wrong');
+
+                const fb = document.getElementById('feedback');
+                fb.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
+
+                if (correct) {
+                    this.correctCount++;
+                    this.combo++;
+                    const baseXP    = this.isDaily ? 15 : 10;
+                    const comboBonus = Math.min(this.combo - 1, 5);
+                    const xp        = baseXP + comboBonus;
+                    this.xpGained  += xp;
+                    fb.innerHTML = `✨ Correct! +${xp} XP${comboBonus > 0 ? ` (combo ×${this.combo})` : ''}`;
+                    this.playSound('correct');
+                } else {
+                    this.combo = 0;
+                    fb.innerHTML = `❌ The correct answer was: <strong>${answer}</strong>`;
+                    if (!this.isDaily) {
+                        this.progress.hearts = Math.max(0, this.progress.hearts - 1);
+                        this.saveProgress();
+                    }
+                    this.playSound('wrong');
+                }
+
+                document.getElementById('chal-score').textContent = `${this.correctCount}/${this.questions.length}`;
+                document.getElementById('next-btn').style.display = 'block';
+            },
+
+            nextQuestion() {
+                this.currentQ++;
+                if (this.currentQ >= this.questions.length) {
+                    this.showResults();
+                } else {
+                    this.showQuestion();
+                }
+            },
+
+            showResults() {
+                if (!this.isDaily) {
+                    const verb = this.currentVerb;
+                    const tense = this.currentTense;
+                    const currentMastery = this.progress.verbMastery[verb][tense];
+                    const accuracy = (this.correctCount / this.questions.length) * 100;
+                    this.progress.verbMastery[verb][tense] = Math.min(100, Math.round((currentMastery + accuracy) / 2));
+                }
+
+                this.progress.xp += this.xpGained;
+                const newLevel = Math.floor(this.progress.xp / 200) + 1;
+                const leveledUp = newLevel > this.progress.level;
+                this.progress.level = newLevel;
+
+                if (this.correctCount >= this.questions.length * 0.7) {
+                    this.progress.streak++;
+                    if (this.isDaily) this.progress.dailyCompleted = new Date().toDateString();
+                }
+                if (this.correctCount === this.questions.length && !this.isDaily) {
+                    this.progress.hearts = Math.min(this.progress.maxHearts, this.progress.hearts + 1);
+                }
+                this.saveProgress();
+
+                const accuracy = this.correctCount / this.questions.length;
+                let stars = '💨', title = 'Keep Practicing!';
+                if (accuracy >= 0.3)  { stars = '⭐';       title = 'Good Effort!'; }
+                if (accuracy >= 0.6)  { stars = '⭐⭐';     title = 'Well Done!'; }
+                if (accuracy >= 0.9)  { stars = '⭐⭐⭐';   title = 'Time Weaver Master!'; }
+                if (accuracy === 1)   { stars = '⭐⭐⭐✨'; title = 'Perfect Warp!'; }
+
+                document.getElementById('result-stars').textContent = stars;
+                document.getElementById('result-title').textContent = leveledUp ? `Level Up! ${title}` : title;
+                document.getElementById('result-xp').textContent    = `+${this.xpGained} XP · Level ${this.progress.level}`;
+
+                if (leveledUp || accuracy === 1) this.spawnConfetti();
+
+                const list = document.getElementById('review-list');
+                list.innerHTML = '';
+                this.questions.forEach((q, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'review-item';
+                    const wasCorrect = document.querySelectorAll('.dot')[i].classList.contains('correct');
+                    div.innerHTML = `
+                        <div>
+                            <div class="q">${q.verb} — ${pronouns[q.person]} (${pronounLabels[q.person]})</div>
+                            <div class="a">${q.answer}</div>
+                        </div>
+                        <div class="status">${wasCorrect ? '✅' : '❌'}</div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                this.showScreen('results');
+            },
+
+            quitChallenge() {
+                if (confirm('Quit this session? Progress will not be saved.')) {
+                    clearTimeout(this.speedTimer);
+                    this.showDashboard();
+                }
+            },
+
+            showDashboard() {
+                this.updateDashboard();
+                this.showScreen('dashboard');
+            },
+
+            showResetModal()  { document.getElementById('reset-modal').classList.add('active'); },
+            hideResetModal()  { document.getElementById('reset-modal').classList.remove('active'); },
+
+            resetProgress() {
+                localStorage.removeItem('chronos_german_progress');
+                this.loadProgress();
+                this.updateDashboard();
+                this.hideResetModal();
+            },
+
+            spawnConfetti() {
+                const container = document.getElementById('confetti');
+                const colors = ['#6366f1','#a855f7','#ec4899','#10b981','#f59e0b','#38bdf8'];
+                for (let i = 0; i < 60; i++) {
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random() * 100 + '%';
+                    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    c.style.animationDelay    = Math.random() * 0.6 + 's';
+                    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+                    c.style.borderRadius      = Math.random() > 0.5 ? '50%' : '2px';
+                    c.style.width  = (6 + Math.random() * 8) + 'px';
+                    c.style.height = (6 + Math.random() * 8) + 'px';
+                    container.appendChild(c);
+                    setTimeout(() => c.remove(), 4500);
+                }
+            },
+
+            playSound(type) {
+                try {
+                    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc  = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    if (type === 'correct') {
+                        osc.frequency.setValueAtTime(523, ctx.currentTime);
+                        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+                        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                        osc.start(ctx.currentTime);
+                        osc.stop(ctx.currentTime + 0.3);
+                    } else {
+                        osc.frequency.setValueAtTime(220, ctx.currentTime);
+                        osc.frequency.setValueAtTime(160, ctx.currentTime + 0.1);
+                        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                        osc.start(ctx.currentTime);
+                        osc.stop(ctx.currentTime + 0.3);
+                    }
+                } catch(e) {}
+            }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>
