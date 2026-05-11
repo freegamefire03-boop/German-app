@@ -1,7 +1,7 @@
 {
-  "name": "Deutsch Lernen — German Flashcards",
+  "name": "Deutsch Lernen",
   "short_name": "Deutsch",
-  "description": "German flashcards and gender quiz app",
+  "description": "German learning apps — flashcards, verbs and more",
   "start_url": ".",
   "display": "standalone",
   "orientation": "portrait",

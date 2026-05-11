@@ -1,0 +1,18 @@
+[
+  {
+    "id": "flashcards",
+    "title": "Deutsch Flashcards",
+    "description": "Vocabulary flashcards with gender & plural quizzes",
+    "file": "flashcards.html",
+    "icon": "🗂️",
+    "color": "#A78BFA"
+  },
+  {
+    "id": "verbs",
+    "title": "German Verbs",
+    "description": "Practice German verb conjugations",
+    "file": "verbs.html",
+    "icon": "⚡",
+    "color": "#FF6B35"
+  }
+]
