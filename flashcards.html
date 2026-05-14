@@ -527,6 +527,83 @@
     .logo       { font-size: 1.6rem; }
   }
 
+  /* ── THEME BAR ─────────────────────────────────────────────── */
+  .theme-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 18px;
+    scrollbar-width: none;
+  }
+  .theme-bar::-webkit-scrollbar { display: none; }
+  .theme-pill {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: rgba(255,255,255,0.45);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .theme-pill:hover { border-color: rgba(167,139,250,0.35); color: var(--violet); }
+  .theme-pill.active {
+    background: rgba(167,139,250,0.15);
+    border-color: rgba(167,139,250,0.5);
+    color: var(--violet);
+    box-shadow: 0 0 14px rgba(167,139,250,0.15);
+  }
+  .theme-pill.new-theme-btn { border-style: dashed; color: rgba(255,255,255,0.25); }
+  .theme-pill.new-theme-btn:hover { border-color: rgba(255,107,53,0.4); color: var(--orange); }
+  .theme-name-input {
+    flex: 1;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .theme-name-input:focus { border-color: var(--orange); }
+  .theme-name-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
+  .theme-create-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .theme-list { display: flex; flex-direction: column; gap: 8px; }
+  .theme-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .theme-item-left { display: flex; flex-direction: column; }
+  .theme-item-name { color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+  .theme-item-count { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 2px; }
+  .theme-delete-btn {
+    background: rgba(251,113,133,0.1);
+    border: 1px solid rgba(251,113,133,0.2);
+    color: var(--rose);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+  .theme-delete-btn:hover { background: var(--rose); color: #fff; }
+
+
   /* ── QUIZ SECTION ──────────────────────────────────────────── */
   .quiz-divider {
     display: flex;
@@ -998,8 +1075,28 @@
     <div class="header-actions">
       <button class="btn-icon" id="btnImportPanel" title="Import / Export progress">💾</button>
       <button class="btn-icon" id="btnAddPanel" title="Add vocabulary">＋</button>
+      <button class="btn-icon" id="btnThemePanel" title="Manage themes">🏷️</button>
       <button class="btn-icon" id="btnResetAll" title="Reset all progress">🔄</button>
     </div>
+  </div>
+
+  <!-- THEME BAR -->
+  <div class="theme-bar" id="themeBar">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- THEME PANEL -->
+  <div class="panel" id="panelTheme">
+    <div class="panel-title">🏷️ Themes</div>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin-bottom:14px;">
+      Themes are word subsets. Progress is shared — mastering a word in one theme masters it everywhere.
+    </p>
+    <div class="theme-create-row">
+      <input class="theme-name-input" id="themeNameInput" placeholder="New theme name…" maxlength="32">
+      <button class="btn-primary" style="margin-top:0;white-space:nowrap" id="btnCreateTheme">＋ Create</button>
+    </div>
+    <div class="theme-list" id="themeListEl"></div>
+    <div class="msg" id="msgTheme"></div>
   </div>
 
   <!-- PROGRESS -->
@@ -1129,8 +1226,122 @@ let currentIndex = 0;
 let isFlipped = false;
 let sessionCount = 0;
 
-const LS_VOCAB  = 'deutsch_vocab';
-const LS_PASSED = 'deutsch_passed';
+const LS_VOCAB         = 'deutsch_vocab';
+const LS_PASSED        = 'deutsch_passed';
+const LS_THEMES        = 'deutsch_themes';
+const LS_ACTIVE_THEME  = 'deutsch_active_theme';
+
+// ─── THEMES ───────────────────────────────────────────────────────────
+// themes: [{ id, name, wordKeys: [german strings] }]
+// activeThemeId: null = General (all words)
+let themes        = [];
+let activeThemeId = null;
+
+function loadThemes() {
+  try { themes = JSON.parse(localStorage.getItem(LS_THEMES) || '[]'); } catch(e) { themes = []; }
+  activeThemeId = localStorage.getItem(LS_ACTIVE_THEME) || null;
+}
+
+function saveThemes() {
+  localStorage.setItem(LS_THEMES, JSON.stringify(themes));
+}
+
+function saveActiveTheme() {
+  if (activeThemeId) localStorage.setItem(LS_ACTIVE_THEME, activeThemeId);
+  else localStorage.removeItem(LS_ACTIVE_THEME);
+}
+
+// Returns vocab indices for the active theme (all if General)
+function getActiveIndices() {
+  if (!activeThemeId) return vocab.map((_, i) => i);
+  const theme = themes.find(t => t.id === activeThemeId);
+  if (!theme) return vocab.map((_, i) => i);
+  return vocab
+    .map((w, i) => ({ w, i }))
+    .filter(({ w }) => theme.wordKeys.includes(w.german))
+    .map(({ i }) => i);
+}
+
+function setActiveTheme(id) {
+  activeThemeId = id;
+  saveActiveTheme();
+  sessionCount = 0;
+  buildQueue();
+  render();
+  renderThemeBar();
+}
+
+function createTheme(name) {
+  const id = 'theme_' + Date.now();
+  themes.push({ id, name, wordKeys: [] });
+  saveThemes();
+  renderThemeBar();
+  renderThemeList();
+  return id;
+}
+
+function deleteTheme(id) {
+  themes = themes.filter(t => t.id !== id);
+  if (activeThemeId === id) { activeThemeId = null; saveActiveTheme(); }
+  saveThemes();
+  buildQueue();
+  render();
+  renderThemeBar();
+  renderThemeList();
+}
+
+// Add word keys to the active theme (if not General)
+function addWordKeysToActiveTheme(germanWords) {
+  if (!activeThemeId) return;
+  const theme = themes.find(t => t.id === activeThemeId);
+  if (!theme) return;
+  germanWords.forEach(g => {
+    if (!theme.wordKeys.includes(g)) theme.wordKeys.push(g);
+  });
+  saveThemes();
+  renderThemeList();
+}
+
+function renderThemeBar() {
+  const bar = document.getElementById('themeBar');
+  const pills = [
+    `<button class="theme-pill${!activeThemeId ? ' active' : ''}" onclick="setActiveTheme(null)">All Words</button>`
+  ];
+  themes.forEach(t => {
+    const isActive = activeThemeId === t.id;
+    pills.push(`<button class="theme-pill${isActive ? ' active' : ''}" onclick="setActiveTheme('${t.id}')">${t.name}</button>`);
+  });
+  pills.push(`<button class="theme-pill new-theme-btn" onclick="document.getElementById('btnThemePanel').click()">＋ New Theme</button>`);
+  bar.innerHTML = pills.join('');
+}
+
+function renderThemeList() {
+  const el = document.getElementById('themeListEl');
+  if (!el) return;
+  if (themes.length === 0) {
+    el.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:0.8rem;text-align:center;padding:10px 0">No themes yet. Create one above.</p>';
+    return;
+  }
+  el.innerHTML = themes.map(t => {
+    const count = vocab.filter(w => t.wordKeys.includes(w.german)).length;
+    const mastered = vocab
+      .map((w, i) => ({ w, i }))
+      .filter(({ w, i }) => t.wordKeys.includes(w.german) && passed.has(i)).length;
+    return `<div class="theme-list-item">
+      <div class="theme-item-left">
+        <span class="theme-item-name">${t.name}</span>
+        <span class="theme-item-count">${count} word${count !== 1 ? 's' : ''} · ${mastered} mastered</span>
+      </div>
+      <button class="theme-delete-btn" onclick="confirmDeleteTheme('${t.id}', '${t.name}')">Delete</button>
+    </div>`;
+  }).join('');
+}
+
+function confirmDeleteTheme(id, name) {
+  if (confirm('Delete theme "' + name + '"? Words stay in your global bank.')) {
+    deleteTheme(id);
+  }
+}
 
 async function loadState() {
   const v = localStorage.getItem(LS_VOCAB);
@@ -1177,9 +1388,8 @@ function saveState() {
 
 // ─── QUEUE ────────────────────────────────────────────────────────────
 function buildQueue() {
-  queue = vocab
-    .map((w, i) => i)
-    .filter(i => !passed.has(i));
+  const indices = getActiveIndices();
+  queue = indices.filter(i => !passed.has(i));
   shuffle(queue);
   currentIndex = 0;
 }
@@ -1240,8 +1450,9 @@ function showEmptyState() {
 }
 
 function updateStats() {
-  const total     = vocab.length;
-  const mastCount = passed.size;
+  const indices   = getActiveIndices();
+  const total     = indices.length;
+  const mastCount = indices.filter(i => passed.has(i)).length;
   const remaining = total - mastCount;
   const pct       = total > 0 ? (mastCount / total) * 100 : 0;
 
@@ -1297,18 +1508,27 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
     const arr = JSON.parse(raw);
     if (!Array.isArray(arr)) throw new Error('Expected an array');
     let added = 0;
+    const newGermanWords = [];
     arr.forEach(item => {
       if (item.german && item.english && item.pronunciation && item.article) {
-        vocab.push({ article: item.article, german: item.german, pronunciation: item.pronunciation, english: item.english });
-        added++;
+        // Only add if not already in global vocab
+        const exists = vocab.some(v => v.german === item.german);
+        if (!exists) {
+          vocab.push({ article: item.article, german: item.german, pronunciation: item.pronunciation, english: item.english, ...(item.plural ? {plural: item.plural} : {}) });
+          added++;
+        }
+        newGermanWords.push(item.german);
       }
     });
-    if (added === 0) throw new Error('No valid items found');
+    if (newGermanWords.length === 0) throw new Error('No valid items found');
+    // Add to active theme if not General
+    addWordKeysToActiveTheme(newGermanWords);
     saveState();
     buildQueue();
     render();
     document.getElementById('jsonInput').value = '';
-    showMsg(msg, `✓ Added ${added} word${added > 1 ? 's' : ''} to your list!`, 'success');
+    const themeNote = activeThemeId ? ' & added to theme' : '';
+    showMsg(msg, `✓ Added ${added} new word${added !== 1 ? 's' : ''}${themeNote}!`, 'success');
   } catch(e) {
     showMsg(msg, '✗ Invalid JSON: ' + e.message, 'error');
   }
@@ -1316,7 +1536,7 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
 
 // ─── EXPORT / IMPORT PROGRESS ─────────────────────────────────────────
 document.getElementById('btnExport').addEventListener('click', () => {
-  const data = { vocab, passed: [...passed], exportedAt: new Date().toISOString() };
+  const data = { vocab, passed: [...passed], themes, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1339,9 +1559,12 @@ document.getElementById('fileUpload').addEventListener('change', (e) => {
       if (!data.vocab || !data.passed) throw new Error('Invalid progress file format');
       vocab  = data.vocab;
       passed = new Set(data.passed);
+      if (data.themes) { themes = data.themes; saveThemes(); }
       saveState();
       buildQueue();
       render();
+      renderThemeBar();
+      renderThemeList();
       showMsg(document.getElementById('msgSave'), `✓ Loaded ${vocab.length} words, ${passed.size} mastered.`, 'success');
     } catch(e) {
       showMsg(document.getElementById('msgSave'), '✗ Could not read file: ' + e.message, 'error');
@@ -1361,6 +1584,23 @@ function togglePanel(id) {
 
 document.getElementById('btnAddPanel').addEventListener('click', () => togglePanel('panelAdd'));
 document.getElementById('btnImportPanel').addEventListener('click', () => togglePanel('panelSave'));
+document.getElementById('btnThemePanel').addEventListener('click', () => {
+  togglePanel('panelTheme');
+  renderThemeList();
+});
+
+document.getElementById('btnCreateTheme').addEventListener('click', () => {
+  const input = document.getElementById('themeNameInput');
+  const name  = input.value.trim();
+  if (!name) { showMsg(document.getElementById('msgTheme'), 'Enter a theme name first.', 'error'); return; }
+  createTheme(name);
+  input.value = '';
+  showMsg(document.getElementById('msgTheme'), `✓ Theme "${name}" created!`, 'success');
+});
+
+document.getElementById('themeNameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btnCreateTheme').click();
+});
 
 document.getElementById('btnResetAll').addEventListener('click', () => {
   if (confirm('Reset all mastered words? Your vocabulary list will stay.')) {
@@ -1441,10 +1681,10 @@ function savePluralState() {
 
 // ── Pool builder ──
 function buildPool(masteredSet) {
+  const indices = getActiveIndices();
   const pool = [];
-  passed.forEach(idx => {
-    const w = vocab[idx];
-    if (!w) return;
+  indices.forEach(idx => {
+    if (!passed.has(idx)) return;
     if (masteredSet.has(idx)) return;
     pool.push(idx);
   });
@@ -1766,10 +2006,12 @@ if ('serviceWorker' in navigator) {
 }
 
 (async () => {
+  loadThemes();
   await loadState();
   loadQuizState();
   buildQueue();
   render();
+  renderThemeBar();
 })();
 </script>
 </body>
