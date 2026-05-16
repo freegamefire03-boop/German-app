@@ -1,8 +1,10 @@
-const CACHE = 'verbs-v1';
+const CACHE = 'verbs-v2';
 
 const ASSETS = [
   '.',
   'index.html',
+  'css/style.css',
+  'js/app.js',
   '../../manifest.json',
   '../../assets/icons/icon-192.png',
   '../../assets/icons/icon-512.png'
