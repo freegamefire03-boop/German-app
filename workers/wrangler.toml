@@ -10,7 +10,7 @@ preview_id = "80bb9a490c5a467e83815c2d06423abb"
 
 # Cron triggers — morning, afternoon, evening
 [triggers]
-crons = ["0 8 * * *", "0 14 * * *", "0 20 * * *"]
+crons = ["0 7 * * *", "0 13 * * *", "0 15 * * *", "0 17 * * *", "0 19 * * *"]
 
 # VAPID keys (set via `npx wrangler secret put VAPID_PUBLIC_KEY`)
 # VAPID_PRIVATE_KEY and VAPID_SUBJECT should also be set as secrets.
