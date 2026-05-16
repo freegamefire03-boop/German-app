@@ -1,9 +1,7 @@
 const CONFIG = {
-  // After deploying the Cloudflare Worker, paste its URL here:
-  WORKER_URL: 'https://your-worker.your-subdomain.workers.dev',
+  WORKER_URL: 'https://deutsch-lernen-push.freegamefire03.workers.dev',
 
-  // Generated via: npx web-push generate-vapid-keys
-  VAPID_PUBLIC_KEY: 'YOUR_VAPID_PUBLIC_KEY_HERE',
+  VAPID_PUBLIC_KEY: 'BH-NPrtZXoOH0arLXRQ-WbQtLW7WRK4CWKWc9UnxoqEDblNFY_kgNIqSWbBrZV4f1U9kJSfRS9oclWOD4Uavt4k',
 
-  TIMER_DURATION: 600, // 10 minutes in seconds
+  TIMER_DURATION: 600,
 };

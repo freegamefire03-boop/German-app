@@ -5,8 +5,8 @@ compatibility_date = "2025-12-01"
 # KV namespace (create in Cloudflare Dashboard first)
 [[kv_namespaces]]
 binding = "DEUTSCH_PROGRESS"
-id = ""          # ← Paste the KV namespace ID here
-preview_id = ""  # ← Optional: paste preview ID for dev
+id = "80bb9a490c5a467e83815c2d06423abb"
+preview_id = "80bb9a490c5a467e83815c2d06423abb"
 
 # Cron triggers — morning, afternoon, evening
 [triggers]
