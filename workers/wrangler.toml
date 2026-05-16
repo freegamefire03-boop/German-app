@@ -1,0 +1,21 @@
+name = "deutsch-lernen-push"
+main = "worker.js"
+compatibility_date = "2025-12-01"
+
+# KV namespace (create in Cloudflare Dashboard first)
+[[kv_namespaces]]
+binding = "DEUTSCH_PROGRESS"
+id = ""          # ← Paste the KV namespace ID here
+preview_id = ""  # ← Optional: paste preview ID for dev
+
+# Cron triggers — morning, afternoon, evening
+[triggers]
+crons = ["0 8 * * *", "0 14 * * *", "0 20 * * *"]
+
+# VAPID keys (set via `npx wrangler secret put VAPID_PUBLIC_KEY`)
+# VAPID_PRIVATE_KEY and VAPID_SUBJECT should also be set as secrets.
+# The worker reads them from env but currently encryption is inlined.
+# For a production setup, set these secrets:
+#   npx wrangler secret put VAPID_PUBLIC_KEY
+#   npx wrangler secret put VAPID_PRIVATE_KEY
+#   npx wrangler secret put VAPID_SUBJECT

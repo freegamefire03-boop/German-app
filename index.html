@@ -20,7 +20,8 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:#fff;font-family:'Nunito',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,0) 0 40px}
   .hub{width:100%;max-width:420px;padding:0 20px}
-  .hub-header{text-align:center;padding:52px 0 36px}
+  .hub-header{text-align:center;padding:40px 0 28px;position:relative}
+  .hub-header-row{display:flex;align-items:center;justify-content:center;gap:12px}
   .hub-logo{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:6px;background:linear-gradient(135deg,var(--violet) 0%,var(--mint) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:8px}
   .hub-subtitle{font-size:.72rem;font-weight:700;letter-spacing:4px;color:rgba(255,255,255,.25);text-transform:uppercase}
   .hub-divider{display:flex;align-items:center;gap:12px;margin-bottom:20px}
@@ -39,19 +40,142 @@
   .app-card:hover .app-arrow{color:rgba(255,255,255,.6);transform:translateX(3px)}
   .hub-msg{text-align:center;padding:40px 0;color:rgba(255,255,255,.3);font-size:.85rem;font-weight:600}
   .hub-footer{text-align:center;margin-top:36px;font-size:.62rem;letter-spacing:2px;color:rgba(255,255,255,.1);text-transform:uppercase;font-weight:700}
+
+  .hub-settings-btn{position:absolute;top:0;right:0;background:none;border:none;color:rgba(255,255,255,.25);font-size:1.2rem;cursor:pointer;padding:6px;transition:color .2s;line-height:1}
+  .hub-settings-btn:hover{color:rgba(255,255,255,.6)}
+
+  .settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+  .settings-overlay.open{opacity:1;pointer-events:auto}
+  .settings-modal{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:360px;max-width:90vw;max-height:80vh;overflow-y:auto}
+  .settings-modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;margin-bottom:4px}
+  .settings-modal .settings-close{float:right;background:none;border:none;color:rgba(255,255,255,.3);font-size:1.2rem;cursor:pointer;padding:4px}
+  .settings-modal .settings-close:hover{color:#fff}
+  .settings-desc{font-size:.75rem;color:rgba(255,255,255,.35);margin-bottom:18px}
+  .setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+  .setting-row:last-child{border-bottom:none}
+  .setting-row .setting-label{font-size:.85rem;font-weight:600}
+  .setting-row .setting-sub{font-size:.7rem;color:rgba(255,255,255,.3);margin-top:2px}
+  .setting-row .setting-status{font-size:.65rem;color:rgba(255,255,255,.2);margin-left:auto;margin-right:12px}
+
+  .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer}
+  .toggle-switch input{opacity:0;width:0;height:0}
+  .toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:12px;transition:background .25s}
+  .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform .25s}
+  .toggle-switch input:checked + .toggle-slider{background:var(--mint)}
+  .toggle-switch input:checked + .toggle-slider::before{transform:translateX(20px)}
+
+  .settings-worker-url{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:#fff;font-family:'Nunito',sans-serif;font-size:.75rem;margin-top:6px;outline:none}
+  .settings-worker-url:focus{border-color:var(--violet)}
 </style>
 </head>
 <body>
 <div class="hub">
   <div class="hub-header">
-    <div class="hub-logo">Deutsch Lernen</div>
+    <div class="hub-header-row">
+      <div class="hub-logo">Deutsch Lernen</div>
+      <button class="hub-settings-btn" id="btnSettings" title="Notifications &amp; Settings">⚙️</button>
+    </div>
     <div class="hub-subtitle">Choose an app to start</div>
   </div>
   <div class="hub-divider"><span>Apps</span></div>
   <div class="app-list" id="appList"><div class="hub-msg">Loading…</div></div>
   <div class="hub-footer">deutsch lernen · progress saved locally per app</div>
 </div>
+
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-modal">
+    <button class="settings-close" id="settingsClose">✕</button>
+    <h3>⚙️ Settings</h3>
+    <div class="settings-desc">Manage notifications and session tracking</div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">🗂️ Flashcards</div>
+        <div class="setting-sub" id="flashcards-status">Checking…</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-flashcards" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">⚡ Verbs</div>
+        <div class="setting-sub" id="verbs-status">Checking…</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-verbs" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:.8rem;font-weight:700;margin-bottom:6px">Cloudflare Worker URL</div>
+      <input class="settings-worker-url" id="workerUrlInput" placeholder="https://your-worker.your-subdomain.workers.dev"
+             value="">
+    </div>
+  </div>
+</div>
+
+<script src="shared/js/config.js"></script>
+<script src="shared/js/timer.js"></script>
 <script>
+loadNotifSettings();
+
+function renderSettings() {
+  document.getElementById('toggle-flashcards').checked = notifSettings.flashcards !== false;
+  document.getElementById('toggle-verbs').checked = notifSettings.verbs !== false;
+  document.getElementById('workerUrlInput').value = CONFIG.WORKER_URL || '';
+  updateStatusDisplays();
+}
+
+function updateStatusDisplays() {
+  const fStatus = document.getElementById('flashcards-status');
+  const vStatus = document.getElementById('verbs-status');
+  fStatus.textContent = Notification.permission === 'granted' ? 'Notifications on' :
+    Notification.permission === 'denied' ? 'Blocked' : 'Not requested';
+  vStatus.textContent = fStatus.textContent;
+}
+
+document.getElementById('toggle-flashcards').addEventListener('change', function() {
+  notifSettings.flashcards = this.checked;
+  saveNotifSettings();
+});
+
+document.getElementById('toggle-verbs').addEventListener('change', function() {
+  notifSettings.verbs = this.checked;
+  saveNotifSettings();
+});
+
+document.getElementById('workerUrlInput').addEventListener('change', function() {
+  if (this.value.trim()) {
+    CONFIG.WORKER_URL = this.value.trim().replace(/\/+$/, '');
+  }
+});
+
+document.getElementById('btnSettings').addEventListener('click', () => {
+  renderSettings();
+  document.getElementById('settingsOverlay').classList.add('open');
+});
+
+document.getElementById('settingsClose').addEventListener('click', () => {
+  document.getElementById('settingsOverlay').classList.remove('open');
+});
+
+document.getElementById('settingsOverlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    document.getElementById('settingsOverlay').classList.remove('open');
+  }
+});
+
+if (Notification.permission === 'default') {
+  document.addEventListener('click', function requestPerm() {
+    Notification.requestPermission().then(() => updateStatusDisplays());
+    document.removeEventListener('click', requestPerm);
+  }, { once: true });
+}
+
 async function loadApps() {
   const list = document.getElementById('appList');
   try {

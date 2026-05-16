@@ -213,6 +213,7 @@
                     mastered.add(currentVerb);
                     sessionCount++;
                     streak++;
+                    sessionStats.wordsPassed++;
                     saveState();
                 }
             } else {
@@ -275,6 +276,9 @@
             document.getElementById('splashScreen').style.display = 'none';
             document.getElementById('mainContent').classList.add('visible');
             loadVerb(getNextVerb());
+            if (typeof initTimerSession === 'function') {
+                initTimerSession('verbs');
+            }
         });
 
         document.getElementById('btnCheck').addEventListener('click', checkAnswers);
@@ -328,6 +332,17 @@
                 osc.stop(ctx.currentTime + duration);
             } catch(e) {}
         }
+
+        // ─── TIMER ──────────────────────────────────────────────────────────
+        const timerPill = document.getElementById('timerPill');
+        if (timerPill) {
+            timerTickCb = (remaining) => {
+                const display = getTimerDisplay();
+                timerPill.textContent = '⏱ ' + display;
+                timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
+            };
+        }
+        let sessionStats = { wordsPassed: 0, genderMastered: 0, pluralMastered: 0 };
 
         // ─── INIT ────────────────────────────────────────────────────────────
         const app = {

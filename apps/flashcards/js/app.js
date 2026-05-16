@@ -79,6 +79,9 @@ function addWordKeysToActiveTheme(germanWords) {
 function showFlashcardView() {
   document.getElementById('themeSelectView').classList.remove('active');
   document.getElementById('flashcardView').classList.add('active');
+  if (typeof initTimerSession === 'function') {
+    initTimerSession('flashcards');
+  }
 }
 
 function showThemeSelect() {
@@ -87,12 +90,14 @@ function showThemeSelect() {
   document.getElementById('flashcardView').classList.remove('active');
   document.getElementById('themeSelectView').classList.add('active');
   renderThemeSelectList();
+  if (typeof pauseTimer === 'function') pauseTimer();
 }
 
 function selectTheme(id) {
   activeThemeId = id;
   saveActiveTheme();
   sessionCount = 0;
+  sessionStats = { wordsPassed: 0, genderMastered: 0, pluralMastered: 0 };
   buildQueue();
   render();
   showFlashcardView();
@@ -298,6 +303,7 @@ document.getElementById('btnPass').addEventListener('click', () => {
   const idx = queue[currentIndex];
   passed.add(idx);
   sessionCount++;
+  sessionStats.wordsPassed++;
   saveState();
   next();
 });
@@ -672,6 +678,7 @@ function genderAnswer(chosen) {
     if (newCount >= 3) {
       genderMastered.add(genderCurrent);
       delete genderProgress[genderCurrent];
+      sessionStats.genderMastered++;
     }
 
     btns.forEach(b => {
@@ -818,6 +825,7 @@ function pluralAnswer() {
     if (newCount >= 2) {
       pluralMastered.add(pluralCurrent);
       delete pluralProgress[pluralCurrent];
+      sessionStats.pluralMastered++;
     }
 
   } else {
@@ -1116,15 +1124,24 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ─── TIMER INTEGRATION ─────────────────────────────────────────────
+const timerPill = document.getElementById('timerPill');
+if (timerPill) {
+  timerTickCb = (remaining) => {
+    const display = getTimerDisplay();
+    timerPill.textContent = '⏱ ' + display;
+    timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
+  };
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────
 (async () => {
   loadThemes();
   await loadState();
   loadQuizState();
   renderThemeSelectList();
-  // Start on theme select view (no theme active)
+  sessionStats = { wordsPassed: 0, genderMastered: 0, pluralMastered: 0 };
   if (activeThemeId) {
-    // If there was a previously active theme, restore it
     buildQueue();
     render();
     showFlashcardView();
