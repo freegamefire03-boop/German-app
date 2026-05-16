@@ -6,12 +6,12 @@
 <title>Deutsch Lernen — German Flashcards</title>
 
 <!-- PWA -->
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="../../manifest.json">
 <meta name="theme-color" content="#0D0C14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Deutsch">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -250,10 +250,8 @@
     pointer-events: none;
   }
 
-  /* article is now inline — hidden as a standalone badge */
   .card-article { display: none; }
 
-  /* article + word combined on one line */
   .card-word-line {
     display: flex;
     align-items: baseline;
@@ -273,7 +271,6 @@
     text-align: center;
   }
 
-  /* article gets its color, word stays white */
   .card-front .card-article-inline.art-der { color: #7EB8FF; }
   .card-front .card-article-inline.art-die { color: #FF85A1; }
   .card-front .card-article-inline.art-das { color: #5DECC8; }
@@ -333,7 +330,6 @@
     color: #fff;
   }
 
-  /* ARTICLE BADGES — unused now (inline instead) */
   .article-der, .article-die, .article-das { display: none; }
 
   /* BUTTONS */
@@ -429,6 +425,25 @@
     color: rgba(255,255,255,0.3);
     margin-top: 8px;
     line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-copy-template {
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    color: var(--violet);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .btn-copy-template:hover {
+    background: rgba(167,139,250,0.2);
+    border-color: rgba(167,139,250,0.4);
   }
 
   .btn-primary {
@@ -527,84 +542,253 @@
     .logo       { font-size: 1.6rem; }
   }
 
-  /* ── THEME BAR ─────────────────────────────────────────────── */
-  .theme-bar {
+  /* THEME SELECT VIEW */
+  .theme-select-view {
     display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-bottom: 18px;
-    scrollbar-width: none;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 20px;
   }
-  .theme-bar::-webkit-scrollbar { display: none; }
-  .theme-pill {
-    flex-shrink: 0;
-    padding: 7px 16px;
-    border-radius: 99px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: rgba(255,255,255,0.45);
+  .theme-select-view .ts-header {
+    text-align: center;
+    padding: 30px 0 20px;
+  }
+  .theme-select-view .ts-header .ts-logo {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.18s;
-    white-space: nowrap;
+    font-size: 2.6rem;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--violet) 0%, var(--orange) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
   }
-  .theme-pill:hover { border-color: rgba(167,139,250,0.35); color: var(--violet); }
-  .theme-pill.active {
-    background: rgba(167,139,250,0.15);
-    border-color: rgba(167,139,250,0.5);
-    color: var(--violet);
-    box-shadow: 0 0 14px rgba(167,139,250,0.15);
-  }
-  .theme-pill.new-theme-btn { border-style: dashed; color: rgba(255,255,255,0.25); }
-  .theme-pill.new-theme-btn:hover { border-color: rgba(255,107,53,0.4); color: var(--orange); }
-  .theme-name-input {
-    flex: 1;
-    padding: 10px 14px;
-    background: var(--bg);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    color: #fff;
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.9rem;
+  .theme-select-view .ts-header .ts-sub {
+    font-size: 0.72rem;
     font-weight: 700;
-    outline: none;
-    transition: border-color 0.2s;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
   }
-  .theme-name-input:focus { border-color: var(--orange); }
-  .theme-name-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
-  .theme-create-row { display: flex; gap: 8px; margin-bottom: 16px; }
-  .theme-list { display: flex; flex-direction: column; gap: 8px; }
-  .theme-list-item {
+  .theme-select-view .ts-divider {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .theme-select-view .ts-divider::before,
+  .theme-select-view .ts-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .theme-select-view .ts-divider span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.18);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .ts-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(.4,0,.2,1);
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    text-decoration: none;
+  }
+  .ts-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: radial-gradient(ellipse at 0% 50%, rgba(167,139,250,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .ts-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(167,139,250,0.35);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .ts-card:active { transform: scale(.98); }
+  .ts-card .ts-icon {
+    font-size: 2rem;
+    width: 56px; height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface2);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .ts-card .ts-info { flex: 1; }
+  .ts-card .ts-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 5px;
+    color: var(--violet);
+  }
+  .ts-card .ts-desc {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.4;
+  }
+  .ts-card .ts-arrow {
+    font-size: 1.4rem;
+    color: rgba(255,255,255,0.2);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .ts-card:hover .ts-arrow {
+    color: rgba(255,255,255,0.6);
+    transform: translateX(3px);
+  }
+
+  .ts-create-card {
+    border-style: dashed;
+    border-color: rgba(255,255,255,0.1);
+  }
+  .ts-create-card .ts-title {
+    color: rgba(255,255,255,0.3);
+  }
+  .ts-create-card:hover {
+    border-color: rgba(255,107,53,0.4);
+  }
+  .ts-create-card:hover .ts-title {
+    color: var(--orange);
+  }
+  .ts-create-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .ts-create-modal.open { display: flex; }
+  .ts-create-modal .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 380px;
+  }
+  .ts-create-modal .modal-box h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    color: var(--cream);
+  }
+  .ts-create-modal .modal-box input {
+    width: 100%;
+    padding: 12px 16px;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 12px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    outline: none;
+    margin-bottom: 14px;
   }
-  .theme-item-left { display: flex; flex-direction: column; }
-  .theme-item-name { color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
-  .theme-item-count { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 2px; }
-  .theme-delete-btn {
-    background: rgba(251,113,133,0.1);
-    border: 1px solid rgba(251,113,133,0.2);
-    color: var(--rose);
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 0.75rem;
-    cursor: pointer;
+  .ts-create-modal .modal-box input:focus {
+    border-color: var(--orange);
+  }
+  .ts-create-modal .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .ts-create-modal .modal-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
     font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 1px;
-    transition: all 0.15s;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
   }
-  .theme-delete-btn:hover { background: var(--rose); color: #fff; }
+  .ts-create-modal .modal-actions .modal-cancel {
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid var(--border);
+  }
+  .ts-create-modal .modal-actions .modal-cancel:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+  }
+  .ts-create-modal .modal-actions .modal-confirm {
+    background: linear-gradient(135deg, var(--orange), var(--rose));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(255,107,53,0.3);
+  }
+  .ts-create-modal .modal-actions .modal-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255,107,53,0.4);
+  }
+  .ts-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .ts-footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.1);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
 
+  /* FLASHCARD VIEW (hidden by default, shown after theme select) */
+  #flashcardView { display: none; }
+  #flashcardView.active { display: block; }
+  #themeSelectView { display: none; }
+  #themeSelectView.active { display: block; }
 
-  /* ── QUIZ SECTION ──────────────────────────────────────────── */
+  .btn-back {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: rgba(255,255,255,0.55);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-back:hover {
+    background: var(--surface2);
+    color: var(--violet);
+    border-color: rgba(167,139,250,0.4);
+    transform: translateX(-2px);
+  }
+
+  /* QUIZ SECTION */
   .quiz-divider {
     display: flex;
     align-items: center;
@@ -657,14 +841,9 @@
     color: var(--violet);
   }
 
-  .quiz-section {
-    display: none;
-  }
-  .quiz-section.open {
-    display: block;
-  }
+  .quiz-section { display: none; }
+  .quiz-section.open { display: block; }
 
-  /* Quiz stats bar */
   .quiz-stats-bar {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -694,7 +873,6 @@
     margin-top: 2px;
   }
 
-  /* Quiz card */
   .quiz-card {
     background: var(--surface2);
     border: 1px solid rgba(167,139,250,0.18);
@@ -745,7 +923,6 @@
     margin-bottom: 8px;
   }
 
-  /* progress pips */
   .quiz-progress-pips {
     display: flex;
     gap: 6px;
@@ -765,7 +942,6 @@
     box-shadow: 0 0 8px rgba(167,139,250,0.6);
   }
 
-  /* feedback banner inside card */
   .quiz-feedback {
     position: absolute;
     bottom: 18px;
@@ -783,7 +959,6 @@
   .quiz-feedback.correct-text { color: var(--mint); }
   .quiz-feedback.wrong-text   { color: var(--rose); }
 
-  /* Answer buttons */
   .quiz-answers {
     display: flex;
     gap: 10px;
@@ -805,9 +980,7 @@
     transition: all 0.2s cubic-bezier(.4,0,.2,1);
     color: rgba(255,255,255,0.6);
   }
-  .btn-article:hover:not(:disabled) {
-    transform: translateY(-2px);
-  }
+  .btn-article:hover:not(:disabled) { transform: translateY(-2px); }
   .btn-article:active:not(:disabled) { transform: scale(0.95); }
   .btn-article:disabled { cursor: default; opacity: 0.5; }
 
@@ -830,7 +1003,6 @@
     box-shadow: 0 8px 24px rgba(93,236,200,0.2);
   }
 
-  /* reveal correct article after wrong answer */
   .btn-article.reveal-correct.der-btn {
     background: rgba(126,184,255,0.18);
     border-color: rgba(126,184,255,0.6);
@@ -867,9 +1039,7 @@
     transition: all 0.2s;
     display: none;
   }
-  .quiz-next-btn.show {
-    display: block;
-  }
+  .quiz-next-btn.show { display: block; }
   .quiz-next-btn:hover {
     background: var(--violet);
     color: var(--ink);
@@ -877,7 +1047,6 @@
     transform: translateY(-1px);
   }
 
-  /* Quiz empty / done states */
   .quiz-empty {
     text-align: center;
     padding: 40px 20px;
@@ -887,7 +1056,6 @@
   .quiz-empty p { font-weight: 700; font-size: 0.95rem; line-height: 1.7; }
   .quiz-empty p strong { color: var(--violet); }
 
-  /* ── QUIZ TABS ─────────────────────────────────────────────── */
   .quiz-tabs {
     display: flex;
     gap: 8px;
@@ -924,7 +1092,6 @@
     box-shadow: 0 0 16px rgba(255,107,53,0.1);
   }
 
-  /* ── PLURAL INPUT ──────────────────────────────────────────── */
   .plural-input-row {
     display: flex;
     gap: 10px;
@@ -991,7 +1158,6 @@
   .quiz-noun-plural-display.show { opacity: 1; }
   .quiz-noun-plural-display.wrong-plural { color: var(--rose); }
 
-  /* ── VIRTUAL KEYBOARD ─────────────────────────────────────── */
   .vkb {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1066,97 +1232,107 @@
 <body>
 <div class="app">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo">
-      <em>Deutsch</em>
-      <span>Flash Cards</span>
-    </div>
-    <div class="header-actions">
-      <button class="btn-icon" id="btnImportPanel" title="Import / Export progress">💾</button>
-      <button class="btn-icon" id="btnAddPanel" title="Add vocabulary">＋</button>
-      <button class="btn-icon" id="btnThemePanel" title="Manage themes">🏷️</button>
-      <button class="btn-icon" id="btnResetAll" title="Reset all progress">🔄</button>
-    </div>
-  </div>
+  <!-- ─── THEME SELECT VIEW ─── -->
+  <div id="themeSelectView" class="active">
+    <div class="theme-select-view">
+      <div class="ts-header">
+        <div class="ts-logo">Deutsch Flashcards</div>
+        <div class="ts-sub">Choose a theme to start</div>
+      </div>
+      <div class="ts-divider"><span>Themes</span></div>
+      <div id="tsList"></div>
 
-  <!-- THEME BAR -->
-  <div class="theme-bar" id="themeBar">
-    <!-- filled by JS -->
-  </div>
-
-  <!-- THEME PANEL -->
-  <div class="panel" id="panelTheme">
-    <div class="panel-title">🏷️ Themes</div>
-    <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin-bottom:14px;">
-      Themes are word subsets. Progress is shared — mastering a word in one theme masters it everywhere.
-    </p>
-    <div class="theme-create-row">
-      <input class="theme-name-input" id="themeNameInput" placeholder="New theme name…" maxlength="32">
-      <button class="btn-primary" style="margin-top:0;white-space:nowrap" id="btnCreateTheme">＋ Create</button>
-    </div>
-    <div class="theme-list" id="themeListEl"></div>
-    <div class="msg" id="msgTheme"></div>
-  </div>
-
-  <!-- PROGRESS -->
-  <div class="progress-section">
-    <div class="progress-stats">
-      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
-      <div class="stat"><div class="stat-num" id="statRemaining">0</div><div class="stat-label">Remaining</div></div>
-      <div class="stat"><div class="stat-num" id="statPassed">0</div><div class="stat-label">Mastered</div></div>
-      <div class="stat"><div class="stat-num" id="statSession">0</div><div class="stat-label">This Run</div></div>
-    </div>
-    <div class="progress-bar-track">
-      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-    </div>
-  </div>
-
-  <!-- ARTICLE LEGEND -->
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot dot-der"></div>der (m)</div>
-    <div class="legend-item"><div class="legend-dot dot-die"></div>die (f)</div>
-    <div class="legend-item"><div class="legend-dot dot-das"></div>das (n)</div>
-  </div>
-
-  <!-- CARD AREA -->
-  <div class="card-area" id="cardArea">
-    <div class="card-wrapper" id="cardWrapper">
-      <div class="card-scene" id="cardScene">
-
-        <div class="card-face card-front">
-          <span class="card-number" id="cardNumber">#1</span>
-          <div class="card-word-line">
-            <span class="card-article-inline art-der" id="cardArticleInline">der</span>
-            <span class="card-word" id="cardWord">—</span>
-          </div>
-          <div class="card-pronunciation" id="cardPronun">—</div>
-          <div class="card-hint">tap to reveal →</div>
+      <div class="ts-create-card ts-card" id="tsCreateBtn">
+        <div class="ts-icon">＋</div>
+        <div class="ts-info">
+          <div class="ts-title">New Theme</div>
+          <div class="ts-desc">Create a custom word collection</div>
         </div>
+        <div class="ts-arrow">›</div>
+      </div>
 
-        <div class="card-face card-back">
-          <span class="card-number" id="cardNumberBack">#1</span>
-          <div class="card-word-line">
-            <span class="card-word" id="cardTranslation">—</span>
-          </div>
-          <div class="card-hint">← tap to flip back</div>
-        </div>
+      <div class="ts-footer">deutsch lernen · flashcards</div>
+    </div>
+  </div>
 
+  <!-- ─── CREATE THEME MODAL ─── -->
+  <div class="ts-create-modal" id="tsCreateModal">
+    <div class="modal-box">
+      <h3>New Theme</h3>
+      <input id="tsModalInput" placeholder="Theme name…" maxlength="32">
+      <div class="modal-actions">
+        <button class="modal-cancel" id="tsModalCancel">Cancel</button>
+        <button class="modal-confirm" id="tsModalConfirm">Create</button>
       </div>
     </div>
   </div>
 
-  <!-- ACTION BUTTONS -->
-  <div class="card-buttons" id="cardButtons">
-    <button class="btn-action btn-repeat" id="btnRepeat">🔁 &nbsp;Repeat</button>
-    <button class="btn-action btn-pass" id="btnPass">✓ &nbsp;Got it!</button>
-  </div>
+  <!-- ─── FLASHCARD VIEW ─── -->
+  <div id="flashcardView">
 
-  <!-- ADD VOCABULARY PANEL -->
-  <div class="panel" id="panelAdd">
-    <div class="panel-title">📥 Add Vocabulary</div>
-    <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:10px;">Paste a JSON array. New words will be <strong style="color:var(--yellow)">appended</strong> to your existing list, not replaced.</p>
-    <textarea class="json-textarea" id="jsonInput" placeholder='[
+    <div class="header">
+      <button class="btn-back" id="btnBackToThemes">←</button>
+      <div class="logo">
+        <em>Deutsch</em>
+        <span>Flash Cards</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="btnImportPanel" title="Import / Export progress">💾</button>
+        <button class="btn-icon" id="btnAddPanel" title="Add vocabulary">＋</button>
+        <button class="btn-icon" id="btnResetAll" title="Reset all progress">🔄</button>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-stats">
+        <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+        <div class="stat"><div class="stat-num" id="statRemaining">0</div><div class="stat-label">Remaining</div></div>
+        <div class="stat"><div class="stat-num" id="statPassed">0</div><div class="stat-label">Mastered</div></div>
+        <div class="stat"><div class="stat-num" id="statSession">0</div><div class="stat-label">This Run</div></div>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot dot-der"></div>der (m)</div>
+      <div class="legend-item"><div class="legend-dot dot-die"></div>die (f)</div>
+      <div class="legend-item"><div class="legend-dot dot-das"></div>das (n)</div>
+    </div>
+
+    <div class="card-area" id="cardArea">
+      <div class="card-wrapper" id="cardWrapper">
+        <div class="card-scene" id="cardScene">
+          <div class="card-face card-front">
+            <span class="card-number" id="cardNumber">#1</span>
+            <div class="card-word-line">
+              <span class="card-article-inline art-der" id="cardArticleInline">der</span>
+              <span class="card-word" id="cardWord">—</span>
+            </div>
+            <div class="card-pronunciation" id="cardPronun">—</div>
+            <div class="card-hint">tap to reveal →</div>
+          </div>
+          <div class="card-face card-back">
+            <span class="card-number" id="cardNumberBack">#1</span>
+            <div class="card-word-line">
+              <span class="card-word" id="cardTranslation">—</span>
+            </div>
+            <div class="card-hint">← tap to flip back</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-buttons" id="cardButtons">
+      <button class="btn-action btn-repeat" id="btnRepeat">🔁 &nbsp;Repeat</button>
+      <button class="btn-action btn-pass" id="btnPass">✓ &nbsp;Got it!</button>
+    </div>
+
+    <div class="panel" id="panelAdd">
+      <div class="panel-title">📥 Add Vocabulary</div>
+      <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:10px;">Paste a JSON array. New words will be <strong style="color:var(--yellow)">appended</strong> to your existing list, not replaced.</p>
+      <textarea class="json-textarea" id="jsonInput" placeholder='[
   {
     "article": "der",
     "german": "Hund",
@@ -1165,50 +1341,44 @@
   },
   ...
 ]'></textarea>
-    <div class="json-hint">
-      Fields: <code style="color:var(--yellow)">article</code> (der/die/das), <code style="color:var(--yellow)">german</code>, <code style="color:var(--yellow)">pronunciation</code>, <code style="color:var(--yellow)">english</code>
-    </div>
-    <button class="btn-primary" id="btnImportJson">Import & Append</button>
-    <div class="msg" id="msgImport"></div>
-  </div>
-
-  <!-- SAVE / LOAD PANEL -->
-  <div class="panel" id="panelSave">
-    <div class="panel-title">💾 Save & Restore Progress</div>
-    <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:14px;">Export your full progress (vocabulary + which words you've mastered) to a file. Import it on any browser to continue where you left off.</p>
-    <button class="btn-primary" id="btnExport">⬇ Download Progress File</button>
-    <button class="btn-secondary" id="btnUploadTrigger">⬆ Upload Progress File</button>
-    <input type="file" id="fileUpload" accept=".json" style="display:none">
-    <div class="msg" id="msgSave"></div>
-  </div>
-
-  <!-- QUIZ DIVIDER -->
-  <div class="quiz-divider">
-    <span class="quiz-divider-label">Practice Quizzes</span>
-  </div>
-
-  <!-- QUIZ TOGGLE -->
-  <button class="quiz-toggle-btn" id="btnQuizToggle">🧠 &nbsp;Open Quiz — Gender &amp; Plural</button>
-
-  <!-- QUIZ SECTION -->
-  <div class="quiz-section" id="quizSection">
-
-    <!-- Tabs -->
-    <div class="quiz-tabs">
-      <button class="quiz-tab active" id="tabGender" onclick="switchQuizTab('gender')">⚡ der / die / das</button>
-      <button class="quiz-tab" id="tabPlural" onclick="switchQuizTab('plural')">📝 Plural Form</button>
+      <div class="json-hint">
+        Required: <code style="color:var(--yellow)">german</code> + <code style="color:var(--yellow)">english</code>. Optional: <code style="color:var(--yellow)">article</code>, <code style="color:var(--yellow)">pronunciation</code>, <code style="color:var(--yellow)">plural</code>
+        <button class="btn-copy-template" id="btnCopyTemplate" title="Copy empty template">📋</button>
+      </div>
+      <button class="btn-primary" id="btnImportJson">Import & Append</button>
+      <div class="msg" id="msgImport"></div>
     </div>
 
-    <!-- Quiz Stats -->
-    <div class="quiz-stats-bar">
-      <div class="quiz-stat"><div class="quiz-stat-num" id="qStatPool">0</div><div class="quiz-stat-label">In Pool</div></div>
-      <div class="quiz-stat"><div class="quiz-stat-num" id="qStatMastered">0</div><div class="quiz-stat-label">Mastered</div></div>
-      <div class="quiz-stat"><div class="quiz-stat-num" id="qStatCorrect">0</div><div class="quiz-stat-label">Correct</div></div>
-      <div class="quiz-stat"><div class="quiz-stat-num" id="qStatWrong">0</div><div class="quiz-stat-label">Wrong</div></div>
+    <div class="panel" id="panelSave">
+      <div class="panel-title">💾 Save & Restore Progress</div>
+      <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:14px;">Export your full progress (vocabulary + which words you've mastered) to a file. Import it on any browser to continue where you left off.</p>
+      <button class="btn-primary" id="btnExport">⬇ Download Progress File</button>
+      <button class="btn-secondary" id="btnUploadTrigger">⬆ Upload Progress File</button>
+      <input type="file" id="fileUpload" accept=".json" style="display:none">
+      <div class="msg" id="msgSave"></div>
     </div>
 
-    <!-- Quiz Card Area (filled by JS) -->
-    <div id="quizCardArea"></div>
+    <div class="quiz-divider">
+      <span class="quiz-divider-label">Practice Quizzes</span>
+    </div>
+
+    <button class="quiz-toggle-btn" id="btnQuizToggle">🧠 &nbsp;Open Quiz — Gender &amp; Plural</button>
+
+    <div class="quiz-section" id="quizSection">
+      <div class="quiz-tabs">
+        <button class="quiz-tab active" id="tabGender" onclick="switchQuizTab('gender')">⚡ der / die / das</button>
+        <button class="quiz-tab" id="tabPlural" onclick="switchQuizTab('plural')">📝 Plural Form</button>
+      </div>
+
+      <div class="quiz-stats-bar">
+        <div class="quiz-stat"><div class="quiz-stat-num" id="qStatPool">0</div><div class="quiz-stat-label">In Pool</div></div>
+        <div class="quiz-stat"><div class="quiz-stat-num" id="qStatMastered">0</div><div class="quiz-stat-label">Mastered</div></div>
+        <div class="quiz-stat"><div class="quiz-stat-num" id="qStatCorrect">0</div><div class="quiz-stat-label">Correct</div></div>
+        <div class="quiz-stat"><div class="quiz-stat-num" id="qStatWrong">0</div><div class="quiz-stat-label">Wrong</div></div>
+      </div>
+
+      <div id="quizCardArea"></div>
+    </div>
 
   </div>
 
@@ -1232,8 +1402,6 @@ const LS_THEMES        = 'deutsch_themes';
 const LS_ACTIVE_THEME  = 'deutsch_active_theme';
 
 // ─── THEMES ───────────────────────────────────────────────────────────
-// themes: [{ id, name, wordKeys: [german strings] }]
-// activeThemeId: null = General (all words)
 let themes        = [];
 let activeThemeId = null;
 
@@ -1251,7 +1419,6 @@ function saveActiveTheme() {
   else localStorage.removeItem(LS_ACTIVE_THEME);
 }
 
-// Returns vocab indices for the active theme (all if General)
 function getActiveIndices() {
   if (!activeThemeId) return vocab.map((_, i) => i);
   const theme = themes.find(t => t.id === activeThemeId);
@@ -1268,15 +1435,12 @@ function setActiveTheme(id) {
   sessionCount = 0;
   buildQueue();
   render();
-  renderThemeBar();
 }
 
 function createTheme(name) {
   const id = 'theme_' + Date.now();
   themes.push({ id, name, wordKeys: [] });
   saveThemes();
-  renderThemeBar();
-  renderThemeList();
   return id;
 }
 
@@ -1286,11 +1450,8 @@ function deleteTheme(id) {
   saveThemes();
   buildQueue();
   render();
-  renderThemeBar();
-  renderThemeList();
 }
 
-// Add word keys to the active theme (if not General)
 function addWordKeysToActiveTheme(germanWords) {
   if (!activeThemeId) return;
   const theme = themes.find(t => t.id === activeThemeId);
@@ -1299,50 +1460,97 @@ function addWordKeysToActiveTheme(germanWords) {
     if (!theme.wordKeys.includes(g)) theme.wordKeys.push(g);
   });
   saveThemes();
-  renderThemeList();
 }
 
-function renderThemeBar() {
-  const bar = document.getElementById('themeBar');
-  const pills = [
-    `<button class="theme-pill${!activeThemeId ? ' active' : ''}" onclick="setActiveTheme(null)">All Words</button>`
-  ];
+// ─── VIEW SWITCHING ───────────────────────────────────────────────────
+function showFlashcardView() {
+  document.getElementById('themeSelectView').classList.remove('active');
+  document.getElementById('flashcardView').classList.add('active');
+}
+
+function showThemeSelect() {
+  activeThemeId = null;
+  saveActiveTheme();
+  document.getElementById('flashcardView').classList.remove('active');
+  document.getElementById('themeSelectView').classList.add('active');
+  renderThemeSelectList();
+}
+
+function selectTheme(id) {
+  activeThemeId = id;
+  saveActiveTheme();
+  sessionCount = 0;
+  buildQueue();
+  render();
+  showFlashcardView();
+}
+
+function renderThemeSelectList() {
+  const list = document.getElementById('tsList');
+  const allCount = vocab.length;
+  const allMastered = passed.size;
+
+  let html = `<div class="ts-card" onclick="selectTheme('__all__')">
+    <div class="ts-icon">📚</div>
+    <div class="ts-info">
+      <div class="ts-title">All Words</div>
+      <div class="ts-desc">${allCount} words · ${allMastered} mastered</div>
+    </div>
+    <div class="ts-arrow">›</div>
+  </div>`;
+
   themes.forEach(t => {
-    const isActive = activeThemeId === t.id;
-    pills.push(`<button class="theme-pill${isActive ? ' active' : ''}" onclick="setActiveTheme('${t.id}')">${t.name}</button>`);
-  });
-  pills.push(`<button class="theme-pill new-theme-btn" onclick="document.getElementById('btnThemePanel').click()">＋ New Theme</button>`);
-  bar.innerHTML = pills.join('');
-}
-
-function renderThemeList() {
-  const el = document.getElementById('themeListEl');
-  if (!el) return;
-  if (themes.length === 0) {
-    el.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:0.8rem;text-align:center;padding:10px 0">No themes yet. Create one above.</p>';
-    return;
-  }
-  el.innerHTML = themes.map(t => {
     const count = vocab.filter(w => t.wordKeys.includes(w.german)).length;
     const mastered = vocab
       .map((w, i) => ({ w, i }))
       .filter(({ w, i }) => t.wordKeys.includes(w.german) && passed.has(i)).length;
-    return `<div class="theme-list-item">
-      <div class="theme-item-left">
-        <span class="theme-item-name">${t.name}</span>
-        <span class="theme-item-count">${count} word${count !== 1 ? 's' : ''} · ${mastered} mastered</span>
+    html += `<div class="ts-card" onclick="selectTheme('${t.id}')">
+      <div class="ts-icon">🏷️</div>
+      <div class="ts-info">
+        <div class="ts-title">${t.name}</div>
+        <div class="ts-desc">${count} words · ${mastered} mastered</div>
       </div>
-      <button class="theme-delete-btn" onclick="confirmDeleteTheme('${t.id}', '${t.name}')">Delete</button>
+      <div class="ts-arrow">›</div>
     </div>`;
-  }).join('');
-}
+  });
 
-function confirmDeleteTheme(id, name) {
-  if (confirm('Delete theme "' + name + '"? Words stay in your global bank.')) {
-    deleteTheme(id);
+  if (themes.length === 0) {
+    html += `<div class="ts-empty">No themes yet. Create one to get started.</div>`;
   }
+
+  list.innerHTML = html;
 }
 
+// ─── MODAL ────────────────────────────────────────────────────────────
+function openCreateModal(autoName = '') {
+  document.getElementById('tsCreateModal').classList.add('open');
+  const input = document.getElementById('tsModalInput');
+  input.value = autoName;
+  input.focus();
+}
+
+function closeCreateModal() {
+  document.getElementById('tsCreateModal').classList.remove('open');
+}
+
+document.getElementById('tsCreateBtn').addEventListener('click', () => openCreateModal());
+document.getElementById('tsModalCancel').addEventListener('click', closeCreateModal);
+document.getElementById('tsModalConfirm').addEventListener('click', () => {
+  const input = document.getElementById('tsModalInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const id = createTheme(name);
+  input.value = '';
+  closeCreateModal();
+  selectTheme(id);
+});
+
+document.getElementById('tsModalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('tsModalConfirm').click();
+  if (e.key === 'Escape') closeCreateModal();
+});
+
+// ─── DATA LOADING ─────────────────────────────────────────────────────
 async function loadState() {
   const v = localStorage.getItem(LS_VOCAB);
   const p = localStorage.getItem(LS_PASSED);
@@ -1357,7 +1565,6 @@ async function loadState() {
       vocab = await fetchDefaultWords();
     }
   } else {
-    // First ever load — fetch from words.json and save
     vocab = await fetchDefaultWords();
     localStorage.setItem(LS_VOCAB, JSON.stringify(vocab));
   }
@@ -1371,7 +1578,7 @@ async function loadState() {
 
 async function fetchDefaultWords() {
   try {
-    const res = await fetch('words.json');
+    const res = await fetch('../../shared/data/words.json');
     if (!res.ok) throw new Error('fetch failed');
     const data = await res.json();
     return data;
@@ -1411,7 +1618,6 @@ function render() {
   const idx = queue[currentIndex];
   const word = vocab[idx];
 
-  // Reset flip
   isFlipped = false;
   const scene = document.getElementById('cardScene');
   scene.classList.remove('flipped');
@@ -1423,12 +1629,11 @@ function render() {
   artFront.className = artClass;
 
   document.getElementById('cardWord').textContent        = word.german;
-  document.getElementById('cardPronun').textContent      = '[ ' + word.pronunciation + ' ]';
+  document.getElementById('cardPronun').textContent      = word.pronunciation ? '[ ' + word.pronunciation + ' ]' : '';
   document.getElementById('cardTranslation').textContent = word.english;
   document.getElementById('cardNumber').textContent      = '#' + (idx + 1);
   document.getElementById('cardNumberBack').textContent  = '#' + (idx + 1);
 
-  // Animate card in
   const wrapper = document.getElementById('cardWrapper');
   wrapper.style.animation = 'none';
   void wrapper.offsetWidth;
@@ -1484,15 +1689,12 @@ document.getElementById('btnRepeat').addEventListener('click', () => {
 
 function next(repeat = false) {
   if (repeat) {
-    // Move current to end of queue
     const cur = queue.splice(currentIndex, 1)[0];
     queue.push(cur);
-    // currentIndex stays the same (now points to next card)
     if (currentIndex >= queue.length) currentIndex = 0;
   } else {
     currentIndex++;
     if (currentIndex >= queue.length) {
-      // Rebuild queue (remove newly passed)
       buildQueue();
     }
   }
@@ -1510,18 +1712,22 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
     let added = 0;
     const newGermanWords = [];
     arr.forEach(item => {
-      if (item.german && item.english && item.pronunciation && item.article) {
-        // Only add if not already in global vocab
+      if (item.german && item.english) {
         const exists = vocab.some(v => v.german === item.german);
         if (!exists) {
-          vocab.push({ article: item.article, german: item.german, pronunciation: item.pronunciation, english: item.english, ...(item.plural ? {plural: item.plural} : {}) });
+          vocab.push({
+            german: item.german,
+            english: item.english,
+            article: item.article || '',
+            pronunciation: item.pronunciation || '',
+            plural: item.plural || ''
+          });
           added++;
         }
         newGermanWords.push(item.german);
       }
     });
     if (newGermanWords.length === 0) throw new Error('No valid items found');
-    // Add to active theme if not General
     addWordKeysToActiveTheme(newGermanWords);
     saveState();
     buildQueue();
@@ -1536,7 +1742,17 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
 
 // ─── EXPORT / IMPORT PROGRESS ─────────────────────────────────────────
 document.getElementById('btnExport').addEventListener('click', () => {
-  const data = { vocab, passed: [...passed], themes, exportedAt: new Date().toISOString() };
+  const data = {
+    vocab,
+    passed: [...passed],
+    themes,
+    genderProgress,
+    genderMastered: [...genderMastered],
+    pluralProgress,
+    pluralMastered: [...pluralMastered],
+    activeThemeId,
+    exportedAt: new Date().toISOString()
+  };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1560,11 +1776,25 @@ document.getElementById('fileUpload').addEventListener('change', (e) => {
       vocab  = data.vocab;
       passed = new Set(data.passed);
       if (data.themes) { themes = data.themes; saveThemes(); }
+      if (data.genderProgress) genderProgress = data.genderProgress;
+      if (data.genderMastered) genderMastered = new Set(data.genderMastered);
+      if (data.pluralProgress) pluralProgress = data.pluralProgress;
+      if (data.pluralMastered) pluralMastered = new Set(data.pluralMastered);
+      if (data.activeThemeId) {
+        activeThemeId = data.activeThemeId;
+        saveActiveTheme();
+      } else {
+        activeThemeId = null;
+        saveActiveTheme();
+      }
       saveState();
+      saveGenderState();
+      savePluralState();
       buildQueue();
       render();
-      renderThemeBar();
-      renderThemeList();
+      if (activeThemeId) {
+        showFlashcardView();
+      }
       showMsg(document.getElementById('msgSave'), `✓ Loaded ${vocab.length} words, ${passed.size} mastered.`, 'success');
     } catch(e) {
       showMsg(document.getElementById('msgSave'), '✗ Could not read file: ' + e.message, 'error');
@@ -1584,22 +1814,34 @@ function togglePanel(id) {
 
 document.getElementById('btnAddPanel').addEventListener('click', () => togglePanel('panelAdd'));
 document.getElementById('btnImportPanel').addEventListener('click', () => togglePanel('panelSave'));
-document.getElementById('btnThemePanel').addEventListener('click', () => {
-  togglePanel('panelTheme');
-  renderThemeList();
-});
 
-document.getElementById('btnCreateTheme').addEventListener('click', () => {
-  const input = document.getElementById('themeNameInput');
-  const name  = input.value.trim();
-  if (!name) { showMsg(document.getElementById('msgTheme'), 'Enter a theme name first.', 'error'); return; }
-  createTheme(name);
-  input.value = '';
-  showMsg(document.getElementById('msgTheme'), `✓ Theme "${name}" created!`, 'success');
-});
-
-document.getElementById('themeNameInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('btnCreateTheme').click();
+document.getElementById('btnCopyTemplate').addEventListener('click', () => {
+  const template = `[
+  {
+    "article": "",
+    "german": "",
+    "english": "",
+    "plural": ""
+  }
+]`;
+  navigator.clipboard.writeText(template).then(() => {
+    const btn = document.getElementById('btnCopyTemplate');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = '📋'; }, 1500);
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = template;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('btnCopyTemplate');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = '📋'; }, 1500);
+  });
 });
 
 document.getElementById('btnResetAll').addEventListener('click', () => {
@@ -1607,6 +1849,8 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     resetPassed();
   }
 });
+
+document.getElementById('btnBackToThemes').addEventListener('click', showThemeSelect);
 
 function resetPassed() {
   passed.clear();
@@ -1632,31 +1876,31 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.key === 'ArrowRight') document.getElementById('btnPass').click();
   if (e.key === 'ArrowLeft')  document.getElementById('btnRepeat').click();
+  if (e.key === 'Escape') {
+    if (document.getElementById('flashcardView').classList.contains('active')) {
+      showThemeSelect();
+    }
+  }
 });
 
 // ─── QUIZ ENGINE ──────────────────────────────────────────────────────
-
-// ── Shared state ──
-let activeQuizTab    = 'gender'; // 'gender' | 'plural'
+let activeQuizTab    = 'gender';
 let quizAnswered     = false;
 let quizSessionCorrect = 0;
 let quizSessionWrong   = 0;
 
-// ── Gender quiz ──
 const LS_GENDER_PROGRESS = 'deutsch_quiz_progress';
 const LS_GENDER_MASTERED = 'deutsch_quiz_mastered';
-let genderProgress = {};   // { idx: correctCount }   max 3
+let genderProgress = {};
 let genderMastered = new Set();
 let genderCurrent  = null;
 
-// ── Plural quiz ──
 const LS_PLURAL_PROGRESS = 'deutsch_plural_progress';
 const LS_PLURAL_MASTERED = 'deutsch_plural_mastered';
-let pluralProgress = {};   // { idx: correctCount }   max 2
+let pluralProgress = {};
 let pluralMastered = new Set();
 let pluralCurrent  = null;
 
-// ── Load / Save ──
 function loadQuizState() {
   const gp = localStorage.getItem(LS_GENDER_PROGRESS);
   const gm = localStorage.getItem(LS_GENDER_MASTERED);
@@ -1679,7 +1923,6 @@ function savePluralState() {
   localStorage.setItem(LS_PLURAL_MASTERED, JSON.stringify([...pluralMastered]));
 }
 
-// ── Pool builder ──
 function buildPool(masteredSet) {
   const indices = getActiveIndices();
   const pool = [];
@@ -1692,7 +1935,6 @@ function buildPool(masteredSet) {
   return pool;
 }
 
-// ── Stats bar ──
 function updateQuizStats(masteredSet) {
   const inPool = passed.size - masteredSet.size;
   document.getElementById('qStatPool').textContent     = Math.max(0, inPool);
@@ -1701,7 +1943,6 @@ function updateQuizStats(masteredSet) {
   document.getElementById('qStatWrong').textContent    = quizSessionWrong;
 }
 
-// ── Tab switching ──
 function switchQuizTab(tab) {
   activeQuizTab = tab;
   quizAnswered  = false;
@@ -1719,9 +1960,6 @@ function renderActiveQuiz() {
   else                             renderPluralQuiz();
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// GENDER QUIZ
-// ══════════════════════════════════════════════════════════════════════
 function renderGenderQuiz() {
   updateQuizStats(genderMastered);
   const area = document.getElementById('quizCardArea');
@@ -1801,7 +2039,6 @@ function genderAnswer(chosen) {
 
   } else {
     quizSessionWrong++;
-    // ← NO RESET. Count stays as-is.
     card.classList.add('wrong');
     feedback.textContent = `✗  IT'S  "${correct.toUpperCase()}"`;
     feedback.className   = 'quiz-feedback show wrong-text';
@@ -1823,9 +2060,6 @@ function genderAnswer(chosen) {
   document.getElementById('quizNextBtn').classList.add('show');
 }
 
-// ══════════════════════════════════════════════════════════════════════
-// PLURAL QUIZ
-// ══════════════════════════════════════════════════════════════════════
 function renderPluralQuiz() {
   updateQuizStats(pluralMastered);
   const area = document.getElementById('quizCardArea');
@@ -1835,7 +2069,6 @@ function renderPluralQuiz() {
     return;
   }
 
-  // Only words that have a plural field
   const pool = buildPool(pluralMastered).filter(idx => vocab[idx] && vocab[idx].plural);
 
   if (pool.length === 0) {
@@ -1852,7 +2085,6 @@ function renderPluralQuiz() {
   const word    = vocab[pluralCurrent];
   const count   = pluralProgress[pluralCurrent] || 0;
 
-  // 2 pips for plural
   let pips = '';
   for (let i = 0; i < 2; i++) pips += `<div class="pip${i < count ? ' filled' : ''}"></div>`;
 
@@ -1866,20 +2098,9 @@ function renderPluralQuiz() {
       <div class="quiz-feedback" id="quizFeedback"></div>
     </div>
     <div class="plural-input-row">
-      <input
-        class="plural-input"
-        id="pluralInput"
-        type="text"
-        placeholder="Type plural noun…"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      />
+      <input class="plural-input" id="pluralInput" type="text" placeholder="Type plural noun…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <button class="plural-submit-btn" id="pluralSubmitBtn" onclick="pluralAnswer()">Check</button>
     </div>
-
-    <!-- Virtual Keyboard -->
     <div class="vkb" id="vkb">
       <div class="vkb-row">
         ${['q','w','e','r','t','z','u','i','o','p'].map(k => `<button class="vkb-key" onmousedown="vkbPress(event,'${k}')">${k}</button>`).join('')}
@@ -1895,11 +2116,9 @@ function renderPluralQuiz() {
         ${['ä','ö','ü','ß'].map(k => `<button class="vkb-key special" onmousedown="vkbPress(event,'${k}')">${k}</button>`).join('')}
       </div>
     </div>
-
     <button class="quiz-next-btn" id="quizNextBtn" onclick="renderPluralQuiz()">Next →</button>
   `;
 
-  // Allow Enter key — no auto-focus so phone keyboard won't pop up
   const input = document.getElementById('pluralInput');
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') pluralAnswer();
@@ -1907,7 +2126,6 @@ function renderPluralQuiz() {
 }
 
 function vkbPress(e, key) {
-  // Prevent focus steal so phone keyboard doesn't pop up
   e.preventDefault();
   const input = document.getElementById('pluralInput');
   if (!input || input.disabled) return;
@@ -1927,7 +2145,6 @@ function pluralAnswer() {
 
   quizAnswered  = true;
   const word    = vocab[pluralCurrent];
-  // Compare without "die", case-insensitive
   const correct = word.plural.trim().toLowerCase();
   const isRight = typed.toLowerCase() === correct;
 
@@ -1937,7 +2154,6 @@ function pluralAnswer() {
 
   input.disabled = true;
   document.getElementById('pluralSubmitBtn').disabled = true;
-  // Disable virtual keyboard too
   document.querySelectorAll('.vkb-key').forEach(k => k.disabled = true);
 
   if (isRight) {
@@ -1959,11 +2175,9 @@ function pluralAnswer() {
 
   } else {
     quizSessionWrong++;
-    // ← NO RESET. Count stays as-is.
     card.classList.add('wrong');
     reveal.classList.add('show', 'wrong-plural');
-    // wrong-plural is red for the reveal, but show the correct one
-    reveal.classList.remove('wrong-plural'); // show correct in mint
+    reveal.classList.remove('wrong-plural');
     feedback.textContent = `✗  CORRECT: die ${word.plural}`;
     feedback.className   = 'quiz-feedback show wrong-text';
     input.style.borderColor = 'rgba(251,113,133,0.6)';
@@ -1975,7 +2189,6 @@ function pluralAnswer() {
   document.getElementById('quizNextBtn').classList.add('show');
 }
 
-// ── Helper ──
 function emptyHtml(emoji, title, sub) {
   return `<div class="quiz-empty">
     <span class="emoji">${emoji}</span>
@@ -1983,7 +2196,6 @@ function emptyHtml(emoji, title, sub) {
   </div>`;
 }
 
-// ── Toggle quiz open/close ──
 document.getElementById('btnQuizToggle').addEventListener('click', () => {
   const section = document.getElementById('quizSection');
   const btn     = document.getElementById('btnQuizToggle');
@@ -2005,13 +2217,19 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ─── INIT ─────────────────────────────────────────────────────────────
 (async () => {
   loadThemes();
   await loadState();
   loadQuizState();
-  buildQueue();
-  render();
-  renderThemeBar();
+  renderThemeSelectList();
+  // Start on theme select view (no theme active)
+  if (activeThemeId) {
+    // If there was a previously active theme, restore it
+    buildQueue();
+    render();
+    showFlashcardView();
+  }
 })();
 </script>
 </body>

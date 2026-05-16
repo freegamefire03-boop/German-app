@@ -1,12 +1,14 @@
-const CACHE = 'hub-v1';
+const CACHE = 'flashcards-v1';
 
 const ASSETS = [
   '.',
   'index.html',
-  'apps.json',
-  'manifest.json',
-  'assets/icons/icon-192.png',
-  'assets/icons/icon-512.png',
+  'css/style.css',
+  'js/app.js',
+  '../../manifest.json',
+  '../../assets/icons/icon-192.png',
+  '../../assets/icons/icon-512.png',
+  '../../shared/data/words.json',
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap'
 ];
 
