@@ -3,7 +3,6 @@ const CACHE = 'hub-v1';
 const ASSETS = [
   '.',
   'index.html',
-  'apps.json',
   'manifest.json',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png',

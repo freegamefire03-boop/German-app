@@ -88,27 +88,7 @@
     <h3>⚙️ Settings</h3>
     <div class="settings-desc">Manage notifications and session tracking</div>
 
-    <div class="setting-row">
-      <div>
-        <div class="setting-label">🗂️ Flashcards</div>
-        <div class="setting-sub" id="flashcards-status">Checking…</div>
-      </div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggle-flashcards" checked>
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-
-    <div class="setting-row">
-      <div>
-        <div class="setting-label">⚡ Verbs</div>
-        <div class="setting-sub" id="verbs-status">Checking…</div>
-      </div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggle-verbs" checked>
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+    <div id="settingsList"></div>
 
     <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
       <div style="font-size:.8rem;font-weight:700;margin-bottom:6px">Cloudflare Worker URL</div>
@@ -121,32 +101,43 @@
 <script src="shared/js/config.js"></script>
 <script src="shared/js/timer.js"></script>
 <script>
+let appsData = [];
 loadNotifSettings();
 
 function renderSettings() {
-  document.getElementById('toggle-flashcards').checked = notifSettings.flashcards !== false;
-  document.getElementById('toggle-verbs').checked = notifSettings.verbs !== false;
+  const container = document.getElementById('settingsList');
+  container.innerHTML = appsData.map(app => `
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">${app.icon} ${app.title}</div>
+        <div class="setting-sub" id="${app.id}-status">Checking…</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-${app.id}"${notifSettings[app.id] !== false ? ' checked' : ''}>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>`).join('');
   document.getElementById('workerUrlInput').value = CONFIG.WORKER_URL || '';
+  appsData.forEach(app => {
+    const toggle = document.getElementById('toggle-' + app.id);
+    if (toggle) {
+      toggle.onchange = function() {
+        notifSettings[app.id] = this.checked;
+        saveNotifSettings();
+      };
+    }
+  });
   updateStatusDisplays();
 }
 
 function updateStatusDisplays() {
-  const fStatus = document.getElementById('flashcards-status');
-  const vStatus = document.getElementById('verbs-status');
-  fStatus.textContent = Notification.permission === 'granted' ? 'Notifications on' :
+  const status = Notification.permission === 'granted' ? 'Notifications on' :
     Notification.permission === 'denied' ? 'Blocked' : 'Not requested';
-  vStatus.textContent = fStatus.textContent;
+  appsData.forEach(app => {
+    const el = document.getElementById(app.id + '-status');
+    if (el) el.textContent = status;
+  });
 }
-
-document.getElementById('toggle-flashcards').addEventListener('change', function() {
-  notifSettings.flashcards = this.checked;
-  saveNotifSettings();
-});
-
-document.getElementById('toggle-verbs').addEventListener('change', function() {
-  notifSettings.verbs = this.checked;
-  saveNotifSettings();
-});
 
 document.getElementById('workerUrlInput').addEventListener('change', function() {
   if (this.value.trim()) {
@@ -179,9 +170,9 @@ if (Notification.permission === 'default') {
 async function loadApps() {
   const list = document.getElementById('appList');
   try {
-    const res  = await fetch('apps.json');
-    const apps = await res.json();
-    list.innerHTML = apps.map(app => `
+    const res  = await fetch('apps.json?_=' + Date.now());
+    appsData = await res.json();
+    list.innerHTML = appsData.map(app => `
       <a class="app-card" href="${app.file}"
          style="--card-glow:${app.color}18;--card-border:${app.color}55">
         <div class="app-icon">${app.icon}</div>

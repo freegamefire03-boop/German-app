@@ -1,0 +1,9 @@
+{
+  "name": "deutsch-lernen",
+  "version": "1.0.0",
+  "description": "German learning PWA",
+  "scripts": {
+    "generate-apps": "node generate-apps.js",
+    "build": "node generate-apps.js"
+  }
+}

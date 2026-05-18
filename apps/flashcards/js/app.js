@@ -331,38 +331,51 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
   const raw = document.getElementById('jsonInput').value.trim();
   const msg = document.getElementById('msgImport');
   if (!raw) { showMsg(msg, 'Paste JSON first.', 'error'); return; }
+
+  let arr;
   try {
-    const arr = JSON.parse(raw);
+    arr = JSON.parse(raw);
     if (!Array.isArray(arr)) throw new Error('Expected an array');
-    let added = 0;
-    const newGermanWords = [];
-    arr.forEach(item => {
-      if (item.german && item.english) {
-        const exists = vocab.some(v => v.german === item.german);
-        if (!exists) {
-          vocab.push({
-            german: item.german,
-            english: item.english,
-            article: item.article || '',
-            pronunciation: item.pronunciation || '',
-            plural: item.plural || ''
-          });
-          added++;
-        }
-        newGermanWords.push(item.german);
-      }
-    });
-    if (newGermanWords.length === 0) throw new Error('No valid items found');
-    addWordKeysToActiveTheme(newGermanWords);
-    saveState();
-    buildQueue();
-    render();
-    document.getElementById('jsonInput').value = '';
-    const themeNote = activeThemeId ? ' & added to theme' : '';
-    showMsg(msg, `✓ Added ${added} new word${added !== 1 ? 's' : ''}${themeNote}!`, 'success');
-  } catch(e) {
+  } catch (e) {
     showMsg(msg, '✗ Invalid JSON: ' + e.message, 'error');
+    return;
   }
+
+  const validItems = arr.filter(item => item.german && item.english);
+  if (validItems.length === 0) {
+    showMsg(msg, 'No valid items — each needs "german" and "english".', 'error');
+    return;
+  }
+
+  let added = 0;
+  const newGermanWords = [];
+  validItems.forEach(item => {
+    const exists = vocab.some(v => v.german === item.german);
+    if (!exists) {
+      vocab.push({
+        german: item.german,
+        english: item.english,
+        article: item.article || '',
+        pronunciation: item.pronunciation || '',
+        plural: item.plural || ''
+      });
+      added++;
+    }
+    newGermanWords.push(item.german);
+  });
+
+  if (added === 0) {
+    showMsg(msg, 'All words already exist in vocabulary.', 'info');
+    return;
+  }
+
+  addWordKeysToActiveTheme(newGermanWords);
+  saveState();
+  buildQueue();
+  render();
+  document.getElementById('jsonInput').value = '';
+  const themeNote = activeThemeId ? ' & added to theme' : '';
+  showMsg(msg, `✓ Added ${added} new word${added !== 1 ? 's' : ''}${themeNote}!`, 'success');
 });
 
 // ─── EXPORT / IMPORT PROGRESS ─────────────────────────────────────────
