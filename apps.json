@@ -14,5 +14,13 @@
     "file": "apps/verbs/",
     "icon": "⚡",
     "color": "#FF6B35"
+  },
+  {
+    "id": "cases",
+    "title": "cases",
+    "description": "cases quiz , nominative , accusative, dative and genetive",
+    "file": "apps/cases/",
+    "icon": "♂",
+    "color": "#2cbf0b"
   }
 ]

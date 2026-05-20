@@ -1,0 +1,390 @@
+{
+  "themes": [
+    {
+      "id": "german-articles",
+      "name": "German Article Declension",
+      "description": "Master der, die, das, den, dem, des across all four grammatical cases",
+      "icon": "🇩🇪",
+      "articles": [
+        "der",
+        "die",
+        "das",
+        "den",
+        "dem",
+        "des"
+      ],
+      "totalCards": 16,
+      "masteryPoints": 2,
+      "cards": [
+        {
+          "id": "nom-m",
+          "answer": "der",
+          "case": "Nominative",
+          "gender": "Masculine",
+          "examples": [
+            {
+              "part1": "",
+              "part2": " Mann liest ein Buch am Abend.",
+              "translation": "The man reads a book in the evening."
+            },
+            {
+              "part1": "",
+              "part2": " Hund schläft gerne auf dem Sofa.",
+              "translation": "The dog likes to sleep on the sofa."
+            },
+            {
+              "part1": "",
+              "part2": " Zug kommt um neun Uhr an.",
+              "translation": "The train arrives at nine o'clock."
+            }
+          ]
+        },
+        {
+          "id": "nom-f",
+          "answer": "die",
+          "case": "Nominative",
+          "gender": "Feminine",
+          "examples": [
+            {
+              "part1": "",
+              "part2": " Frau singt ein wunderschönes Lied.",
+              "translation": "The woman sings a beautiful song."
+            },
+            {
+              "part1": "",
+              "part2": " Katze sitzt neugierig am Fenster.",
+              "translation": "The cat sits curiously at the window."
+            },
+            {
+              "part1": "",
+              "part2": " Stadt ist sehr bekannt für ihre Museen.",
+              "translation": "The city is very well-known for its museums."
+            }
+          ]
+        },
+        {
+          "id": "nom-n",
+          "answer": "das",
+          "case": "Nominative",
+          "gender": "Neuter",
+          "examples": [
+            {
+              "part1": "",
+              "part2": " Kind spielt glücklich draußen im Garten.",
+              "translation": "The child plays happily outside in the garden."
+            },
+            {
+              "part1": "",
+              "part2": " Auto steht vor dem Haus.",
+              "translation": "The car is parked in front of the house."
+            },
+            {
+              "part1": "",
+              "part2": " Buch liegt aufgeschlagen auf dem Tisch.",
+              "translation": "The book lies open on the table."
+            }
+          ]
+        },
+        {
+          "id": "nom-p",
+          "answer": "die",
+          "case": "Nominative",
+          "gender": "Plural",
+          "examples": [
+            {
+              "part1": "",
+              "part2": " Kinder spielen laut im Schulhof.",
+              "translation": "The children play loudly in the schoolyard."
+            },
+            {
+              "part1": "",
+              "part2": " Züge fahren immer pünktlich ab.",
+              "translation": "The trains always depart on time."
+            },
+            {
+              "part1": "",
+              "part2": " Bücher stehen ordentlich im Regal.",
+              "translation": "The books stand neatly on the shelf."
+            }
+          ]
+        },
+        {
+          "id": "acc-m",
+          "answer": "den",
+          "case": "Accusative",
+          "gender": "Masculine",
+          "examples": [
+            {
+              "part1": "Ich sehe ",
+              "part2": " Mann jeden Morgen im Café.",
+              "translation": "I see the man every morning at the café."
+            },
+            {
+              "part1": "Er kauft ",
+              "part2": " neuen Wagen in rot.",
+              "translation": "He buys the new car in red."
+            },
+            {
+              "part1": "Sie ruft ",
+              "part2": " Arzt sofort an.",
+              "translation": "She calls the doctor immediately."
+            }
+          ]
+        },
+        {
+          "id": "acc-f",
+          "answer": "die",
+          "case": "Accusative",
+          "gender": "Feminine",
+          "examples": [
+            {
+              "part1": "Ich lese ",
+              "part2": " Zeitung jeden Morgen.",
+              "translation": "I read the newspaper every morning."
+            },
+            {
+              "part1": "Er liebt ",
+              "part2": " Musik aus den 80er Jahren.",
+              "translation": "He loves the music from the 80s."
+            },
+            {
+              "part1": "Wir besuchen ",
+              "part2": " Ausstellung am Wochenende.",
+              "translation": "We visit the exhibition on the weekend."
+            }
+          ]
+        },
+        {
+          "id": "acc-n",
+          "answer": "das",
+          "case": "Accusative",
+          "gender": "Neuter",
+          "examples": [
+            {
+              "part1": "Sie kauft ",
+              "part2": " neue Buch im Buchladen.",
+              "translation": "She buys the new book at the bookstore."
+            },
+            {
+              "part1": "Er öffnet ",
+              "part2": " Fenster wegen der Hitze.",
+              "translation": "He opens the window because of the heat."
+            },
+            {
+              "part1": "Wir essen ",
+              "part2": " frische Brot zum Frühstück.",
+              "translation": "We eat the fresh bread for breakfast."
+            }
+          ]
+        },
+        {
+          "id": "acc-p",
+          "answer": "die",
+          "case": "Accusative",
+          "gender": "Plural",
+          "examples": [
+            {
+              "part1": "Er kauft ",
+              "part2": " Bücher auf dem Flohmarkt.",
+              "translation": "He buys the books at the flea market."
+            },
+            {
+              "part1": "Wir sehen ",
+              "part2": " Vögel im Park.",
+              "translation": "We see the birds in the park."
+            },
+            {
+              "part1": "Sie besucht ",
+              "part2": " Museen sehr gerne.",
+              "translation": "She likes visiting the museums."
+            }
+          ]
+        },
+        {
+          "id": "dat-m",
+          "answer": "dem",
+          "case": "Dative",
+          "gender": "Masculine",
+          "examples": [
+            {
+              "part1": "Er hilft ",
+              "part2": " alten Mann auf der Straße.",
+              "translation": "He helps the old man on the street."
+            },
+            {
+              "part1": "Sie dankt ",
+              "part2": " Lehrer für den guten Unterricht.",
+              "translation": "She thanks the teacher for the good lesson."
+            },
+            {
+              "part1": "Ich gebe ",
+              "part2": " Hund sein Futter.",
+              "translation": "I give the dog its food."
+            }
+          ]
+        },
+        {
+          "id": "dat-f",
+          "answer": "der",
+          "case": "Dative",
+          "gender": "Feminine",
+          "examples": [
+            {
+              "part1": "Er schenkt ",
+              "part2": " Frau eine rote Rose.",
+              "translation": "He gives the woman a red rose."
+            },
+            {
+              "part1": "Sie hilft ",
+              "part2": " Schwester bei den Aufgaben.",
+              "translation": "She helps the sister with the tasks."
+            },
+            {
+              "part1": "Wir folgen ",
+              "part2": " Anleitung Schritt für Schritt.",
+              "translation": "We follow the instruction step by step."
+            }
+          ]
+        },
+        {
+          "id": "dat-n",
+          "answer": "dem",
+          "case": "Dative",
+          "gender": "Neuter",
+          "examples": [
+            {
+              "part1": "Sie liest ",
+              "part2": " Kind eine Gutenachtgeschichte vor.",
+              "translation": "She reads the child a bedtime story."
+            },
+            {
+              "part1": "Er vertraut ",
+              "part2": " Ergebnis nicht wirklich.",
+              "translation": "He doesn't really trust the result."
+            },
+            {
+              "part1": "Ich zeige ",
+              "part2": " Mädchen den richtigen Weg.",
+              "translation": "I show the girl the right way."
+            }
+          ]
+        },
+        {
+          "id": "dat-p",
+          "answer": "den",
+          "case": "Dative",
+          "gender": "Plural",
+          "examples": [
+            {
+              "part1": "Sie hilft ",
+              "part2": " Kindern bei den Schulaufgaben.",
+              "translation": "She helps the children with their schoolwork."
+            },
+            {
+              "part1": "Er erklärt ",
+              "part2": " Studenten den neuen Stoff.",
+              "translation": "He explains the new material to the students."
+            },
+            {
+              "part1": "Wir danken ",
+              "part2": " Lehrern für ihre große Arbeit.",
+              "translation": "We thank the teachers for their great work."
+            }
+          ]
+        },
+        {
+          "id": "gen-m",
+          "answer": "des",
+          "case": "Genitive",
+          "gender": "Masculine",
+          "examples": [
+            {
+              "part1": "Das Auto ",
+              "part2": " Mannes ist dunkelblau.",
+              "translation": "The man's car is dark blue."
+            },
+            {
+              "part1": "Die Stimme ",
+              "part2": " Sängers ist sehr kraftvoll.",
+              "translation": "The singer's voice is very powerful."
+            },
+            {
+              "part1": "Der Name ",
+              "part2": " Professors steht auf der Liste.",
+              "translation": "The professor's name is on the list."
+            }
+          ]
+        },
+        {
+          "id": "gen-f",
+          "answer": "der",
+          "case": "Genitive",
+          "gender": "Feminine",
+          "examples": [
+            {
+              "part1": "Das Haus ",
+              "part2": " Frau ist sehr modern.",
+              "translation": "The woman's house is very modern."
+            },
+            {
+              "part1": "Die Tasche ",
+              "part2": " Lehrerin liegt auf dem Tisch.",
+              "translation": "The teacher's bag is on the table."
+            },
+            {
+              "part1": "Der Titel ",
+              "part2": " Geschichte ist sehr interessant.",
+              "translation": "The title of the story is very interesting."
+            }
+          ]
+        },
+        {
+          "id": "gen-n",
+          "answer": "des",
+          "case": "Genitive",
+          "gender": "Neuter",
+          "examples": [
+            {
+              "part1": "Das Zimmer ",
+              "part2": " Kindes ist immer ordentlich.",
+              "translation": "The child's room is always tidy."
+            },
+            {
+              "part1": "Das Ende ",
+              "part2": " Films war sehr überraschend.",
+              "translation": "The end of the film was very surprising."
+            },
+            {
+              "part1": "Der Inhalt ",
+              "part2": " Buches ist sehr komplex.",
+              "translation": "The content of the book is very complex."
+            }
+          ]
+        },
+        {
+          "id": "gen-p",
+          "answer": "der",
+          "case": "Genitive",
+          "gender": "Plural",
+          "examples": [
+            {
+              "part1": "Die Namen ",
+              "part2": " Kinder stehen an der Tafel.",
+              "translation": "The children's names are on the board."
+            },
+            {
+              "part1": "Die Meinung ",
+              "part2": " Experten ist sehr klar.",
+              "translation": "The experts' opinion is very clear."
+            },
+            {
+              "part1": "Die Häuser ",
+              "part2": " Studenten sind sehr günstig.",
+              "translation": "The students' houses are very affordable."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

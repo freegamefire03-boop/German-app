@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Der · Die · Das</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-top">
+      <a href="index.html" class="header-icon" title="Back to themes">🏠</a>
+      <h1 class="title">Der · Die · Das</h1>
+      <button class="header-icon" id="headerAddBtn" title="Add examples">＋</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-val" id="statLeft">0</div>
+      <div class="stat-lbl">Left</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statCorrect">0</div>
+      <div class="stat-lbl">Correct</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statStreak">0</div>
+      <div class="stat-lbl">🔥 Streak</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Progress</span>
+      <span class="progress-count" id="progCount">0 / 0</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="quizArea">
+    <div class="q-card" id="qCard">
+      <div class="card-header">
+        <div class="badges">
+          <span class="badge badge-case"   id="badgeCase">—</span>
+          <span class="badge badge-gender" id="badgeGender">—</span>
+        </div>
+        <div class="mastery">
+          <span class="mastery-lbl">Mastery</span>
+          <div class="dot" id="dot1"></div>
+          <div class="dot" id="dot2"></div>
+        </div>
+      </div>
+
+      <div class="sentence" id="sentence"></div>
+
+      <button class="trans-toggle" id="transBtn">
+        <span class="trans-arrow">▶</span>&nbsp;Show translation
+      </button>
+      <div class="trans-text" id="transText"></div>
+
+      <div class="answer-grid" id="answerGrid"></div>
+
+      <div class="feedback"        id="feedback"></div>
+      <div class="removed-banner"  id="removedBanner">✓ Mastered! This card has been removed from the pool. 🎉</div>
+    </div>
+
+    <button class="next-btn" id="nextBtn">Next Question →</button>
+  </div>
+
+  <div class="completion" id="compScreen">
+    <div class="comp-title">🎉 Ausgezeichnet!</div>
+    <div class="comp-stats" id="compStats"></div>
+    <button class="restart-btn">Restart Quiz</button>
+  </div>
+
+  <div class="ref-section">
+    <button class="ref-toggle-btn">📋 Show / Hide Reference Table</button>
+    <div class="ref-wrap" id="refWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Masculine (der)</th>
+            <th>Feminine (die)</th>
+            <th>Neuter (das)</th>
+            <th>Plural (die)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Nominative</td><td>der</td><td>die</td><td>das</td><td>die</td></tr>
+          <tr><td>Accusative</td><td>den</td><td>die</td><td>das</td><td>die</td></tr>
+          <tr><td>Dative</td><td>dem</td><td>der</td><td>dem</td><td>den (+n)</td></tr>
+          <tr><td>Genitive</td><td>des (+s)</td><td>der</td><td>des (+s)</td><td>der</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Add-example modal -->
+<div class="modal-overlay" id="addOverlay"></div>
+<div class="modal" id="addModal">
+  <div class="modal-header">
+    <span class="modal-title">Add Examples</span>
+    <button class="modal-close" id="addModalClose">&times;</button>
+  </div>
+  <div class="add-modal-body">
+    <p class="add-modal-desc">Paste a JSON array of examples to append to this theme. Each example needs an answer, part1, and part2.</p>
+    <button class="template-btn" id="copyTemplateBtn">📋 Copy Empty Template</button>
+    <textarea class="add-textarea" id="addTextarea" placeholder='Paste your JSON array here...'></textarea>
+    <div class="add-feedback" id="addFeedback"></div>
+    <div class="preview-section" id="previewSection">
+      <div class="preview-title">Appended Examples</div>
+      <div class="preview-list" id="previewList"></div>
+    </div>
+    <button class="add-submit-btn" id="addSubmitBtn">Append Examples</button>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
