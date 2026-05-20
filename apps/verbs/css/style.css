@@ -596,3 +596,133 @@
             .modal-box { padding: 24px 20px; max-width: 95vw; }
             .celebration-card { padding: 32px 24px 22px; width: 90vw; }
         }
+
+        /* ─── CUSTOM QUIZ MODAL STYLES ─── */
+        .modal-box-wide {
+            max-width: 520px;
+        }
+        .modal-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+        }
+        .json-template-wrapper {
+            position: relative;
+            background: var(--bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .json-template-wrapper pre {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--surface-light);
+            color: var(--text);
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        .paste-area {
+            margin-bottom: 16px;
+        }
+        .paste-area textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .paste-area textarea:focus {
+            border-color: var(--accent);
+        }
+        .paste-area textarea::placeholder {
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* ─── CUSTOM QUIZ SENTENCE UI ─── */
+        .custom-quiz-sentence {
+            background: var(--bg);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .custom-quiz-sentence .sentence-verb {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .custom-quiz-sentence .sentence-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+        }
+        .custom-quiz-sentence .sentence-text .blank-input {
+            width: 100px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .custom-quiz-sentence .sentence-text .blank-input:focus {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.08);
+        }
+        .custom-quiz-sentence .sentence-text .blank-input.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+        }
+        .custom-quiz-sentence .sentence-text .blank-input.incorrect {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+        }
+        .custom-quiz-sentence .sentence-translation {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 6px;
+            font-style: italic;
+        }
+        #customQuizMsg {
+            margin-top: 12px;
+        }

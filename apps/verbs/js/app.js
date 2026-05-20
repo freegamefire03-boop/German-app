@@ -66,6 +66,19 @@
               forms: { ich: "tue", du: "tust", "er/sie/es": "tut", wir: "tun", ihr: "tut", "sie/Sie": "tun" } }
         ];
 
+        const CUSTOM_QUIZ_SENTENCES = [
+            { verb: "machen", sentence: "Was {{blank}} du heute Abend?", answer: "machst", translation: "What are you doing tonight?" },
+            { verb: "sein", sentence: "Ich {{blank}} müde.", answer: "bin", translation: "I am tired." },
+            { verb: "haben", sentence: "Du {{blank}} kein Geld.", answer: "hast", translation: "You have no money." },
+            { verb: "gehen", sentence: "Wir {{blank}} nach Hause.", answer: "gehen", translation: "We are going home." },
+            { verb: "kommen", sentence: "Woher {{blank}} du?", answer: "kommst", translation: "Where are you from?" },
+            { verb: "essen", sentence: "Er {{blank}} gern Pizza.", answer: "isst", translation: "He likes to eat pizza." },
+            { verb: "trinken", sentence: "Sie {{blank}} einen Kaffee.", answer: "trinkt", translation: "She is drinking a coffee." },
+            { verb: "sprechen", sentence: "{{blank}} Sie Deutsch?", answer: "Sprechen", translation: "Do you speak German?" },
+            { verb: "lesen", sentence: "Ich {{blank}} ein Buch.", answer: "lese", translation: "I am reading a book." },
+            { verb: "schreiben", sentence: "Du {{blank}} eine E-Mail.", answer: "schreibst", translation: "You are writing an email." }
+        ];
+
         const PRONOUNS = ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'];
 
         // ─── STATE ──────────────────────────────────────────────────────────
@@ -75,6 +88,9 @@
         let streak = 0;
         let currentVerb = null;
         let checked = false;
+
+        let customQuizData = [];
+        let customQuizChecked = false;
 
         const LS_VERBS_MASTERED = 'chronos_mastered';
         const LS_VERBS_INDEX = 'chronos_index';
@@ -318,6 +334,203 @@
                 timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
             };
         }
+
+        // ─── CUSTOM QUIZ SENTENCE SYSTEM ─────────────────────────────────────
+        function shuffleArray(arr) {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function openAddQuizModal() {
+            document.getElementById('addQuizModal').classList.add('open');
+            document.getElementById('jsonPasteInput').value = '';
+        }
+
+        function closeAddQuizModal() {
+            document.getElementById('addQuizModal').classList.remove('open');
+        }
+
+        function copyJsonTemplate() {
+            const template = `[
+  {
+    "verb": "machen",
+    "sentence": "Was {{blank}} du heute Abend?",
+    "answer": "machst",
+    "translation": "What are you doing tonight?"
+  }
+]`;
+            navigator.clipboard.writeText(template).then(() => {
+                const btn = document.getElementById('btnCopyJson');
+                btn.textContent = '\u2713 Copied!';
+                setTimeout(() => { btn.textContent = '\ud83d\udccb Copy'; }, 2000);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = template;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                const btn = document.getElementById('btnCopyJson');
+                btn.textContent = '\u2713 Copied!';
+                setTimeout(() => { btn.textContent = '\ud83d\udccb Copy'; }, 2000);
+            });
+        }
+
+        function loadCustomQuiz() {
+            const pasteInput = document.getElementById('jsonPasteInput');
+            const raw = pasteInput.value.trim();
+
+            let data;
+            try {
+                data = JSON.parse(raw);
+            } catch (e) {
+                if (CUSTOM_QUIZ_SENTENCES.length >= 3) {
+                    data = [...CUSTOM_QUIZ_SENTENCES];
+                } else {
+                    alert('Invalid JSON. Please paste valid JSON or use the default quiz.');
+                    return;
+                }
+            }
+
+            if (!Array.isArray(data) || data.length === 0) {
+                alert('JSON must be an array with at least one sentence.');
+                return;
+            }
+
+            for (const item of data) {
+                if (!item.verb || !item.sentence || !item.answer || !item.translation) {
+                    alert('Each item must have: verb, sentence, answer, translation');
+                    return;
+                }
+                if (!item.sentence.includes('{{blank}}')) {
+                    alert('Each sentence must contain the {{blank}} placeholder.');
+                    return;
+                }
+            }
+
+            customQuizData = shuffleArray(data).slice(0, 3);
+            closeAddQuizModal();
+            renderCustomQuiz();
+        }
+
+        function renderCustomQuiz() {
+            customQuizChecked = false;
+            const content = document.getElementById('customQuizContent');
+            const msg = document.getElementById('customQuizMsg');
+            msg.textContent = '';
+            msg.className = 'msg-area';
+
+            let html = '';
+            customQuizData.forEach((item, index) => {
+                const parts = item.sentence.split('{{blank}}');
+                html += `<div class="custom-quiz-sentence" data-index="${index}">
+                    <div class="sentence-verb">${item.verb}</div>
+                    <div class="sentence-text">
+                        <span>${parts[0]}</span>
+                        <input type="text" class="blank-input" data-index="${index}" data-answer="${item.answer}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="..." />
+                        <span>${parts[1] || ''}</span>
+                    </div>
+                    <div class="sentence-translation">${item.translation}</div>
+                </div>`;
+            });
+
+            content.innerHTML = html;
+
+            const inputs = content.querySelectorAll('.blank-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', checkCustomQuizInputsFilled);
+                input.addEventListener('click', handleCustomQuizInputClick);
+            });
+
+            document.getElementById('btnCheckCustomQuiz').disabled = true;
+            document.getElementById('customQuizModal').classList.add('open');
+        }
+
+        function checkCustomQuizInputsFilled() {
+            const inputs = document.querySelectorAll('#customQuizContent .blank-input');
+            let allFilled = true;
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    allFilled = false;
+                }
+            });
+            document.getElementById('btnCheckCustomQuiz').disabled = !allFilled;
+        }
+
+        function handleCustomQuizInputClick(e) {
+            if (!customQuizChecked) return;
+            const input = e.target;
+            if (input.classList.contains('incorrect')) {
+                const correctAnswer = input.dataset.answer;
+                if (input.value.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+                    input.value = input.dataset.userAnswer || '';
+                } else {
+                    input.dataset.userAnswer = input.value;
+                    input.value = correctAnswer;
+                }
+            }
+        }
+
+        function checkCustomQuizAnswers() {
+            if (customQuizChecked) return;
+            customQuizChecked = true;
+
+            const inputs = document.querySelectorAll('#customQuizContent .blank-input');
+            let allCorrect = true;
+
+            inputs.forEach(input => {
+                const userAnswer = input.value.trim();
+                const correctAnswer = input.dataset.answer;
+                input.dataset.userAnswer = userAnswer;
+
+                if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                    input.classList.remove('incorrect');
+                    input.classList.add('correct');
+                    input.readOnly = true;
+                } else {
+                    input.classList.remove('correct');
+                    input.classList.add('incorrect');
+                    allCorrect = false;
+                }
+            });
+
+            const msg = document.getElementById('customQuizMsg');
+            if (allCorrect) {
+                msg.textContent = '\u2713 Perfect! All answers correct!';
+                msg.className = 'msg-area success';
+                vibrate(CONFIG.VIBRATE_SUCCESS);
+            } else {
+                msg.textContent = '\u2717 Some incorrect \u2014 click on a wrong answer to toggle and see the correct one.';
+                msg.className = 'msg-area error';
+                vibrate(CONFIG.VIBRATE_ERROR);
+            }
+
+            document.getElementById('btnCheckCustomQuiz').disabled = true;
+        }
+
+        function closeCustomQuiz() {
+            document.getElementById('customQuizModal').classList.remove('open');
+            customQuizData = [];
+            customQuizChecked = false;
+        }
+
+        document.getElementById('btnAddQuiz').addEventListener('click', openAddQuizModal);
+        document.getElementById('btnCancelQuiz').addEventListener('click', closeAddQuizModal);
+        document.getElementById('btnCopyJson').addEventListener('click', copyJsonTemplate);
+        document.getElementById('btnLoadQuiz').addEventListener('click', loadCustomQuiz);
+        document.getElementById('btnCheckCustomQuiz').addEventListener('click', checkCustomQuizAnswers);
+        document.getElementById('btnCloseCustomQuiz').addEventListener('click', closeCustomQuiz);
+
+        document.getElementById('addQuizModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('addQuizModal')) closeAddQuizModal();
+        });
+        document.getElementById('customQuizModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('customQuizModal')) closeCustomQuiz();
+        });
 
         // ─── INIT ────────────────────────────────────────────────────────────
         const app = {

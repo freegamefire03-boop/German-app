@@ -23,6 +23,7 @@
             </div>
             <div class="timer-pill" id="timerPill">⏱ 10:00</div>
             <div class="header-actions">
+                <button class="icon-btn" id="btnAddQuiz" title="Add Custom Quiz">+</button>
                 <button class="icon-btn" id="btnProgress" title="Progress">📊</button>
             </div>
         </div>
@@ -68,6 +69,43 @@
                 <button class="modal-secondary" id="modalReset">Reset All</button>
                 <button class="modal-primary" id="modalClose">Close</button>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addQuizModal">
+        <div class="modal-box modal-box-wide">
+            <h3>➕ Add Custom Quiz Sentences</h3>
+            <p class="modal-subtitle">Copy the JSON template below, fill in your sentences, then paste it back.</p>
+            <div class="json-template-wrapper">
+                <pre id="jsonTemplate">[
+  {
+    "verb": "machen",
+    "sentence": "Was {{blank}} du heute Abend?",
+    "answer": "machst",
+    "translation": "What are you doing tonight?"
+  }
+]</pre>
+                <button class="copy-btn" id="btnCopyJson" title="Copy JSON template">📋 Copy</button>
+            </div>
+            <div class="paste-area">
+                <textarea id="jsonPasteInput" placeholder="Paste your filled JSON here..."></textarea>
+            </div>
+            <div class="modal-btns">
+                <button class="modal-secondary" id="btnCancelQuiz">Cancel</button>
+                <button class="modal-primary" id="btnLoadQuiz">Load Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customQuizModal">
+        <div class="modal-box modal-box-wide">
+            <h3>📝 Custom Sentence Quiz</h3>
+            <div id="customQuizContent"></div>
+            <div class="modal-btns">
+                <button class="modal-secondary" id="btnCloseCustomQuiz">Close</button>
+                <button class="modal-primary" id="btnCheckCustomQuiz" disabled>Check Answers</button>
+            </div>
+            <div class="msg-area" id="customQuizMsg"></div>
         </div>
     </div>
 
