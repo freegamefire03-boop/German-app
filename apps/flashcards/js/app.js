@@ -79,8 +79,15 @@ function addWordKeysToActiveTheme(germanWords) {
 function showFlashcardView() {
   document.getElementById('themeSelectView').classList.remove('active');
   document.getElementById('flashcardView').classList.add('active');
-  if (typeof initTimerSession === 'function') {
-    initTimerSession('flashcards');
+  if (typeof loadTimer === 'function') {
+    loadTimer();
+    if (!timerState.completed && !timerState.running) {
+      startTimer();
+    } else if (timerState.running) {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(timerTick, 1000);
+      if (timerTickCb) timerTickCb(getRemainingSeconds());
+    }
   }
 }
 
@@ -1130,14 +1137,7 @@ document.getElementById('wmBackBtn').addEventListener('click', () => {
   closeWordManage();
 });
 
-// ─── WORD MANAGEMENT REGISTER SERVICE WORKER ──────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
-
-// ─── TIMER INTEGRATION ─────────────────────────────────────────────
+// ─── INIT ─────────────────────────────────────────────────────────────
 const timerPill = document.getElementById('timerPill');
 if (timerPill) {
   timerTickCb = (remaining) => {

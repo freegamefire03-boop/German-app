@@ -1,7 +1,6 @@
 const LS_TIMER  = 'deutsch_timer';
 const LS_STREAK = 'deutsch_streak';
 
-// ─── Streak ──────────────────────────────────────────────────────────
 let streakData = loadStreak();
 
 function loadStreak() {
@@ -27,7 +26,6 @@ function updateStreak() {
   return streakData.current;
 }
 
-// ─── Timer State ─────────────────────────────────────────────────────
 let timerState = { running: false, elapsed: 0, startTime: null, completed: false };
 let timerInterval = null;
 let timerTickCb = null;
@@ -116,28 +114,9 @@ function timerTick() {
     if (typeof showSessionCelebration === 'function') {
       showSessionCelebration(streak, { ...sessionStats });
     }
-    syncSessionProgress(streak);
   }
 }
 
-function syncSessionProgress(streak) {
-  const payload = {
-    date: new Date().toISOString().slice(0, 10),
-    minutes: Math.floor(CONFIG.TIMER_DURATION / 60),
-    streak: streak || streakData.current,
-    wordsPassed: sessionStats.wordsPassed || 0,
-    genderMastered: sessionStats.genderMastered || 0,
-    pluralMastered: sessionStats.pluralMastered || 0,
-  };
-  if (!CONFIG.WORKER_URL || CONFIG.WORKER_URL.includes('your-worker')) return;
-  fetch(CONFIG.WORKER_URL + '/progress', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  }).catch(() => {});
-}
-
-// ─── Duolingo-Style Celebration ──────────────────────────────────────
 function showSessionCelebration(streak, stats) {
   const existing = document.getElementById('session-celebration');
   if (existing) existing.remove();
@@ -193,90 +172,5 @@ function closeCelebration() {
   if (el) {
     el.classList.remove('open');
     setTimeout(() => el.remove(), 300);
-  }
-}
-
-// ─── Notification Settings ───────────────────────────────────────────
-const LS_NOTIF_SETTINGS = 'deutsch_notification_settings';
-
-let notifSettings = loadNotifSettings();
-
-function loadNotifSettings() {
-  try { return JSON.parse(localStorage.getItem(LS_NOTIF_SETTINGS)) || { flashcards: true, verbs: true }; }
-  catch { return { flashcards: true, verbs: true }; }
-}
-
-function saveNotifSettings() {
-  localStorage.setItem(LS_NOTIF_SETTINGS, JSON.stringify(notifSettings));
-}
-
-function isNotifEnabled(appId) {
-  return notifSettings[appId] !== false;
-}
-
-// ─── Push Subscription ───────────────────────────────────────────────
-async function subscribeToPush(appId) {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { console.warn('Push not supported'); return; }
-  if (!notifSettings[appId]) return;
-
-  let permission = Notification.permission;
-  if (permission === 'denied') return;
-  if (permission === 'default') {
-    permission = await Notification.requestPermission();
-    if (permission !== 'granted') return;
-  }
-
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    if (sub) {
-      sub = await sub.unsubscribe();
-    }
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(CONFIG.VAPID_PUBLIC_KEY),
-    });
-    // Send subscription to worker
-    if (!CONFIG.WORKER_URL || CONFIG.WORKER_URL.includes('your-worker')) return;
-    await fetch(CONFIG.WORKER_URL + '/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ appId, subscription: sub.toJSON() }),
-    });
-  } catch (e) {
-    console.warn('Push subscription failed:', e);
-  }
-}
-
-async function unsubscribeFromPush(appId) {
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) await sub.unsubscribe();
-  } catch {}
-}
-
-function urlBase64ToUint8Array(base64) {
-  const padding = '='.repeat((4 - base64.length % 4) % 4);
-  const b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(b64);
-  return Uint8Array.from(raw, c => c.charCodeAt(0));
-}
-
-// ─── Init (called on app load) ───────────────────────────────────────
-function initTimerSession(appId) {
-  loadTimer();
-  notifSettings = loadNotifSettings();
-  if (!timerState.completed && !timerState.running) {
-    startTimer();
-  } else if (timerState.running) {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(timerTick, 1000);
-    if (timerTickCb) timerTickCb(getRemainingSeconds());
-  }
-  if (isNotifEnabled(appId)) {
-    subscribeToPush(appId);
-  } else {
-    unsubscribeFromPush(appId);
   }
 }

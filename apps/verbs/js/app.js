@@ -276,8 +276,15 @@
             document.getElementById('splashScreen').style.display = 'none';
             document.getElementById('mainContent').classList.add('visible');
             loadVerb(getNextVerb());
-            if (typeof initTimerSession === 'function') {
-                initTimerSession('verbs');
+            if (typeof loadTimer === 'function') {
+              loadTimer();
+              if (!timerState.completed && !timerState.running) {
+                startTimer();
+              } else if (timerState.running) {
+                clearInterval(timerInterval);
+                timerInterval = setInterval(timerTick, 1000);
+                if (timerTickCb) timerTickCb(getRemainingSeconds());
+              }
             }
         });
 
@@ -359,11 +366,5 @@
                 }
             }
         };
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(() => {});
-            });
-        }
 
         app.init();
