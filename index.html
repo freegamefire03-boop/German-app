@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Deutsch Lernen</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0D0C14">
@@ -17,8 +17,8 @@
     --border:rgba(255,255,255,0.07);
     --orange:#FF6B35;--mint:#00E5C3;--violet:#A78BFA;--rose:#FB7185;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:#fff;font-family:'Nunito',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,0) 0 40px}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:#fff;font-family:'Nunito',sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,12px) 0 calc(40px + env(safe-area-inset-bottom,0));touch-action:manipulation;overflow-x:hidden}
   .hub{width:100%;max-width:420px;padding:0 20px}
   .hub-header{text-align:center;padding:40px 0 28px;position:relative}
   .hub-header-row{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -28,23 +28,22 @@
   .hub-divider::before,.hub-divider::after{content:'';flex:1;height:1px;background:var(--border)}
   .hub-divider span{font-size:.65rem;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.18);text-transform:uppercase;white-space:nowrap}
   .app-list{display:flex;flex-direction:column;gap:14px}
-  .app-card{display:flex;align-items:center;gap:18px;padding:22px 20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;text-decoration:none;color:#fff;cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+  .app-card{display:flex;align-items:center;gap:18px;padding:22px 20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;text-decoration:none;color:#fff;cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;min-height:44px}
   .app-card::before{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(ellipse at 0% 50%,var(--card-glow,rgba(167,139,250,.06)) 0%,transparent 70%);pointer-events:none}
-  .app-card:hover{transform:translateY(-3px);border-color:var(--card-border,rgba(167,139,250,.35));box-shadow:0 12px 40px rgba(0,0,0,.4)}
-  .app-card:active{transform:scale(.98)}
+  .app-card:active{transform:scale(.97);transition-duration:.1s}
   .app-icon{font-size:2.2rem;width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border-radius:14px;border:1px solid var(--border);flex-shrink:0}
-  .app-info{flex:1}
+  .app-info{flex:1;min-width:0}
   .app-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:2px;line-height:1;margin-bottom:5px}
-  .app-desc{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.35);line-height:1.4}
-  .app-arrow{font-size:1.4rem;color:rgba(255,255,255,.2);transition:all .2s;flex-shrink:0}
-  .app-card:hover .app-arrow{color:rgba(255,255,255,.6);transform:translateX(3px)}
+  .app-desc{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.35);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .app-arrow{font-size:1.4rem;color:rgba(255,255,255,.2);flex-shrink:0}
+  .app-card:active .app-arrow{color:rgba(255,255,255,.6);transform:translateX(3px)}
   .hub-msg{text-align:center;padding:40px 0;color:rgba(255,255,255,.3);font-size:.85rem;font-weight:600}
   .hub-footer{text-align:center;margin-top:36px;font-size:.62rem;letter-spacing:2px;color:rgba(255,255,255,.1);text-transform:uppercase;font-weight:700}
 
-  .update-bar{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--violet);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:14px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);font-size:.85rem;font-weight:600}
+  .update-bar{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--violet);color:#fff;padding:12px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0));display:flex;align-items:center;justify-content:center;gap:14px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);font-size:.85rem;font-weight:600}
   .update-bar.show{transform:translateY(0)}
-  .update-bar button{background:#fff;color:var(--violet);border:none;border-radius:10px;padding:8px 18px;font-weight:800;font-size:.8rem;cursor:pointer;font-family:'Nunito',sans-serif}
-  .update-bar button:hover{opacity:.9}
+  .update-bar button{background:#fff;color:var(--violet);border:none;border-radius:10px;padding:10px 20px;font-weight:800;font-size:.85rem;cursor:pointer;font-family:'Nunito',sans-serif;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .update-bar button:active{opacity:.8}
 </style>
 </head>
 <body>
@@ -56,7 +55,7 @@
     <div class="hub-subtitle">Choose an app to start</div>
   </div>
   <div class="hub-divider"><span>Apps</span></div>
-  <div class="update-bar" id="updateBar">🔄 A new version is available <button id="btnUpdate">Update</button></div>
+  <div class="update-bar" id="updateBar">A new version is available <button id="btnUpdate">Update</button></div>
   <div class="app-list" id="appList"><div class="hub-msg">Loading…</div></div>
   <div class="hub-footer">deutsch lernen · progress saved locally per app</div>
 </div>
@@ -66,7 +65,8 @@
 async function loadApps() {
   const list = document.getElementById('appList');
   try {
-    const res  = await fetch('apps.json?_=' + Date.now());
+    const res  = await fetch('apps.json');
+    if (!res.ok) throw new Error('fetch failed');
     const appsData = await res.json();
     list.innerHTML = appsData.map(app => `
       <a class="app-card" href="${app.file}"
@@ -79,9 +79,10 @@ async function loadApps() {
         <div class="app-arrow">›</div>
       </a>`).join('');
   } catch(e) {
-    list.innerHTML = `<div class="hub-msg">Could not load apps.json</div>`;
+    list.innerHTML = `<div class="hub-msg">Could not load apps — check connection</div>`;
   }
 }
+
 if ('serviceWorker' in navigator) {
   let swRegistration = null;
   window.addEventListener('load', () => {
@@ -91,18 +92,22 @@ if ('serviceWorker' in navigator) {
         const newSW = reg.installing;
         newSW.addEventListener('statechange', () => {
           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            document.getElementById('updateBar').classList.add('show');
+            const bar = document.getElementById('updateBar');
+            if (bar) bar.classList.add('show');
           }
         });
       });
     }).catch(() => {});
   });
 
-  document.getElementById('btnUpdate').addEventListener('click', () => {
-    if (swRegistration && swRegistration.waiting) {
-      swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-  });
+  const btnUpdate = document.getElementById('btnUpdate');
+  if (btnUpdate) {
+    btnUpdate.addEventListener('click', () => {
+      if (swRegistration && swRegistration.waiting) {
+        swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    });
+  }
 
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -111,6 +116,7 @@ if ('serviceWorker' in navigator) {
     window.location.reload();
   });
 }
+
 loadApps();
 </script>
 </body>

@@ -116,14 +116,14 @@ function renderThemeSelectList() {
   const allMastered = passed.size;
 
   let html = `<div class="ts-card" onclick="selectTheme('__all__')">
-    <div class="ts-icon">📚</div>
+    <div class="ts-icon">\uD83D\uDCDA</div>
     <div class="ts-info">
       <div class="ts-title">All Words</div>
-      <div class="ts-desc">${allCount} words · ${allMastered} mastered</div>
+      <div class="ts-desc">${allCount} words \u00B7 ${allMastered} mastered</div>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('__all__')" title="Manage words">✎</button>
-      <div class="ts-arrow">›</div>
+      <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('__all__')" title="Manage words">\u270E</button>
+      <div class="ts-arrow">\u203A</div>
     </div>
   </div>`;
 
@@ -133,14 +133,14 @@ function renderThemeSelectList() {
       .map((w, i) => ({ w, i }))
       .filter(({ w, i }) => t.wordKeys.includes(w.german) && passed.has(i)).length;
     html += `<div class="ts-card" onclick="selectTheme('${t.id}')">
-      <div class="ts-icon">🏷️</div>
+      <div class="ts-icon">\uD83C\uDFF7\uFE0F</div>
       <div class="ts-info">
-        <div class="ts-title">${t.name}</div>
-        <div class="ts-desc">${count} words · ${mastered} mastered</div>
+        <div class="ts-title">${escHtml(t.name)}</div>
+        <div class="ts-desc">${count} words \u00B7 ${mastered} mastered</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
-        <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">✎</button>
-        <div class="ts-arrow">›</div>
+        <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">\u270E</button>
+        <div class="ts-arrow">\u203A</div>
       </div>
     </div>`;
   });
@@ -150,6 +150,12 @@ function renderThemeSelectList() {
   }
 
   list.innerHTML = html;
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
 }
 
 // ─── MODAL ────────────────────────────────────────────────────────────
@@ -197,7 +203,9 @@ async function loadState() {
     }
   } else {
     vocab = await fetchDefaultWords();
-    localStorage.setItem(LS_VOCAB, JSON.stringify(vocab));
+    if (vocab.length > 0) {
+      localStorage.setItem(LS_VOCAB, JSON.stringify(vocab));
+    }
   }
 
   try {
@@ -248,6 +256,7 @@ function render() {
   }
   const idx = queue[currentIndex];
   const word = vocab[idx];
+  if (!word) { buildQueue(); render(); return; }
 
   isFlipped = false;
   const scene = document.getElementById('cardScene');
@@ -278,10 +287,10 @@ function showEmptyState() {
   document.getElementById('cardButtons').style.display = 'none';
   document.getElementById('cardArea').innerHTML = `
     <div class="empty-state">
-      <div class="emoji">🎉</div>
+      <div class="emoji">\uD83C\uDF89</div>
       <p style="color:var(--yellow);font-size:1.2rem;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;margin-bottom:6px;">All Words Mastered!</p>
-      <p>Amazing job — you've passed all ${vocab.length} words.</p>
-      <button class="btn-primary" style="margin-top:16px" onclick="resetPassed()">Start Fresh 🔄</button>
+      <p>Amazing job \u2014 you've passed all ${vocab.length} words.</p>
+      <button class="btn-primary" style="margin-top:16px" onclick="resetPassed()">Start Fresh \uD83D\uDD04</button>
     </div>`;
 }
 
@@ -306,12 +315,17 @@ document.getElementById('cardScene').addEventListener('click', () => {
 });
 
 // ─── PASS / REPEAT ────────────────────────────────────────────────────
+function vibrate(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
 document.getElementById('btnPass').addEventListener('click', () => {
   const idx = queue[currentIndex];
   passed.add(idx);
   sessionCount++;
   sessionStats.wordsPassed++;
   saveState();
+  vibrate(CONFIG.VIBRATE_SUCCESS);
   next();
 });
 
@@ -344,13 +358,13 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
     arr = JSON.parse(raw);
     if (!Array.isArray(arr)) throw new Error('Expected an array');
   } catch (e) {
-    showMsg(msg, '✗ Invalid JSON: ' + e.message, 'error');
+    showMsg(msg, '\u2717 Invalid JSON: ' + e.message, 'error');
     return;
   }
 
   const validItems = arr.filter(item => item.german && item.english);
   if (validItems.length === 0) {
-    showMsg(msg, 'No valid items — each needs "german" and "english".', 'error');
+    showMsg(msg, 'No valid items \u2014 each needs "german" and "english".', 'error');
     return;
   }
 
@@ -382,7 +396,7 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
   render();
   document.getElementById('jsonInput').value = '';
   const themeNote = activeThemeId ? ' & added to theme' : '';
-  showMsg(msg, `✓ Added ${added} new word${added !== 1 ? 's' : ''}${themeNote}!`, 'success');
+  showMsg(msg, `\u2713 Added ${added} new word${added !== 1 ? 's' : ''}${themeNote}!`, 'success');
 });
 
 // ─── EXPORT / IMPORT PROGRESS ─────────────────────────────────────────
@@ -403,7 +417,7 @@ document.getElementById('btnExport').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob);
   a.download = 'deutsch_progress_' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
-  showMsg(document.getElementById('msgSave'), '✓ Progress file downloaded!', 'success');
+  showMsg(document.getElementById('msgSave'), '\u2713 Progress file downloaded!', 'success');
 });
 
 document.getElementById('btnUploadTrigger').addEventListener('click', () => {
@@ -417,7 +431,8 @@ document.getElementById('fileUpload').addEventListener('change', (e) => {
   reader.onload = (evt) => {
     try {
       const data = JSON.parse(evt.target.result);
-      if (!data.vocab || !data.passed) throw new Error('Invalid progress file format');
+      if (!Array.isArray(data.vocab)) throw new Error('vocab must be an array');
+      if (!Array.isArray(data.passed)) throw new Error('passed must be an array');
       vocab  = data.vocab;
       passed = new Set(data.passed);
       if (data.themes) { themes = data.themes; saveThemes(); }
@@ -440,9 +455,9 @@ document.getElementById('fileUpload').addEventListener('change', (e) => {
       if (activeThemeId) {
         showFlashcardView();
       }
-      showMsg(document.getElementById('msgSave'), `✓ Loaded ${vocab.length} words, ${passed.size} mastered.`, 'success');
+      showMsg(document.getElementById('msgSave'), `\u2713 Loaded ${vocab.length} words, ${passed.size} mastered.`, 'success');
     } catch(e) {
-      showMsg(document.getElementById('msgSave'), '✗ Could not read file: ' + e.message, 'error');
+      showMsg(document.getElementById('msgSave'), '\u2717 Could not read file: ' + e.message, 'error');
     }
     e.target.value = '';
   };
@@ -486,10 +501,9 @@ document.getElementById('btnCopyTemplate').addEventListener('click', () => {
 ]`;
   navigator.clipboard.writeText(template).then(() => {
     const btn = document.getElementById('btnCopyTemplate');
-    btn.textContent = '✓';
-    setTimeout(() => { btn.textContent = '📋'; }, 1500);
+    btn.textContent = '\u2713';
+    setTimeout(() => { btn.textContent = '\uD83D\uDCCB'; }, 1500);
   }).catch(() => {
-    // Fallback for older browsers
     const ta = document.createElement('textarea');
     ta.value = template;
     ta.style.position = 'fixed';
@@ -499,8 +513,8 @@ document.getElementById('btnCopyTemplate').addEventListener('click', () => {
     document.execCommand('copy');
     document.body.removeChild(ta);
     const btn = document.getElementById('btnCopyTemplate');
-    btn.textContent = '✓';
-    setTimeout(() => { btn.textContent = '📋'; }, 1500);
+    btn.textContent = '\u2713';
+    setTimeout(() => { btn.textContent = '\uD83D\uDCCB'; }, 1500);
   });
 });
 
@@ -529,7 +543,7 @@ function showMsg(el, text, type) {
 
 // ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
-  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
   if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     e.preventDefault();
     document.getElementById('cardScene').click();
@@ -638,20 +652,21 @@ function renderGenderQuiz() {
   const area = document.getElementById('quizCardArea');
 
   if (passed.size === 0) {
-    area.innerHTML = emptyHtml('📚', 'No mastered words yet.', 'Hit <strong>Got it!</strong> on flashcards first — they appear here for gender practice.');
+    area.innerHTML = emptyHtml('\uD83D\uDCDA', 'No mastered words yet.', 'Hit <strong>Got it!</strong> on flashcards first \u2014 they appear here for gender practice.');
     return;
   }
 
   const pool = buildPool(genderMastered);
 
   if (pool.length === 0) {
-    area.innerHTML = emptyHtml('🏆', `All ${genderMastered.size} gender${genderMastered.size !== 1 ? 's' : ''} mastered!`, 'Keep adding vocabulary to keep going.');
+    area.innerHTML = emptyHtml('\uD83C\uDFC6', `All ${genderMastered.size} gender${genderMastered.size !== 1 ? 's' : ''} mastered!`, 'Keep adding vocabulary to keep going.');
     return;
   }
 
   genderCurrent = pool[0];
   quizAnswered  = false;
   const word    = vocab[genderCurrent];
+  if (!word) { renderGenderQuiz(); return; }
   const count   = genderProgress[genderCurrent] || 0;
 
   let pips = '';
@@ -659,8 +674,8 @@ function renderGenderQuiz() {
 
   area.innerHTML = `
     <div class="quiz-card" id="quizCard">
-      <div class="quiz-noun">${word.german}</div>
-      <div class="quiz-noun-english">${word.english}</div>
+      <div class="quiz-noun">${escHtml(word.german)}</div>
+      <div class="quiz-noun-english">${escHtml(word.english)}</div>
       <div class="quiz-progress-pips">${pips}</div>
       <div class="quiz-feedback" id="quizFeedback"></div>
     </div>
@@ -669,7 +684,7 @@ function renderGenderQuiz() {
       <button class="btn-article die-btn" onclick="genderAnswer('die')">die</button>
       <button class="btn-article das-btn" onclick="genderAnswer('das')">das</button>
     </div>
-    <button class="quiz-next-btn" id="quizNextBtn" onclick="renderGenderQuiz()">Next →</button>
+    <button class="quiz-next-btn" id="quizNextBtn" onclick="renderGenderQuiz()">Next \u2192</button>
   `;
 }
 
@@ -678,6 +693,7 @@ function genderAnswer(chosen) {
   quizAnswered = true;
 
   const word    = vocab[genderCurrent];
+  if (!word) return;
   const correct = word.article.toLowerCase();
   const isRight = chosen === correct;
 
@@ -692,7 +708,7 @@ function genderAnswer(chosen) {
     genderProgress[genderCurrent] = newCount;
 
     card.classList.add('correct');
-    feedback.textContent = newCount >= 3 ? '✓ MASTERED!' : `✓ CORRECT  (${newCount}/3)`;
+    feedback.textContent = newCount >= 3 ? '\u2713 MASTERED!' : `\u2713 CORRECT  (${newCount}/3)`;
     feedback.className   = 'quiz-feedback show correct-text';
 
     if (newCount >= 3) {
@@ -701,6 +717,7 @@ function genderAnswer(chosen) {
       sessionStats.genderMastered++;
     }
 
+    vibrate(CONFIG.VIBRATE_SUCCESS);
     btns.forEach(b => {
       if (b.textContent.trim() === chosen) {
         b.style.background = 'rgba(0,229,195,0.18)';
@@ -714,9 +731,10 @@ function genderAnswer(chosen) {
   } else {
     quizSessionWrong++;
     card.classList.add('wrong');
-    feedback.textContent = `✗  IT'S  "${correct.toUpperCase()}"`;
+    feedback.textContent = `\u2717  IT'S  "${correct.toUpperCase()}"`;
     feedback.className   = 'quiz-feedback show wrong-text';
 
+    vibrate(CONFIG.VIBRATE_ERROR);
     btns.forEach(b => {
       const art = b.textContent.trim();
       if (art === chosen) {
@@ -739,7 +757,7 @@ function renderPluralQuiz() {
   const area = document.getElementById('quizCardArea');
 
   if (passed.size === 0) {
-    area.innerHTML = emptyHtml('📚', 'No mastered words yet.', 'Hit <strong>Got it!</strong> on flashcards first — they appear here for plural practice.');
+    area.innerHTML = emptyHtml('\uD83D\uDCDA', 'No mastered words yet.', 'Hit <strong>Got it!</strong> on flashcards first \u2014 they appear here for plural practice.');
     return;
   }
 
@@ -747,9 +765,9 @@ function renderPluralQuiz() {
 
   if (pool.length === 0) {
     if ([...passed].some(idx => vocab[idx] && vocab[idx].plural)) {
-      area.innerHTML = emptyHtml('🏆', `All ${pluralMastered.size} plural${pluralMastered.size !== 1 ? 's' : ''} mastered!`, 'Keep adding vocabulary to keep going.');
+      area.innerHTML = emptyHtml('\uD83C\uDFC6', `All ${pluralMastered.size} plural${pluralMastered.size !== 1 ? 's' : ''} mastered!`, 'Keep adding vocabulary to keep going.');
     } else {
-      area.innerHTML = emptyHtml('📖', 'No plural data yet.', 'Your words need a <strong>plural</strong> field. Upload an updated progress file to unlock this quiz.');
+      area.innerHTML = emptyHtml('\uD83D\uDCD6', 'No plural data yet.', 'Your words need a <strong>plural</strong> field. Upload an updated progress file to unlock this quiz.');
     }
     return;
   }
@@ -757,6 +775,7 @@ function renderPluralQuiz() {
   pluralCurrent = pool[0];
   quizAnswered  = false;
   const word    = vocab[pluralCurrent];
+  if (!word) { renderPluralQuiz(); return; }
   const count   = pluralProgress[pluralCurrent] || 0;
 
   let pips = '';
@@ -765,14 +784,14 @@ function renderPluralQuiz() {
   area.innerHTML = `
     <div class="quiz-card" id="quizCard">
       <div class="quiz-noun-hint">Plural of</div>
-      <div class="quiz-noun">${word.article} ${word.german}</div>
-      <div class="quiz-noun-english">${word.english}</div>
+      <div class="quiz-noun">${escHtml(word.article)} ${escHtml(word.german)}</div>
+      <div class="quiz-noun-english">${escHtml(word.english)}</div>
       <div class="quiz-progress-pips">${pips}</div>
-      <div class="quiz-noun-plural-display" id="pluralReveal">die ${word.plural}</div>
+      <div class="quiz-noun-plural-display" id="pluralReveal">die ${escHtml(word.plural)}</div>
       <div class="quiz-feedback" id="quizFeedback"></div>
     </div>
     <div class="plural-input-row">
-      <input class="plural-input" id="pluralInput" type="text" placeholder="Type plural noun…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+      <input class="plural-input" id="pluralInput" type="text" placeholder="Type plural noun\u2026" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" />
       <button class="plural-submit-btn" id="pluralSubmitBtn" onclick="pluralAnswer()">Check</button>
     </div>
     <div class="vkb" id="vkb">
@@ -784,26 +803,27 @@ function renderPluralQuiz() {
       </div>
       <div class="vkb-row">
         ${['y','x','c','v','b','n','m'].map(k => `<button class="vkb-key" onmousedown="vkbPress(event,'${k}')">${k}</button>`).join('')}
-        <button class="vkb-key backspace" onmousedown="vkbPress(event,'⌫')">⌫</button>
+        <button class="vkb-key backspace" onmousedown="vkbPress(event,'\u232B')">\u232B</button>
       </div>
       <div class="vkb-row">
-        ${['ä','ö','ü','ß'].map(k => `<button class="vkb-key special" onmousedown="vkbPress(event,'${k}')">${k}</button>`).join('')}
+        ${['\u00E4','\u00F6','\u00FC','\u00DF'].map(k => `<button class="vkb-key special" onmousedown="vkbPress(event,'${k}')">${k}</button>`).join('')}
       </div>
     </div>
-    <button class="quiz-next-btn" id="quizNextBtn" onclick="renderPluralQuiz()">Next →</button>
+    <button class="quiz-next-btn" id="quizNextBtn" onclick="renderPluralQuiz()">Next \u2192</button>
   `;
 
   const input = document.getElementById('pluralInput');
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') pluralAnswer();
   });
+  setTimeout(() => input.focus(), 100);
 }
 
 function vkbPress(e, key) {
   e.preventDefault();
   const input = document.getElementById('pluralInput');
   if (!input || input.disabled) return;
-  if (key === '⌫') {
+  if (key === '\u232B') {
     input.value = input.value.slice(0, -1);
   } else {
     input.value += key;
@@ -819,6 +839,7 @@ function pluralAnswer() {
 
   quizAnswered  = true;
   const word    = vocab[pluralCurrent];
+  if (!word) return;
   const correct = word.plural.trim().toLowerCase();
   const isRight = typed.toLowerCase() === correct;
 
@@ -837,7 +858,7 @@ function pluralAnswer() {
 
     card.classList.add('correct');
     reveal.classList.add('show');
-    feedback.textContent = newCount >= 2 ? '✓ MASTERED!' : `✓ CORRECT  (${newCount}/2)`;
+    feedback.textContent = newCount >= 2 ? '\u2713 MASTERED!' : `\u2713 CORRECT  (${newCount}/2)`;
     feedback.className   = 'quiz-feedback show correct-text';
     input.style.borderColor = 'rgba(0,229,195,0.6)';
     input.style.color       = '#5DECC8';
@@ -848,15 +869,19 @@ function pluralAnswer() {
       sessionStats.pluralMastered++;
     }
 
+    vibrate(CONFIG.VIBRATE_SUCCESS);
+
   } else {
     quizSessionWrong++;
     card.classList.add('wrong');
     reveal.classList.add('show', 'wrong-plural');
     reveal.classList.remove('wrong-plural');
-    feedback.textContent = `✗  CORRECT: die ${word.plural}`;
+    feedback.textContent = `\u2717  CORRECT: die ${word.plural}`;
     feedback.className   = 'quiz-feedback show wrong-text';
     input.style.borderColor = 'rgba(251,113,133,0.6)';
     input.style.color       = '#FB7185';
+
+    vibrate(CONFIG.VIBRATE_ERROR);
   }
 
   savePluralState();
@@ -953,8 +978,9 @@ function renderWordList() {
 
   list.innerHTML = indices.map(idx => {
     const w = vocab[idx];
+    if (!w) return '';
     const artClass = w.article ? 'art-' + w.article.toLowerCase() : 'art-none';
-    const artDisplay = w.article || '—';
+    const artDisplay = w.article || '\u2014';
     const isPassed = passed.has(idx);
     const gCount = genderProgress[idx] || 0;
     const gMastered = genderMastered.has(idx);
@@ -969,20 +995,20 @@ function renderWordList() {
         <div class="wm-word-info">
           <div class="wm-word-main">
             <span class="wm-article ${artClass}">${artDisplay}</span>
-            <span class="wm-german">${w.german}</span>
+            <span class="wm-german">${escHtml(w.german)}</span>
           </div>
-          <div class="wm-english">${w.pronunciation ? '[' + w.pronunciation + '] ' : ''}${w.english}</div>
+          <div class="wm-english">${w.pronunciation ? '[' + escHtml(w.pronunciation) + '] ' : ''}${escHtml(w.english)}</div>
         </div>
         <div class="wm-badges">
-          <span class="wm-badge ${isPassed ? 'passed' : 'not-passed'}">${isPassed ? '✓' : '✗'}</span>
+          <span class="wm-badge ${isPassed ? 'passed' : 'not-passed'}">${isPassed ? '\u2713' : '\u2717'}</span>
           <span class="wm-badge gender-dot ${genderClass}">${genderLabel}</span>
-          <span class="wm-badge plural-dot ${pMastered ? 'p-mastered' : 'p-none'}">${pMastered ? 'P✓' : 'P—'}</span>
+          <span class="wm-badge plural-dot ${pMastered ? 'p-mastered' : 'p-none'}">${pMastered ? 'P\u2713' : 'P\u2014'}</span>
         </div>
       </div>
       <div class="wm-editor" id="wmEditor_${idx}">
         <div class="wm-editor-row">
           <span class="wm-editor-label">Flashcard</span>
-          <button class="wm-editor-toggle ${isPassed ? 'on' : 'off'}" onclick="wmTogglePassed(${idx})">${isPassed ? '✓ Got it' : '✗ Not passed'}</button>
+          <button class="wm-editor-toggle ${isPassed ? 'on' : 'off'}" onclick="wmTogglePassed(${idx})">${isPassed ? '\u2713 Got it' : '\u2717 Not passed'}</button>
         </div>
         <div class="wm-editor-row">
           <span class="wm-editor-label">Gender Quiz</span>
@@ -990,14 +1016,14 @@ function renderWordList() {
             <button class="${gCount === 0 && !gMastered ? 'active' : ''}" onclick="wmSetGender(${idx}, 0)">0</button>
             <button class="${gCount === 1 && !gMastered ? 'active' : ''}" onclick="wmSetGender(${idx}, 1)">1</button>
             <button class="${gCount === 2 && !gMastered ? 'active' : ''}" onclick="wmSetGender(${idx}, 2)">2</button>
-            <button class="${gMastered ? 'mastered' : ''}" onclick="wmSetGender(${idx}, 3)">3 ✓</button>
+            <button class="${gMastered ? 'mastered' : ''}" onclick="wmSetGender(${idx}, 3)">3 \u2713</button>
           </div>
         </div>
         <div class="wm-editor-row">
           <span class="wm-editor-label">Plural Quiz</span>
           <div class="wm-editor-plural-btns">
             <button class="${!pMastered ? 'active' : ''}" onclick="wmSetPlural(${idx}, false)">Not started</button>
-            <button class="${pMastered ? 'active' : ''}" onclick="wmSetPlural(${idx}, true)">✓ Mastered</button>
+            <button class="${pMastered ? 'active' : ''}" onclick="wmSetPlural(${idx}, true)">\u2713 Mastered</button>
           </div>
         </div>
       </div>
@@ -1061,7 +1087,6 @@ document.getElementById('wmSelectAll').addEventListener('change', (e) => {
   updateWmSelectedCount();
 });
 
-// Batch operations
 document.querySelectorAll('[data-batch]').forEach(btn => {
   btn.addEventListener('click', () => {
     const action = btn.dataset.batch;
@@ -1101,7 +1126,6 @@ function wmSetPluralDirect(idx, mastered) {
 }
 
 
-// Filter popup
 document.getElementById('wmFilterBtn').addEventListener('click', () => {
   const popup = document.getElementById('wmFilterPopup');
   const btn = document.getElementById('wmFilterBtn');
@@ -1120,7 +1144,6 @@ document.querySelectorAll('input[name="wmFilter"]').forEach(r => {
   });
 });
 
-// Close filter popup on outside click
 document.addEventListener('click', (e) => {
   const popup = document.getElementById('wmFilterPopup');
   const btn = document.getElementById('wmFilterBtn');
@@ -1131,7 +1154,6 @@ document.addEventListener('click', (e) => {
 });
 
 document.getElementById('wmBackBtn').addEventListener('click', () => {
-  // Save batch changes before closing
   saveGenderState();
   savePluralState();
   closeWordManage();
@@ -1142,12 +1164,11 @@ const timerPill = document.getElementById('timerPill');
 if (timerPill) {
   timerTickCb = (remaining) => {
     const display = getTimerDisplay();
-    timerPill.textContent = '⏱ ' + display;
+    timerPill.textContent = '\u23F1 ' + display;
     timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
   };
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────
 (async () => {
   loadThemes();
   await loadState();

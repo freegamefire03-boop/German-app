@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Quiz Hub — Theme Selector</title>
+<link rel="manifest" href="../../manifest.json">
+<meta name="theme-color" content="#0D0C14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Deutsch">
+<link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -19,10 +25,8 @@
 
   <button class="create-btn" id="createBtn">＋ Create New Theme</button>
 
-  <!-- Create modal overlay -->
   <div class="modal-overlay" id="createModalOverlay"></div>
 
-  <!-- Create modal -->
   <div class="modal" id="createModal">
     <div class="modal-header">
       <span class="modal-title">Create New Theme</span>
@@ -30,16 +34,16 @@
     </div>
     <form id="createForm">
       <label class="form-lbl">Theme Name *</label>
-      <input class="form-input" id="newName" type="text" placeholder="e.g. German Prepositions" required>
+      <input class="form-input" id="newName" type="text" placeholder="e.g. German Prepositions" required inputmode="text">
 
       <label class="form-lbl">Description</label>
-      <input class="form-input" id="newDesc" type="text" placeholder="Brief description of the quiz">
+      <input class="form-input" id="newDesc" type="text" placeholder="Brief description of the quiz" inputmode="text">
 
       <label class="form-lbl">Icon (emoji)</label>
-      <input class="form-input" id="newIcon" type="text" placeholder="🇩🇪" maxlength="4">
+      <input class="form-input" id="newIcon" type="text" placeholder="🇩🇪" maxlength="4" inputmode="text">
 
       <label class="form-lbl">Answer Options (comma separated)</label>
-      <input class="form-input" id="newArticles" type="text" placeholder="e.g. der, die, das, den, dem, des">
+      <input class="form-input" id="newArticles" type="text" placeholder="e.g. der, die, das, den, dem, des" inputmode="text">
 
       <div class="form-error" id="createError"></div>
 

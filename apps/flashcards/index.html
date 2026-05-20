@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Deutsch Lernen — German Flashcards</title>
 
-<!-- PWA -->
 <link rel="manifest" href="../../manifest.json">
 <meta name="theme-color" content="#0D0C14">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +18,6 @@
 <body>
 <div class="app">
 
-  <!-- ─── THEME SELECT VIEW ─── -->
   <div id="themeSelectView" class="active">
     <div class="theme-select-view">
       <div class="ts-header">
@@ -42,11 +40,10 @@
     </div>
   </div>
 
-  <!-- ─── CREATE THEME MODAL ─── -->
   <div class="ts-create-modal" id="tsCreateModal">
     <div class="modal-box">
       <h3>New Theme</h3>
-      <input id="tsModalInput" placeholder="Theme name…" maxlength="32">
+      <input id="tsModalInput" placeholder="Theme name…" maxlength="32" inputmode="text">
       <div class="modal-actions">
         <button class="modal-cancel" id="tsModalCancel">Cancel</button>
         <button class="modal-confirm" id="tsModalConfirm">Create</button>
@@ -54,7 +51,6 @@
     </div>
   </div>
 
-  <!-- ─── WORD MANAGEMENT VIEW ─── -->
   <div id="wordManageView">
     <div class="wm-header">
       <button class="btn-back" id="wmBackBtn">←</button>
@@ -100,7 +96,6 @@
     <div class="wm-word-list" id="wmWordList"></div>
   </div>
 
-  <!-- ─── FLASHCARD VIEW ─── -->
   <div id="flashcardView">
 
     <div class="header">
@@ -176,7 +171,7 @@
     "english": "dog"
   },
   ...
-]'></textarea>
+]' inputmode="text"></textarea>
         <div class="json-hint">
           Required: <code style="color:var(--yellow)">german</code> + <code style="color:var(--yellow)">english</code>. Optional: <code style="color:var(--yellow)">article</code>, <code style="color:var(--yellow)">pronunciation</code>, <code style="color:var(--yellow)">plural</code>
           <button class="btn-copy-template" id="btnCopyTemplate" title="Copy empty template">📋</button>
@@ -224,8 +219,43 @@
 
 </div>
 
+<div class="update-bar" id="updateBar">A new version is available <button id="btnUpdate">Update</button></div>
+
 <script src="../../shared/js/config.js"></script>
 <script src="../../shared/js/timer.js"></script>
 <script src="js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  let swReg = null;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('../../sw.js').then(reg => {
+      swReg = reg;
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            const bar = document.getElementById('updateBar');
+            if (bar) bar.classList.add('show');
+          }
+        });
+      });
+    }).catch(() => {});
+  });
+
+  const btnUpdate = document.getElementById('btnUpdate');
+  if (btnUpdate) {
+    btnUpdate.addEventListener('click', () => {
+      if (swReg && swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    });
+  }
+
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+}
+</script>
 </body>
 </html>

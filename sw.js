@@ -1,13 +1,31 @@
-const CACHE = 'hub-v1';
+const CACHE = 'hub-v2';
 
 const ASSETS = [
-  '.',
-  'index.html',
-  'manifest.json',
-  'assets/icons/icon-192.png',
-  'assets/icons/icon-512.png',
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/apps.json',
+  '/assets/icons/icon-192.png',
+  '/assets/icons/icon-512.png',
+  '/shared/js/config.js',
+  '/shared/js/timer.js',
+  '/shared/data/words.json',
+  '/apps/flashcards/index.html',
+  '/apps/flashcards/css/style.css',
+  '/apps/flashcards/js/app.js',
+  '/apps/verbs/index.html',
+  '/apps/verbs/css/style.css',
+  '/apps/verbs/js/app.js',
+  '/apps/cases/index.html',
+  '/apps/cases/quiz.html',
+  '/apps/cases/css/style.css',
+  '/apps/cases/js/landing.js',
+  '/apps/cases/js/script.js',
+  '/apps/cases/data/themes.json',
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap'
 ];
+
+const OFFLINE_PAGE = '/index.html';
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -32,15 +50,31 @@ self.addEventListener('message', e => {
 });
 
 self.addEventListener('fetch', e => {
+  const request = e.request;
+
+  if (request.mode === 'navigate') {
+    e.respondWith(
+      fetch(request).catch(() => caches.match(OFFLINE_PAGE))
+    );
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      return cached || fetch(e.request).then(response => {
-        if (e.request.method === 'GET' && response.status === 200) {
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+
+      return fetch(request).then(response => {
+        if (response && response.status === 200 && request.method === 'GET') {
           const clone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+          caches.open(CACHE).then(cache => cache.put(request, clone));
         }
         return response;
-      }).catch(() => cached);
+      }).catch(() => {
+        if (cached) return cached;
+        return new Response('Offline', {
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      });
     })
   );
 });

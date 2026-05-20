@@ -549,3 +549,50 @@
             50% { opacity: 1; }
             100% { opacity: 0; transform: translate(calc(50vw + (var(--x) - 0.5) * 80vw), calc(50vh + (var(--y) - 0.5) * 60vh)) scale(1); }
         }
+
+        /* ─── MOBILE TOUCH OPTIMIZATIONS ─── */
+        button, .icon-btn, .action-btn, .start-btn, .modal-btns button {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .action-btn, .start-btn, .modal-btns button {
+            min-height: 44px;
+        }
+
+        input {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .update-bar {
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+        }
+
+        @media (max-width: 400px) {
+            .app-container { padding: 14px 12px calc(env(safe-area-inset-bottom, 16px) + 16px); }
+            .app-header { margin-bottom: 14px; }
+            .app-title { font-size: 1.1rem; }
+            .app-title-sub { font-size: 0.55rem; }
+            .icon-btn { width: 34px; height: 34px; font-size: 0.9rem; }
+            .timer-pill { font-size: 0.65rem; padding: 3px 8px; }
+            .stats-bar { gap: 4px; }
+            .stat-card { padding: 10px 6px; }
+            .stat-number { font-size: 1.2rem; }
+            .stat-label { font-size: 0.5rem; }
+            .verb-infinitive { font-size: 1.5rem; }
+            .verb-english { font-size: 0.75rem; }
+            .conj-pronoun { width: 44px; font-size: 0.7rem; }
+            .conj-form { padding: 10px 12px; font-size: 0.85rem; }
+            .conj-form input { font-size: 16px; }
+            .action-btn { padding: 12px; font-size: 0.85rem; }
+            .splash { padding: 30px 16px; }
+            .splash-icon { font-size: 3.5rem; }
+            .splash h2 { font-size: 1.1rem; }
+            .splash p { font-size: 0.8rem; }
+            .start-btn { padding: 14px 36px; font-size: 0.9rem; }
+            .modal-box { padding: 24px 20px; max-width: 95vw; }
+            .celebration-card { padding: 32px 24px 22px; width: 90vw; }
+        }

@@ -1685,3 +1685,60 @@
     50% { opacity: 1; }
     100% { opacity: 0; transform: translate(calc(50vw + (var(--x) - 0.5) * 80vw), calc(50vh + (var(--y) - 0.5) * 60vh)) scale(1); }
   }
+
+  /* ─── MOBILE TOUCH OPTIMIZATIONS ─── */
+  button, .btn-action, .btn-primary, .btn-secondary, .btn-icon, .btn-back,
+  .ts-card, .ts-manage-btn, .quiz-tab, .btn-article, .quiz-next-btn,
+  .quiz-toggle-btn, .wm-batch-btn, .wm-editor-toggle, .wm-editor-gender-btns button,
+  .wm-editor-plural-btns button, .wm-filter-btn, .vkb-key, .plural-submit-btn,
+  .modal-close, .modal-cancel, .modal-confirm, .celebration-btn {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .btn-action, .btn-primary, .btn-secondary, .btn-icon, .btn-back,
+  .quiz-toggle-btn, .btn-article, .quiz-next-btn, .plural-submit-btn,
+  .celebration-btn {
+    min-height: 44px;
+  }
+
+  input, textarea {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .card-scene {
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+
+  .update-bar {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  }
+
+  @media (max-width: 480px) {
+    .app { padding: 16px 14px calc(32px + env(safe-area-inset-bottom, 0)); }
+    .header { margin-bottom: 20px; gap: 8px; }
+    .logo { font-size: 1.6rem; }
+    .logo span { font-size: 0.55rem; }
+    .btn-icon { width: 38px; height: 38px; font-size: 0.95rem; }
+    .timer-pill { font-size: 0.7rem; padding: 3px 10px; }
+    .progress-stats { gap: 4px; }
+    .stat-num { font-size: 1.4rem; }
+    .stat-label { font-size: 0.55rem; }
+    .card-scene { height: 260px; }
+    .card-word { font-size: 2.7rem; }
+    .card-article-inline { font-size: 2.7rem; }
+    .card-pronunciation { font-size: 0.7rem; }
+    .btn-action { padding: 14px 16px; font-size: 1rem; }
+    .quiz-noun { font-size: 2.8rem; }
+    .quiz-answers { gap: 8px; }
+    .btn-article { padding: 14px 8px; font-size: 1.3rem; }
+    .vkb-key { height: 46px; font-size: 0.95rem; }
+    .wm-batch-bar { gap: 6px; }
+    .wm-batch-btn { padding: 8px 12px; font-size: 0.7rem; min-height: 36px; }
+    .modal-content { padding: 22px 18px; max-width: 95vw; }
+    .celebration-card { padding: 32px 24px 22px; width: 90vw; }
+  }

@@ -46,7 +46,6 @@ function saveCustomExamples(themeId, examples) {
 function mergeCustomCards(theme, customExs) {
   if (!customExs || customExs.length === 0) return theme;
   const cards = theme.cards || [];
-  const used = cards.map(c => c.id);
   let customIdx = 0;
   customExs.forEach(ex => {
     const match = cards.find(c =>
@@ -91,6 +90,7 @@ let current   = null;
 let currentEx = null;
 let answeredFlag = false;
 let currentTheme = null;
+let initializing = false;
 
 function shuffle(arr) {
   const a = [...arr];
@@ -101,19 +101,28 @@ function shuffle(arr) {
   return a;
 }
 
+function vibrate(pattern) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
 // ═══════════════════════════════════════════════════════════════
 //  INIT / RESTART
 // ═══════════════════════════════════════════════════════════════
 
 async function init(themeId) {
+  if (initializing) return;
+  initializing = true;
+
   await loadThemes();
   currentTheme = getTheme(themeId || 'german-articles');
 
   if (!currentTheme) {
-    document.getElementById('quizArea').style.display = 'none';
+    const quizArea = document.getElementById('quizArea');
+    if (quizArea) quizArea.style.display = 'none';
     document.getElementById('compScreen').classList.add('vis');
     document.querySelector('.comp-title').textContent = 'Theme not found';
     document.getElementById('compStats').innerHTML = '<a href="index.html" style="color:var(--violet)">Back to themes</a>';
+    initializing = false;
     return;
   }
 
@@ -143,10 +152,12 @@ async function init(themeId) {
   updateStats();
   loadQuestion();
   renderPreview();
+  initializing = false;
 }
 
-function restart() {
-  init(currentTheme ? currentTheme.id : 'german-articles');
+async function restart() {
+  if (initializing) return;
+  await init(currentTheme ? currentTheme.id : 'german-articles');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -204,7 +215,6 @@ function loadQuestion() {
   const badges = document.querySelector('.badges');
   if (badges) badges.classList.add('hidden');
 
-  const mp = safe(currentTheme ? currentTheme.masteryPoints : 2, 2);
   document.getElementById('dot1').className = 'dot' + (current.points >= 1 ? ' on' : '');
   document.getElementById('dot2').className = 'dot' + (current.points >= 2 ? ' on' : '');
 
@@ -274,6 +284,8 @@ function handleAnswer(chosen, btn) {
       document.getElementById('removedBanner').classList.add('vis');
       spawnParticles(22);
     }
+
+    vibrate(CONFIG.VIBRATE_SUCCESS);
   } else {
     btn.classList.add('wrong');
     streak = 0;
@@ -284,6 +296,8 @@ function handleAnswer(chosen, btn) {
 
     fb.textContent = '\u2717 The answer is "' + safe(current.answer, '?') + '"';
     fb.className = 'feedback vis err';
+
+    vibrate(CONFIG.VIBRATE_ERROR);
   }
 
   const sentEl = document.getElementById('sentence');

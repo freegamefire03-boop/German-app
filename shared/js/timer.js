@@ -1,29 +1,13 @@
 const LS_TIMER  = 'deutsch_timer';
 const LS_STREAK = 'deutsch_streak';
 
-let streakData = loadStreak();
-
 function loadStreak() {
   try { return JSON.parse(localStorage.getItem(LS_STREAK)) || { current: 0, lastDate: null }; }
   catch { return { current: 0, lastDate: null }; }
 }
 
-function saveStreak() {
-  localStorage.setItem(LS_STREAK, JSON.stringify(streakData));
-}
-
-function updateStreak() {
-  const today = new Date().toISOString().slice(0, 10);
-  if (streakData.lastDate === today) return streakData.current;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  if (streakData.lastDate === yesterday) {
-    streakData.current++;
-  } else {
-    streakData.current = 1;
-  }
-  streakData.lastDate = today;
-  saveStreak();
-  return streakData.current;
+function saveStreak(data) {
+  localStorage.setItem(LS_STREAK, JSON.stringify(data));
 }
 
 let timerState = { running: false, elapsed: 0, startTime: null, completed: false };
@@ -53,6 +37,14 @@ function loadTimer() {
 
 function saveTimer() {
   localStorage.setItem(LS_TIMER, JSON.stringify(timerState));
+}
+
+function destroyTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerState = { running: false, elapsed: 0, startTime: null, completed: false };
+  timerTickCb = null;
+  saveTimer();
 }
 
 function startTimer() {
@@ -117,6 +109,23 @@ function timerTick() {
   }
 }
 
+function updateStreak() {
+  const streakData = loadStreak();
+  const today = new Date().toISOString().slice(0, 10);
+  if (streakData.lastDate === today) {
+    return streakData.current;
+  }
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (streakData.lastDate === yesterday) {
+    streakData.current++;
+  } else {
+    streakData.current = 1;
+  }
+  streakData.lastDate = today;
+  saveStreak(streakData);
+  return streakData.current;
+}
+
 function showSessionCelebration(streak, stats) {
   const existing = document.getElementById('session-celebration');
   if (existing) existing.remove();
@@ -125,7 +134,7 @@ function showSessionCelebration(streak, stats) {
   overlay.id = 'session-celebration';
   overlay.className = 'celebration-overlay';
 
-  const flame = streak > 0 ? '🔥' : '';
+  const flame = streak > 0 ? '\uD83D\uDD25' : '';
 
   overlay.innerHTML =
     '<div class="celebration-card">' +
@@ -137,10 +146,10 @@ function showSessionCelebration(streak, stats) {
       '</div>' +
       '<div class="celebration-title">Session Complete!</div>' +
       '<div class="celebration-stats">' +
-        '<div class="celebration-stat"><span>⏱</span> 10 min</div>' +
-        (stats.wordsPassed ? '<div class="celebration-stat"><span>✓</span> ' + stats.wordsPassed + ' words</div>' : '') +
-        (stats.genderMastered ? '<div class="celebration-stat"><span>⚡</span> ' + stats.genderMastered + ' genders</div>' : '') +
-        (stats.pluralMastered ? '<div class="celebration-stat"><span>📝</span> ' + stats.pluralMastered + ' plurals</div>' : '') +
+        '<div class="celebration-stat"><span>\u23F1</span> 10 min</div>' +
+        (stats.wordsPassed ? '<div class="celebration-stat"><span>\u2713</span> ' + stats.wordsPassed + ' words</div>' : '') +
+        (stats.genderMastered ? '<div class="celebration-stat"><span>\u26A1</span> ' + stats.genderMastered + ' genders</div>' : '') +
+        (stats.pluralMastered ? '<div class="celebration-stat"><span>\uD83D\uDCDD</span> ' + stats.pluralMastered + ' plurals</div>' : '') +
       '</div>' +
       '<div class="celebration-streak"> ' + flame + ' ' + streak + '-day streak' + '</div>' +
       '<button class="celebration-btn" onclick="closeCelebration()">Keep going</button>' +

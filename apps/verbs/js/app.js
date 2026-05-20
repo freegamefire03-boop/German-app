@@ -66,7 +66,6 @@
               forms: { ich: "tue", du: "tust", "er/sie/es": "tut", wir: "tun", ihr: "tut", "sie/Sie": "tun" } }
         ];
 
-        // Conjugation order
         const PRONOUNS = ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'];
 
         // ─── STATE ──────────────────────────────────────────────────────────
@@ -100,7 +99,9 @@
 
         // ─── RENDER ──────────────────────────────────────────────────────────
         function renderStats() {
-            document.getElementById('statTotal').textContent = VERBS.length;
+            const el = document.getElementById('statTotal');
+            if (!el) return;
+            el.textContent = VERBS.length;
             document.getElementById('statMastered').textContent = mastered.size;
             document.getElementById('statStreak').textContent = streak;
             document.getElementById('statSession').textContent = sessionCount;
@@ -109,42 +110,27 @@
             document.getElementById('progressFill').style.width = pct + '%';
         }
 
-        function shuffleVerbs() {
-            for (let i = VERBS.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [VERBS[i], VERBS[j]] = [VERBS[j], VERBS[i]];
-            }
-        }
-
         function getNextVerb() {
-            // First, try unmastered verbs
-            let available = VERBS.filter((_, i) => !mastered.has(i));
+            let available = [];
+            for (let i = 0; i < VERBS.length; i++) {
+                if (!mastered.has(i)) available.push(i);
+            }
             if (available.length === 0) return null;
             if (idx >= available.length) {
-                // Reset index to 0 when we've gone through all unmastered
-                // But don't shuffle unless it's a fresh cycle
-                if (idx >= available.length * 2) {
-                    shuffleVerbs();
-                    available = VERBS.filter((_, i) => !mastered.has(i));
-                    idx = 0;
-                } else {
-                    idx = 0;
-                }
+                idx = 0;
             }
-            const verb = available[idx % available.length];
-            const actualIdx = VERBS.indexOf(verb);
-            return actualIdx;
+            return available[idx % available.length];
         }
 
         function loadVerb(verbIdx) {
             checked = false;
             currentVerb = verbIdx;
             const verb = VERBS[verbIdx];
-            document.getElementById('btnCheck').disabled = false;
+            if (!verb) return;
+            const btnCheck = document.getElementById('btnCheck');
+            if (btnCheck) btnCheck.disabled = false;
 
-            // Badge
             const badge = document.getElementById('verbBadge');
-            const auxMap = { haben: 'haben', sein: 'sein', machen: 'machen', tun: 'tun' };
             const aux = verb.auxiliary;
             badge.className = 'verb-badge badge-' + aux;
             badge.textContent = aux === 'haben' ? 'mit haben' : aux === 'sein' ? 'mit sein' : aux;
@@ -152,12 +138,9 @@
             document.getElementById('verbInfinitive').textContent = verb.infinitive;
             document.getElementById('verbEnglish').textContent = verb.english;
 
-            // Build table
             const table = document.getElementById('conjTable');
-            // Decide how many to conceal: 2 for easy, 3 for normal
             const toConceal = Math.min(3, PRONOUNS.length);
             const indices = [...Array(PRONOUNS.length).keys()];
-            // Shuffle indices to pick random rows to conceal
             for (let i = indices.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [indices[i], indices[j]] = [indices[j], indices[i]];
@@ -170,7 +153,7 @@
                 return `<div class="conj-row">
                     <span class="conj-pronoun">${pronoun}</span>
                     <div class="conj-form${concealed ? ' concealed' : ''}" data-pronoun="${pronoun}" data-correct="${form}">
-                        ${concealed ? `<input type="text" placeholder="…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />` : form}
+                        ${concealed ? `<input type="text" placeholder="\u2026" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" />` : form}
                     </div>
                 </div>`;
             }).join('');
@@ -181,6 +164,10 @@
         }
 
         // ─── CHECK ──────────────────────────────────────────────────────────
+        function vibrate(pattern) {
+            if (navigator.vibrate) navigator.vibrate(pattern);
+        }
+
         function checkAnswers() {
             if (checked) return;
             checked = true;
@@ -200,14 +187,14 @@
                 } else {
                     row.classList.remove('concealed');
                     row.classList.add('wrong');
-                    row.textContent = input.value.trim() + ' → ' + correct;
+                    row.textContent = input.value.trim() + ' \u2192 ' + correct;
                     allCorrect = false;
                 }
             });
 
             const msg = document.getElementById('msgArea');
             if (allCorrect) {
-                msg.textContent = '✓ Perfect!';
+                msg.textContent = '\u2713 Perfect!';
                 msg.className = 'msg-area success';
                 if (!mastered.has(currentVerb)) {
                     mastered.add(currentVerb);
@@ -216,11 +203,13 @@
                     sessionStats.wordsPassed++;
                     saveState();
                 }
+                vibrate(CONFIG.VIBRATE_SUCCESS);
             } else {
-                msg.textContent = '✗ Some incorrect — try again next time';
+                msg.textContent = '\u2717 Some incorrect \u2014 try again next time';
                 msg.className = 'msg-area error';
                 streak = 0;
                 saveState();
+                vibrate(CONFIG.VIBRATE_ERROR);
             }
 
             document.getElementById('btnCheck').disabled = true;
@@ -232,10 +221,9 @@
         function nextVerb() {
             const next = getNextVerb();
             if (next === null || next === undefined) {
-                // All mastered — show congratulations
                 document.getElementById('mainContent').innerHTML = `
                     <div class="splash">
-                        <div class="splash-icon">🏆</div>
+                        <div class="splash-icon">\uD83C\uDFC6</div>
                         <h2>Alle gelernt!</h2>
                         <p>You've mastered all ${VERBS.length} verbs! Come back for review anytime.</p>
                         <button class="start-btn" onclick="location.reload()">Review Again</button>
@@ -294,11 +282,10 @@
             nextVerb();
         });
 
-        // Allow Enter to check
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const main = document.getElementById('mainContent');
-                if (main.classList.contains('visible')) {
+                if (main && main.classList.contains('visible')) {
                     if (!checked && !document.getElementById('btnCheck').disabled) {
                         checkAnswers();
                     } else if (!document.getElementById('btnNext').disabled) {
@@ -308,9 +295,9 @@
             }
         });
 
-        // Particles background
         function createParticles() {
             const container = document.getElementById('particles');
+            if (!container) return;
             for (let i = 0; i < 20; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
@@ -322,34 +309,15 @@
             }
         }
 
-        // ─── AUDIO FEEDBACK ──────────────────────────────────────────────────
-        // (kept from original)
-        function playTone(freq, duration) {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = freq;
-                gain.gain.value = 0.08;
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-                osc.start(ctx.currentTime);
-                osc.stop(ctx.currentTime + duration);
-            } catch(e) {}
-        }
-
         // ─── TIMER ──────────────────────────────────────────────────────────
         const timerPill = document.getElementById('timerPill');
         if (timerPill) {
             timerTickCb = (remaining) => {
                 const display = getTimerDisplay();
-                timerPill.textContent = '⏱ ' + display;
+                timerPill.textContent = '\u23F1 ' + display;
                 timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
             };
         }
-        let sessionStats = { wordsPassed: 0, genderMastered: 0, pluralMastered: 0 };
 
         // ─── INIT ────────────────────────────────────────────────────────────
         const app = {
@@ -358,11 +326,11 @@
                 loadState();
                 renderStats();
 
-                // If all mastered, show splash differently
                 if (mastered.size >= VERBS.length) {
-                    document.getElementById('splashScreen').querySelector('h2').textContent = '🏆 Welcome Back!';
-                    document.getElementById('splashScreen').querySelector('p').textContent =
-                        `You've mastered all ${VERBS.length} verbs! Review them or reset your progress.`;
+                    const h2 = document.getElementById('splashScreen').querySelector('h2');
+                    const p = document.getElementById('splashScreen').querySelector('p');
+                    if (h2) h2.textContent = '\uD83C\uDFC6 Welcome Back!';
+                    if (p) p.textContent = `You've mastered all ${VERBS.length} verbs! Review them or reset your progress.`;
                 }
             }
         };
