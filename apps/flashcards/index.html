@@ -21,8 +21,13 @@
   <div id="themeSelectView" class="active">
     <div class="theme-select-view">
       <div class="ts-header">
-        <div class="ts-logo">Deutsch Flashcards</div>
-        <div class="ts-sub">Choose a theme to start</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <a href="../../index.html" class="btn-back" title="Home" style="text-decoration:none;font-size:1.2rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center">🏠</a>
+          <div>
+            <div class="ts-logo">Deutsch Flashcards</div>
+            <div class="ts-sub">Choose a theme to start</div>
+          </div>
+        </div>
       </div>
       <div class="ts-divider"><span>Themes</span></div>
       <div id="tsList"></div>
@@ -99,7 +104,10 @@
   <div id="flashcardView">
 
     <div class="header">
-      <button class="btn-back" id="btnBackToThemes">←</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="btn-back" id="btnBackToThemes">←</button>
+        <a href="../../index.html" class="btn-back" title="Home" style="text-decoration:none;display:flex;align-items:center;justify-content:center">🏠</a>
+      </div>
       <div class="logo">
         <em>Deutsch</em>
         <span>Flash Cards</span>
