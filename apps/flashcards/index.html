@@ -112,7 +112,6 @@
         <em>Deutsch</em>
         <span>Flash Cards</span>
       </div>
-      <div class="timer-pill" id="timerPill">⏱ 10:00</div>
       <div class="header-actions">
         <button class="btn-icon" id="btnImportPanel" title="Import / Export progress">💾</button>
         <button class="btn-icon" id="btnAddPanel" title="Add vocabulary">＋</button>
@@ -227,43 +226,7 @@
 
 </div>
 
-<div class="update-bar" id="updateBar">A new version is available <button id="btnUpdate">Update</button></div>
-
 <script src="../../shared/js/config.js"></script>
-<script src="../../shared/js/timer.js"></script>
 <script src="js/app.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-  let swReg = null;
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('../../sw.js').then(reg => {
-      swReg = reg;
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        newSW.addEventListener('statechange', () => {
-          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            const bar = document.getElementById('updateBar');
-            if (bar) bar.classList.add('show');
-          }
-        });
-      });
-    }).catch(() => {});
-  });
-
-  const btnUpdate = document.getElementById('btnUpdate');
-  if (btnUpdate) {
-    btnUpdate.addEventListener('click', () => {
-      if (swReg && swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    });
-  }
-
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    window.location.reload();
-  });
-}
-</script>
 </body>
 </html>

@@ -2,13 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chronos German — Verb Mastery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Chronos German — Phrase Mastery</title>
     <link rel="manifest" href="../../manifest.json">
-    <meta name="theme-color" content="#0D0C14">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Deutsch">
     <link rel="apple-touch-icon" href="../../assets/icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -19,133 +15,160 @@
         <div class="app-header">
             <div>
                 <div class="app-title">Chronos</div>
-                <span class="app-title-sub">German Verbs</span>
+                <span class="app-title-sub">German Phrases</span>
             </div>
-            <div class="timer-pill" id="timerPill">⏱ 10:00</div>
             <div class="header-actions">
-                <button class="icon-btn" id="btnAddQuiz" title="Add Custom Quiz">+</button>
-                <button class="icon-btn" id="btnProgress" title="Progress">📊</button>
+                <a class="icon-btn" href="../../index.html" title="Home" style="text-decoration:none">🏠</a>
+                <button class="icon-btn" id="btnCreateTheme" title="New Theme">＋</button>
             </div>
         </div>
 
-        <div class="stats-bar" id="statsBar">
-            <div class="stat-card"><div class="stat-number gold" id="statTotal">0</div><div class="stat-label">Total</div></div>
-            <div class="stat-card"><div class="stat-number green" id="statMastered">0</div><div class="stat-label">Mastered</div></div>
-            <div class="stat-card"><div class="stat-number blue" id="statStreak">0</div><div class="stat-label">Streak</div></div>
-            <div class="stat-card"><div class="stat-number rose" id="statSession">0</div><div class="stat-label">Session</div></div>
+        <div id="viewThemes" class="view active">
+            <div class="themes-header">
+                <h2 class="themes-title">My Themes</h2>
+                <p class="themes-subtitle">Tap a theme to start practicing</p>
+            </div>
+            <div class="themes-list" id="themesList"></div>
+            <div class="themes-empty" id="themesEmpty">
+                <div class="themes-empty-icon">📂</div>
+                <p>No themes yet. Create one to get started!</p>
+            </div>
         </div>
 
-        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="viewQuiz" class="view">
+            <div class="quiz-topbar">
+                <button class="icon-btn" id="btnHome" title="Back to Themes">←</button>
+                <div class="quiz-topbar-title" id="quizThemeName"></div>
+                <div class="quiz-topbar-actions">
+                    <button class="icon-btn" id="btnAddPhrases" title="Add Phrases">＋</button>
+                    <button class="icon-btn" id="btnManage" title="Manage Phrases">📋</button>
+                    <button class="icon-btn" id="btnProgress" title="Progress">📊</button>
+                </div>
+            </div>
 
-        <div class="splash" id="splashScreen">
-            <div class="splash-icon">⏳</div>
-            <h2>Willkommen</h2>
-            <p>Practice German verb conjugations. Type the forms, get instant feedback, and track your progress.</p>
-            <button class="start-btn" id="btnStart">Start Practicing →</button>
+            <div class="stats-bar" id="statsBar">
+                <div class="stat-card"><div class="stat-number gold" id="statTotal">0</div><div class="stat-label">Total</div></div>
+                <div class="stat-card"><div class="stat-number green" id="statMastered">0</div><div class="stat-label">Mastered</div></div>
+                <div class="stat-card"><div class="stat-number blue" id="statRemaining">0</div><div class="stat-label">Left</div></div>
+            </div>
+
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+            <div class="quiz-empty" id="quizEmpty">
+                <div class="quiz-empty-icon">📝</div>
+                <h3>No phrases yet</h3>
+                <p>Tap ＋ to add phrases to this theme</p>
+            </div>
+
+            <div class="quiz-content" id="quizContent" style="display:none">
+                <div class="phrase-card" id="phraseCard">
+                    <div class="phrase-verb" id="phraseVerb"></div>
+                    <div class="phrase-number" id="phraseNumber"></div>
+                    <div class="phrase-text" id="phraseText"></div>
+                    <div class="phrase-english" id="phraseEnglish"></div>
+                </div>
+
+                <div class="answer-area">
+                    <input type="text" id="answerInput" class="answer-input" placeholder="Type your answer..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+                </div>
+
+                <div class="phrase-actions">
+                    <button class="action-btn check-btn" id="btnCheck">✓ Check</button>
+                    <button class="action-btn next-btn" id="btnNext" disabled>Next →</button>
+                </div>
+
+                <div class="msg-area" id="msgArea"></div>
+            </div>
+
+            <div class="quiz-all-done" id="quizAllDone" style="display:none">
+                <div class="splash-icon">🏆</div>
+                <h2>All done!</h2>
+                <p>You've mastered every phrase in this theme. Add more or come back later.</p>
+            </div>
         </div>
 
-        <div class="main-content" id="mainContent">
-            <div class="verb-card" id="verbCard">
-                <div class="verb-badge" id="verbBadge"></div>
-                <div class="verb-infinitive" id="verbInfinitive">—</div>
-                <div class="verb-english" id="verbEnglish">—</div>
-                <div class="conjugation-table" id="conjTable"></div>
+        <div id="viewManage" class="view">
+            <div class="manage-topbar">
+                <button class="icon-btn" id="btnManageBack" title="Back to Quiz">←</button>
+                <div class="manage-topbar-title">Manage Phrases</div>
+                <button class="manage-select-all" id="btnSelectAll">Select All</button>
             </div>
 
-            <div class="verb-actions">
-                <button class="action-btn check-btn" id="btnCheck">✓ Check</button>
-                <button class="action-btn next-btn" id="btnNext" disabled>Next →</button>
+            <div class="manage-actions" id="manageActions">
+                <button class="manage-action-btn done-btn" id="btnMarkDone">✓ Mark Done</button>
+                <button class="manage-action-btn undone-btn" id="btnMarkUndone">✗ Mark Undone</button>
+                <button class="manage-action-btn delete-btn" id="btnDeleteSelected">🗑️ Delete</button>
             </div>
 
-            <div class="msg-area" id="msgArea"></div>
+            <div class="manage-list" id="manageList"></div>
+            <div class="manage-empty" id="manageEmpty">
+                <p>No phrases to manage</p>
+            </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-overlay" id="themeModalOverlay">
+        <div class="modal-box">
+            <h3 id="themeModalTitle">New Theme</h3>
+            <input type="text" id="themeNameInput" class="modal-text-input" placeholder="e.g. Daily Conversations, Verbs, Nouns..." maxlength="40" />
+            <div class="modal-btns">
+                <button class="modal-secondary" id="themeModalCancel">Cancel</button>
+                <button class="modal-primary" id="themeModalSave">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addModalOverlay">
+        <div class="modal-box modal-box-wide">
+            <h3>＋ Add Phrases</h3>
+            <p class="modal-desc">Paste a JSON array. Each item needs a <code>verb</code>, a <code>phrase</code> (with <code>___</code>), an <code>answer</code>, and an <code>english</code> translation.</p>
+            <textarea id="jsonInput" class="json-textarea" rows="10" placeholder='[
+  { "verb": "gehen", "phrase": "Ich ___ nach Hause", "answer": "gehe", "english": "I go home" },
+  { "verb": "lesen", "phrase": "Er ___ ein Buch", "answer": "liest", "english": "He reads a book" }
+]'></textarea>
+            <div class="json-status" id="jsonStatus"></div>
+            <div class="modal-btns">
+                <button class="modal-secondary" id="addModalCopy">📋 Copy Format</button>
+                <button class="modal-secondary" id="addModalCancel">Cancel</button>
+                <button class="modal-primary" id="addModalSave">Save Phrases</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="progressModalOverlay">
         <div class="modal-box">
             <h3>📊 Progress</h3>
-            <p id="modalBody">Loading...</p>
+            <p id="modalBody"></p>
             <div class="modal-btns">
-                <button class="modal-secondary" id="modalReset">Reset All</button>
+                <button class="modal-danger" id="modalReset">Reset Theme</button>
                 <button class="modal-primary" id="modalClose">Close</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="addQuizModal">
-        <div class="modal-box modal-box-wide">
-            <h3>➕ Add Custom Quiz Sentences</h3>
-            <p class="modal-subtitle">Copy the JSON template below, fill in your sentences, then paste it back.</p>
-            <div class="json-template-wrapper">
-                <pre id="jsonTemplate">[
-  {
-    "verb": "machen",
-    "sentence": "Was {{blank}} du heute Abend?",
-    "answer": "machst",
-    "translation": "What are you doing tonight?"
-  }
-]</pre>
-                <button class="copy-btn" id="btnCopyJson" title="Copy JSON template">📋 Copy</button>
-            </div>
-            <div class="paste-area">
-                <textarea id="jsonPasteInput" placeholder="Paste your filled JSON here..."></textarea>
-            </div>
+    <div class="modal-overlay" id="deleteModalOverlay">
+        <div class="modal-box">
+            <h3>Delete Theme?</h3>
+            <p id="deleteModalBody">This will permanently remove this theme and all its phrases.</p>
             <div class="modal-btns">
-                <button class="modal-secondary" id="btnCancelQuiz">Cancel</button>
-                <button class="modal-primary" id="btnLoadQuiz">Load Quiz</button>
+                <button class="modal-secondary" id="deleteModalCancel">Cancel</button>
+                <button class="modal-danger" id="deleteModalConfirm">Delete</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="customQuizModal">
-        <div class="modal-box modal-box-wide">
-            <h3>📝 Custom Sentence Quiz</h3>
-            <div id="customQuizContent"></div>
+    <div class="modal-overlay" id="deletePhrasesModalOverlay">
+        <div class="modal-box">
+            <h3>Delete Phrases?</h3>
+            <p id="deletePhrasesModalBody">Delete selected phrases?</p>
             <div class="modal-btns">
-                <button class="modal-secondary" id="btnCloseCustomQuiz">Close</button>
-                <button class="modal-primary" id="btnCheckCustomQuiz" disabled>Check Answers</button>
+                <button class="modal-secondary" id="deletePhrasesCancel">Cancel</button>
+                <button class="modal-danger" id="deletePhrasesConfirm">Delete</button>
             </div>
-            <div class="msg-area" id="customQuizMsg"></div>
         </div>
     </div>
-
-    <div class="update-bar" id="updateBar">A new version is available <button id="btnUpdate">Update</button></div>
 
     <script src="../../shared/js/config.js"></script>
-    <script src="../../shared/js/timer.js"></script>
     <script src="js/app.js"></script>
-    <script>
-    if ('serviceWorker' in navigator) {
-      let swReg = null;
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('../../sw.js').then(reg => {
-          swReg = reg;
-          reg.addEventListener('updatefound', () => {
-            const newSW = reg.installing;
-            newSW.addEventListener('statechange', () => {
-              if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                const bar = document.getElementById('updateBar');
-                if (bar) bar.classList.add('show');
-              }
-            });
-          });
-        }).catch(() => {});
-      });
-
-      const btnUpdate = document.getElementById('btnUpdate');
-      if (btnUpdate) {
-        btnUpdate.addEventListener('click', () => {
-          if (swReg && swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        });
-      }
-
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        refreshing = true;
-        window.location.reload();
-      });
-    }
-    </script>
 </body>
 </html>

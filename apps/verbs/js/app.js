@@ -1,483 +1,279 @@
-        // ─── DATA ──────────────────────────────────────────────────────────
-        const VERBS = [
-            { infinitive: "bringen", english: "to bring", auxiliary: "haben",
-              forms: { ich: "bringe", du: "bringst", "er/sie/es": "bringt", wir: "bringen", ihr: "bringt", "sie/Sie": "bringen" } },
-            { infinitive: "tun", english: "to do", auxiliary: "haben",
-              forms: { ich: "tue", du: "tust", "er/sie/es": "tut", wir: "tun", ihr: "tut", "sie/Sie": "tun" } }
-        ];
+const LS_THEMES = 'chronos_themes';
+const LS_PHRASES_PREFIX = 'chronos_phrases_';
+const LS_MASTERED_PREFIX = 'chronos_mastered_';
 
-        const CUSTOM_QUIZ_SENTENCES = [
-            { verb: "lesen", sentence: "Ich {{blank}} ein Buch.", answer: "lese", translation: "I am reading a book." },
-            { verb: "schreiben", sentence: "Du {{blank}} eine E-Mail.", answer: "schreibst", translation: "You are writing an email." }
-        ];
+let themes = [];
+let activeThemeId = null;
+let phrases = [];
+let mastered = new Set();
+let checked = false;
+let currentPhraseIndex = -1;
+let editingThemeId = null;
 
-        const PRONOUNS = ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'];
+function loadThemes() {
+    try { const t = localStorage.getItem(LS_THEMES); if (t) themes = JSON.parse(t); } catch (e) { themes = []; }
+}
+function saveThemes() { localStorage.setItem(LS_THEMES, JSON.stringify(themes)); }
+function createTheme(name) {
+    const theme = { id: 'theme_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: name.trim(), createdAt: Date.now() };
+    themes.push(theme); saveThemes(); return theme;
+}
+function renameTheme(id, newName) { const t = themes.find(t => t.id === id); if (t) { t.name = newName.trim(); saveThemes(); } }
+function deleteTheme(id) {
+    themes = themes.filter(t => t.id !== id); saveThemes();
+    localStorage.removeItem(LS_PHRASES_PREFIX + id); localStorage.removeItem(LS_MASTERED_PREFIX + id);
+}
+function getTheme(id) { return themes.find(t => t.id === id); }
 
-        // ─── STATE ──────────────────────────────────────────────────────────
-        let idx = 0;
-        let mastered = new Set();
-        let sessionCount = 0;
-        let streak = 0;
-        let currentVerb = null;
-        let checked = false;
+function loadPhrases(themeId) { try { const p = localStorage.getItem(LS_PHRASES_PREFIX + themeId); phrases = p ? JSON.parse(p) : []; } catch (e) { phrases = []; } }
+function savePhrases(themeId) { localStorage.setItem(LS_PHRASES_PREFIX + themeId, JSON.stringify(phrases)); }
+function loadMastered(themeId) { try { const m = localStorage.getItem(LS_MASTERED_PREFIX + themeId); mastered = m ? new Set(JSON.parse(m)) : new Set(); } catch (e) { mastered = new Set(); } }
+function saveMastered(themeId) { localStorage.setItem(LS_MASTERED_PREFIX + themeId, JSON.stringify([...mastered])); }
 
-        let customQuizData = [];
-        let customQuizChecked = false;
+function getUnmastered() { return phrases.map((p, i) => ({ ...p, originalIndex: i })).filter(p => !mastered.has(p.originalIndex)); }
+function getRandomUnmastered() { const u = getUnmastered(); if (u.length === 0) return null; return u[Math.floor(Math.random() * u.length)]; }
 
-        const LS_VERBS_MASTERED = 'chronos_mastered';
-        const LS_VERBS_INDEX = 'chronos_index';
-        const LS_VERBS_STREAK = 'chronos_streak';
+function showView(viewId) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.getElementById(viewId).classList.add('active'); }
 
-        function loadState() {
-            try {
-                const m = localStorage.getItem(LS_VERBS_MASTERED);
-                if (m) mastered = new Set(JSON.parse(m));
-                const i = localStorage.getItem(LS_VERBS_INDEX);
-                if (i !== null) idx = parseInt(i, 10);
-                const s = localStorage.getItem(LS_VERBS_STREAK);
-                if (s !== null) streak = parseInt(s, 10);
-            } catch(e) {}
+function renderThemesList() {
+    const list = document.getElementById('themesList');
+    const empty = document.getElementById('themesEmpty');
+    if (themes.length === 0) { list.innerHTML = ''; empty.style.display = 'flex'; return; }
+    empty.style.display = 'none';
+    const colors = ['#A78BFA', '#FF6B35', '#00E5C3', '#FB7185', '#FBBF24', '#38bdf8'];
+    list.innerHTML = themes.map(theme => {
+        const savedP = localStorage.getItem(LS_PHRASES_PREFIX + theme.id);
+        const savedM = localStorage.getItem(LS_MASTERED_PREFIX + theme.id);
+        const total = savedP ? JSON.parse(savedP).length : 0;
+        const done = savedM ? JSON.parse(savedM).length : 0;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        const color = colors[theme.id.charCodeAt(theme.id.length - 1) % colors.length];
+        return `<div class="theme-card" data-id="${theme.id}"><div class="theme-card-left"><div class="theme-card-icon">${total > 0 && done === total ? '🏆' : '📁'}</div><div class="theme-card-info"><div class="theme-card-name">${theme.name}</div><div class="theme-card-meta">${done}/${total} mastered · ${pct}%</div></div></div><div class="theme-card-actions"><button class="theme-card-btn rename-btn" data-id="${theme.id}" title="Rename">✏️</button><button class="theme-card-btn delete-btn" data-id="${theme.id}" title="Delete">🗑️</button></div></div>`;
+    }).join('');
+    list.querySelectorAll('.theme-card-left').forEach(el => { el.addEventListener('click', () => openTheme(el.closest('.theme-card').dataset.id)); });
+    list.querySelectorAll('.rename-btn').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); startRename(el.dataset.id); }); });
+    list.querySelectorAll('.delete-btn').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); confirmDelete(el.dataset.id); }); });
+}
+
+function renderQuizStats() {
+    const total = phrases.length, done = mastered.size, left = total - done;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statMastered').textContent = done;
+    document.getElementById('statRemaining').textContent = left;
+    document.getElementById('progressFill').style.width = (total > 0 ? (done / total) * 100 : 0) + '%';
+}
+
+function openTheme(themeId) {
+    activeThemeId = themeId;
+    const theme = getTheme(themeId); if (!theme) return;
+    loadPhrases(themeId); loadMastered(themeId);
+    document.getElementById('quizThemeName').textContent = theme.name;
+    renderQuizStats();
+    document.getElementById('quizEmpty').style.display = 'none';
+    document.getElementById('quizContent').style.display = 'none';
+    document.getElementById('quizAllDone').style.display = 'none';
+    if (phrases.length === 0) { document.getElementById('quizEmpty').style.display = 'flex'; }
+    else { const next = getRandomUnmastered(); if (!next) { document.getElementById('quizAllDone').style.display = 'flex'; } else { document.getElementById('quizContent').style.display = 'block'; loadPhrase(next); } }
+    showView('viewQuiz');
+}
+
+function loadPhrase(phraseData) {
+    checked = false; currentPhraseIndex = phraseData.originalIndex;
+    const answerArea = document.querySelector('.answer-area');
+    if (!document.getElementById('answerInput')) { answerArea.innerHTML = '<input type="text" id="answerInput" class="answer-input" placeholder="Type your answer..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />'; }
+    document.getElementById('phraseVerb').textContent = phraseData.verb;
+    document.getElementById('phraseNumber').textContent = `${mastered.size + 1} / ${phrases.length}`;
+    document.getElementById('phraseText').textContent = phraseData.phrase;
+    document.getElementById('phraseEnglish').textContent = phraseData.english || '';
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').disabled = false;
+    document.getElementById('answerInput').focus();
+    document.getElementById('btnCheck').disabled = false;
+    document.getElementById('btnNext').disabled = true;
+    document.getElementById('msgArea').textContent = '';
+    document.getElementById('msgArea').className = 'msg-area';
+}
+
+function checkAnswer() {
+    if (checked) return;
+    const input = document.getElementById('answerInput');
+    const val = input.value.trim(); if (!val) return;
+    checked = true;
+    const phrase = phrases[currentPhraseIndex], correct = phrase.answer;
+    const msg = document.getElementById('msgArea');
+    if (val.toLowerCase() === correct.toLowerCase()) {
+        msg.textContent = `✓ Correct! "${phrase.phrase.replace('___', correct)}"`;
+        msg.className = 'msg-area success';
+        if (!mastered.has(currentPhraseIndex)) { mastered.add(currentPhraseIndex); saveMastered(activeThemeId); }
+        input.disabled = true;
+    } else {
+        const answerArea = document.querySelector('.answer-area');
+        answerArea.innerHTML = `<div class="answer-wrong">${correct}</div>`;
+    }
+    document.getElementById('btnCheck').disabled = true;
+    document.getElementById('btnNext').disabled = false;
+    renderQuizStats();
+}
+
+function nextPhrase() {
+    const next = getRandomUnmastered();
+    if (!next) { document.getElementById('quizContent').style.display = 'none'; document.getElementById('quizAllDone').style.display = 'flex'; return; }
+    loadPhrase(next);
+}
+
+function showCreateModal() {
+    editingThemeId = null;
+    document.getElementById('themeModalTitle').textContent = 'New Theme';
+    document.getElementById('themeNameInput').value = '';
+    document.getElementById('themeModalSave').textContent = 'Create';
+    document.getElementById('themeModalOverlay').classList.add('open');
+    document.getElementById('themeNameInput').focus();
+}
+function startRename(themeId) {
+    const theme = getTheme(themeId); if (!theme) return;
+    editingThemeId = themeId;
+    document.getElementById('themeModalTitle').textContent = 'Rename Theme';
+    document.getElementById('themeNameInput').value = theme.name;
+    document.getElementById('themeModalSave').textContent = 'Rename';
+    document.getElementById('themeModalOverlay').classList.add('open');
+    document.getElementById('themeNameInput').focus(); document.getElementById('themeNameInput').select();
+}
+function saveThemeName() {
+    const name = document.getElementById('themeNameInput').value.trim(); if (!name) return;
+    if (editingThemeId) { renameTheme(editingThemeId, name); } else { createTheme(name); }
+    document.getElementById('themeModalOverlay').classList.remove('open'); renderThemesList();
+}
+
+let deleteTargetId = null;
+function confirmDelete(themeId) {
+    const theme = getTheme(themeId); if (!theme) return;
+    deleteTargetId = themeId;
+    document.getElementById('deleteModalBody').textContent = `Delete "${theme.name}" and all its phrases? This cannot be undone.`;
+    document.getElementById('deleteModalOverlay').classList.add('open');
+}
+function doDelete() {
+    if (!deleteTargetId) return; deleteTheme(deleteTargetId); deleteTargetId = null;
+    document.getElementById('deleteModalOverlay').classList.remove('open'); renderThemesList();
+}
+
+function showAddModal() {
+    document.getElementById('jsonInput').value = '';
+    document.getElementById('jsonStatus').textContent = '';
+    document.getElementById('jsonStatus').className = 'json-status';
+    document.getElementById('addModalOverlay').classList.add('open');
+    document.getElementById('jsonInput').focus();
+}
+function hideAddModal() { document.getElementById('addModalOverlay').classList.remove('open'); }
+function savePhrasesFromJSON() {
+    const raw = document.getElementById('jsonInput').value.trim();
+    const status = document.getElementById('jsonStatus');
+    if (!raw) { status.textContent = 'Please paste some JSON data.'; status.className = 'json-status error'; return; }
+    let data; try { data = JSON.parse(raw); } catch (e) { status.textContent = 'Invalid JSON: ' + e.message; status.className = 'json-status error'; return; }
+    if (!Array.isArray(data)) { status.textContent = 'JSON must be an array.'; status.className = 'json-status error'; return; }
+    const valid = [], errors = [];
+    data.forEach((item, i) => {
+        if (!item.verb || typeof item.verb !== 'string' || !item.verb.trim()) { errors.push(`#${i + 1}: missing "verb"`); return; }
+        if (!item.phrase || typeof item.phrase !== 'string') { errors.push(`#${i + 1}: missing "phrase"`); return; }
+        if (!item.answer || typeof item.answer !== 'string') { errors.push(`#${i + 1}: missing "answer"`); return; }
+        if (!item.english || typeof item.english !== 'string') { errors.push(`#${i + 1}: missing "english"`); return; }
+        if (!item.phrase.includes('___')) { errors.push(`#${i + 1}: "phrase" needs ___`); return; }
+        valid.push({ verb: item.verb.trim(), phrase: item.phrase.trim(), answer: item.answer.trim(), english: item.english.trim() });
+    });
+    if (errors.length > 0) { status.textContent = errors.join('; '); status.className = 'json-status error'; return; }
+    if (valid.length === 0) { status.textContent = 'No valid phrases.'; status.className = 'json-status error'; return; }
+    phrases = phrases.concat(valid); savePhrases(activeThemeId); renderQuizStats();
+    status.textContent = `✓ Added ${valid.length} phrase(s). Total: ${phrases.length}`;
+    status.className = 'json-status success';
+    setTimeout(() => {
+        hideAddModal();
+        if (document.getElementById('quizContent').style.display === 'none' && document.getElementById('quizAllDone').style.display === 'none') {
+            const next = getRandomUnmastered();
+            if (next) { document.getElementById('quizEmpty').style.display = 'none'; document.getElementById('quizContent').style.display = 'block'; loadPhrase(next); }
         }
+    }, 1000);
+}
 
-        function saveState() {
-            localStorage.setItem(LS_VERBS_MASTERED, JSON.stringify([...mastered]));
-            localStorage.setItem(LS_VERBS_INDEX, idx.toString());
-            localStorage.setItem(LS_VERBS_STREAK, streak.toString());
-        }
+function showProgressModal() {
+    const masteredList = [...mastered].map(i => phrases[i] ? `<strong>${phrases[i].verb}</strong> ${phrases[i].phrase.replace('___', '→ ' + phrases[i].answer)}` : '').filter(Boolean).join('<br>') || 'none yet';
+    document.getElementById('modalBody').innerHTML = `<strong>${mastered.size}/${phrases.length} mastered</strong><br><span style="font-size:0.8rem;color:var(--text-dim);line-height:1.8;display:block;margin-top:6px">${masteredList}</span>`;
+    document.getElementById('progressModalOverlay').classList.add('open');
+}
 
-        // ─── RENDER ──────────────────────────────────────────────────────────
-        function renderStats() {
-            const el = document.getElementById('statTotal');
-            if (!el) return;
-            el.textContent = VERBS.length;
-            document.getElementById('statMastered').textContent = mastered.size;
-            document.getElementById('statStreak').textContent = streak;
-            document.getElementById('statSession').textContent = sessionCount;
+let manageSelected = new Set();
+function openManageView() { manageSelected.clear(); renderManageList(); showView('viewManage'); }
+function renderManageList() {
+    const list = document.getElementById('manageList'), empty = document.getElementById('manageEmpty');
+    if (phrases.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    list.innerHTML = phrases.map((p, i) => {
+        const isDone = mastered.has(i), isSelected = manageSelected.has(i);
+        return `<div class="manage-item${isSelected ? ' selected' : ''}" data-index="${i}"><div class="manage-checkbox">${isSelected ? '✓' : ''}</div><div class="manage-item-info"><div class="manage-item-verb">${p.verb}</div><div class="manage-item-phrase">${p.phrase.replace('___', '…')}</div><div class="manage-item-english">${p.english || ''}</div></div><div class="manage-item-status ${isDone ? 'done' : 'todo'}">${isDone ? 'Done' : 'Todo'}</div></div>`;
+    }).join('');
+    list.querySelectorAll('.manage-item').forEach(el => { el.addEventListener('click', () => { const idx = parseInt(el.dataset.index); if (manageSelected.has(idx)) manageSelected.delete(idx); else manageSelected.add(idx); renderManageList(); }); });
+}
+function manageSelectAll() { if (manageSelected.size === phrases.length) { manageSelected.clear(); } else { phrases.forEach((_, i) => manageSelected.add(i)); } renderManageList(); }
+function manageMarkDone() { manageSelected.forEach(i => mastered.add(i)); saveMastered(activeThemeId); renderManageList(); renderQuizStats(); }
+function manageMarkUndone() { manageSelected.forEach(i => mastered.delete(i)); saveMastered(activeThemeId); renderManageList(); renderQuizStats(); }
+let manageDeleteTarget = [];
+function manageConfirmDelete() { manageDeleteTarget = [...manageSelected]; document.getElementById('deletePhrasesModalBody').textContent = `Delete ${manageDeleteTarget.length} phrase(s)? This cannot be undone.`; document.getElementById('deletePhrasesModalOverlay').classList.add('open'); }
+function manageDoDelete() {
+    manageDeleteTarget.sort((a, b) => b - a).forEach(i => { phrases.splice(i, 1); mastered.delete(i); });
+    const old = [...mastered]; mastered.clear(); old.forEach(i => { if (i < phrases.length) mastered.add(i); });
+    savePhrases(activeThemeId); saveMastered(activeThemeId); manageSelected.clear(); manageDeleteTarget = [];
+    document.getElementById('deletePhrasesModalOverlay').classList.remove('open'); renderManageList(); renderQuizStats();
+}
 
-            const pct = VERBS.length > 0 ? (mastered.size / VERBS.length) * 100 : 0;
-            document.getElementById('progressFill').style.width = pct + '%';
-        }
+// Event listeners
+document.getElementById('btnCreateTheme').addEventListener('click', showCreateModal);
+document.getElementById('themeModalCancel').addEventListener('click', () => { document.getElementById('themeModalOverlay').classList.remove('open'); });
+document.getElementById('themeModalSave').addEventListener('click', saveThemeName);
+document.getElementById('themeNameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') saveThemeName(); });
+document.getElementById('deleteModalCancel').addEventListener('click', () => { document.getElementById('deleteModalOverlay').classList.remove('open'); deleteTargetId = null; });
+document.getElementById('deleteModalConfirm').addEventListener('click', doDelete);
+document.getElementById('btnHome').addEventListener('click', () => { showView('viewThemes'); renderThemesList(); });
+document.getElementById('btnCheck').addEventListener('click', checkAnswer);
+document.getElementById('btnNext').addEventListener('click', nextPhrase);
+document.getElementById('btnAddPhrases').addEventListener('click', showAddModal);
+document.getElementById('btnManage').addEventListener('click', openManageView);
+document.getElementById('addModalCancel').addEventListener('click', hideAddModal);
+document.getElementById('addModalSave').addEventListener('click', savePhrasesFromJSON);
+document.getElementById('addModalCopy').addEventListener('click', () => {
+    const template = JSON.stringify([{ "verb": "gehen", "phrase": "Ich ___ nach Hause", "answer": "gehe", "english": "I go home" }, { "verb": "lesen", "phrase": "Er ___ ein Buch", "answer": "liest", "english": "He reads a book" }], null, 2);
+    navigator.clipboard.writeText(template).then(() => { const btn = document.getElementById('addModalCopy'); btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy Format'; }, 1500); });
+});
+document.getElementById('btnProgress').addEventListener('click', showProgressModal);
+document.getElementById('modalClose').addEventListener('click', () => { document.getElementById('progressModalOverlay').classList.remove('open'); });
+document.getElementById('modalReset').addEventListener('click', () => {
+    if (confirm('Reset all progress in this theme?')) {
+        mastered.clear(); saveMastered(activeThemeId); renderQuizStats();
+        document.getElementById('progressModalOverlay').classList.remove('open');
+        const next = getRandomUnmastered();
+        if (next) { document.getElementById('quizAllDone').style.display = 'none'; document.getElementById('quizContent').style.display = 'block'; loadPhrase(next); }
+        else if (phrases.length > 0) { document.getElementById('quizContent').style.display = 'none'; document.getElementById('quizAllDone').style.display = 'flex'; }
+    }
+});
+document.getElementById('btnManageBack').addEventListener('click', () => {
+    showView('viewQuiz'); loadPhrases(activeThemeId); loadMastered(activeThemeId); renderQuizStats();
+    const next = getRandomUnmastered();
+    if (next) { document.getElementById('quizEmpty').style.display = 'none'; document.getElementById('quizAllDone').style.display = 'none'; document.getElementById('quizContent').style.display = 'block'; loadPhrase(next); }
+    else if (phrases.length > 0) { document.getElementById('quizContent').style.display = 'none'; document.getElementById('quizEmpty').style.display = 'none'; document.getElementById('quizAllDone').style.display = 'flex'; }
+    else { document.getElementById('quizContent').style.display = 'none'; document.getElementById('quizAllDone').style.display = 'none'; document.getElementById('quizEmpty').style.display = 'flex'; }
+});
+document.getElementById('btnSelectAll').addEventListener('click', manageSelectAll);
+document.getElementById('btnMarkDone').addEventListener('click', manageMarkDone);
+document.getElementById('btnMarkUndone').addEventListener('click', manageMarkUndone);
+document.getElementById('btnDeleteSelected').addEventListener('click', manageConfirmDelete);
+document.getElementById('deletePhrasesCancel').addEventListener('click', () => { document.getElementById('deletePhrasesModalOverlay').classList.remove('open'); });
+document.getElementById('deletePhrasesConfirm').addEventListener('click', manageDoDelete);
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { const quiz = document.getElementById('viewQuiz'); if (quiz.classList.contains('active')) { if (!checked && !document.getElementById('btnCheck').disabled) { checkAnswer(); } else if (!document.getElementById('btnNext').disabled) { nextPhrase(); } } }
+});
+['themeModalOverlay', 'addModalOverlay', 'progressModalOverlay', 'deleteModalOverlay', 'deletePhrasesModalOverlay'].forEach(id => {
+    document.getElementById(id).addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+});
 
-        function getNextVerb() {
-            let available = [];
-            for (let i = 0; i < VERBS.length; i++) {
-                if (!mastered.has(i)) available.push(i);
-            }
-            if (available.length === 0) return null;
-            if (idx >= available.length) {
-                idx = 0;
-            }
-            return available[idx % available.length];
-        }
-
-        function loadVerb(verbIdx) {
-            checked = false;
-            currentVerb = verbIdx;
-            const verb = VERBS[verbIdx];
-            if (!verb) return;
-            const btnCheck = document.getElementById('btnCheck');
-            if (btnCheck) btnCheck.disabled = false;
-
-            const badge = document.getElementById('verbBadge');
-            const aux = verb.auxiliary;
-            badge.className = 'verb-badge badge-' + aux;
-            badge.textContent = aux === 'haben' ? 'mit haben' : aux === 'sein' ? 'mit sein' : aux;
-
-            document.getElementById('verbInfinitive').textContent = verb.infinitive;
-            document.getElementById('verbEnglish').textContent = verb.english;
-
-            const table = document.getElementById('conjTable');
-            const toConceal = Math.min(3, PRONOUNS.length);
-            const indices = [...Array(PRONOUNS.length).keys()];
-            for (let i = indices.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [indices[i], indices[j]] = [indices[j], indices[i]];
-            }
-            const concealSet = new Set(indices.slice(0, toConceal));
-
-            table.innerHTML = PRONOUNS.map((pronoun, i) => {
-                const form = verb.forms[pronoun];
-                const concealed = concealSet.has(i);
-                return `<div class="conj-row">
-                    <span class="conj-pronoun">${pronoun}</span>
-                    <div class="conj-form${concealed ? ' concealed' : ''}" data-pronoun="${pronoun}" data-correct="${form}">
-                        ${concealed ? `<input type="text" placeholder="\u2026" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" />` : form}
-                    </div>
-                </div>`;
-            }).join('');
-
-            document.getElementById('btnNext').disabled = true;
-            document.getElementById('msgArea').textContent = '';
-            document.getElementById('msgArea').className = 'msg-area';
-        }
-
-        // ─── CHECK ──────────────────────────────────────────────────────────
-        function vibrate(pattern) {
-            if (navigator.vibrate) navigator.vibrate(pattern);
-        }
-
-        function checkAnswers() {
-            if (checked) return;
-            checked = true;
-
-            const rows = document.querySelectorAll('.conj-form.concealed');
-            let allCorrect = true;
-
-            rows.forEach(row => {
-                const input = row.querySelector('input');
-                const correct = row.dataset.correct;
-                if (!input) return;
-                const val = input.value.trim().toLowerCase();
-                if (val === correct.toLowerCase()) {
-                    row.classList.remove('concealed');
-                    row.classList.add('revealed');
-                    row.textContent = correct;
-                } else {
-                    row.classList.remove('concealed');
-                    row.classList.add('wrong');
-                    row.textContent = input.value.trim() + ' \u2192 ' + correct;
-                    allCorrect = false;
-                }
-            });
-
-            const msg = document.getElementById('msgArea');
-            if (allCorrect) {
-                msg.textContent = '\u2713 Perfect!';
-                msg.className = 'msg-area success';
-                if (!mastered.has(currentVerb)) {
-                    mastered.add(currentVerb);
-                    sessionCount++;
-                    streak++;
-                    sessionStats.wordsPassed++;
-                    saveState();
-                }
-                vibrate(CONFIG.VIBRATE_SUCCESS);
-            } else {
-                msg.textContent = '\u2717 Some incorrect \u2014 try again next time';
-                msg.className = 'msg-area error';
-                streak = 0;
-                saveState();
-                vibrate(CONFIG.VIBRATE_ERROR);
-            }
-
-            document.getElementById('btnCheck').disabled = true;
-            document.getElementById('btnNext').disabled = false;
-            renderStats();
-        }
-
-        // ─── NAVIGATION ─────────────────────────────────────────────────────
-        function nextVerb() {
-            const next = getNextVerb();
-            if (next === null || next === undefined) {
-                document.getElementById('mainContent').innerHTML = `
-                    <div class="splash">
-                        <div class="splash-icon">\uD83C\uDFC6</div>
-                        <h2>Alle gelernt!</h2>
-                        <p>You've mastered all ${VERBS.length} verbs! Come back for review anytime.</p>
-                        <button class="start-btn" onclick="location.reload()">Review Again</button>
-                    </div>`;
-                return;
-            }
-            loadVerb(next);
-        }
-
-        // ─── MODAL ───────────────────────────────────────────────────────────
-        function showModal() {
-            const masteredList = [...mastered].map(i => VERBS[i].infinitive).join(', ') || 'none yet';
-            document.getElementById('modalBody').innerHTML = `
-                <strong>Mastered (${mastered.size}/${VERBS.length}):</strong><br>
-                <span style="font-size:0.8rem;color:var(--text-dim)">${masteredList}</span>
-            `;
-            document.getElementById('modalOverlay').classList.add('open');
-        }
-
-        document.getElementById('btnProgress').addEventListener('click', showModal);
-        document.getElementById('modalClose').addEventListener('click', () => {
-            document.getElementById('modalOverlay').classList.remove('open');
-        });
-        document.getElementById('modalReset').addEventListener('click', () => {
-            if (confirm('Reset all verb progress?')) {
-                mastered.clear();
-                sessionCount = 0;
-                streak = 0;
-                idx = 0;
-                saveState();
-                renderStats();
-                document.getElementById('modalOverlay').classList.remove('open');
-                loadVerb(getNextVerb());
-            }
-        });
-
-        document.getElementById('btnStart').addEventListener('click', () => {
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('mainContent').classList.add('visible');
-            loadVerb(getNextVerb());
-            if (typeof loadTimer === 'function') {
-              loadTimer();
-              if (!timerState.completed && !timerState.running) {
-                startTimer();
-              } else if (timerState.running) {
-                clearInterval(timerInterval);
-                timerInterval = setInterval(timerTick, 1000);
-                if (timerTickCb) timerTickCb(getRemainingSeconds());
-              }
-            }
-        });
-
-        document.getElementById('btnCheck').addEventListener('click', checkAnswers);
-        document.getElementById('btnNext').addEventListener('click', () => {
-            idx++;
-            nextVerb();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const main = document.getElementById('mainContent');
-                if (main && main.classList.contains('visible')) {
-                    if (!checked && !document.getElementById('btnCheck').disabled) {
-                        checkAnswers();
-                    } else if (!document.getElementById('btnNext').disabled) {
-                        document.getElementById('btnNext').click();
-                    }
-                }
-            }
-        });
-
-        function createParticles() {
-            const container = document.getElementById('particles');
-            if (!container) return;
-            for (let i = 0; i < 20; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.style.left = Math.random() * 100 + '%';
-                p.style.animationDuration = (8 + Math.random() * 12) + 's';
-                p.style.animationDelay = (Math.random() * 10) + 's';
-                p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
-                container.appendChild(p);
-            }
-        }
-
-        // ─── TIMER ──────────────────────────────────────────────────────────
-        const timerPill = document.getElementById('timerPill');
-        if (timerPill) {
-            timerTickCb = (remaining) => {
-                const display = getTimerDisplay();
-                timerPill.textContent = '\u23F1 ' + display;
-                timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
-            };
-        }
-
-        // ─── CUSTOM QUIZ SENTENCE SYSTEM ─────────────────────────────────────
-        function shuffleArray(arr) {
-            const shuffled = [...arr];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
-
-        function openAddQuizModal() {
-            document.getElementById('addQuizModal').classList.add('open');
-            document.getElementById('jsonPasteInput').value = '';
-        }
-
-        function closeAddQuizModal() {
-            document.getElementById('addQuizModal').classList.remove('open');
-        }
-
-        function copyJsonTemplate() {
-            const template = `[
-  {
-    "verb": "machen",
-    "sentence": "Was {{blank}} du heute Abend?",
-    "answer": "machst",
-    "translation": "What are you doing tonight?"
-  }
-]`;
-            navigator.clipboard.writeText(template).then(() => {
-                const btn = document.getElementById('btnCopyJson');
-                btn.textContent = '\u2713 Copied!';
-                setTimeout(() => { btn.textContent = '\ud83d\udccb Copy'; }, 2000);
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = template;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                const btn = document.getElementById('btnCopyJson');
-                btn.textContent = '\u2713 Copied!';
-                setTimeout(() => { btn.textContent = '\ud83d\udccb Copy'; }, 2000);
-            });
-        }
-
-        function loadCustomQuiz() {
-            const pasteInput = document.getElementById('jsonPasteInput');
-            const raw = pasteInput.value.trim();
-
-            let data;
-            try {
-                data = JSON.parse(raw);
-            } catch (e) {
-                if (CUSTOM_QUIZ_SENTENCES.length >= 3) {
-                    data = [...CUSTOM_QUIZ_SENTENCES];
-                } else {
-                    alert('Invalid JSON. Please paste valid JSON or use the default quiz.');
-                    return;
-                }
-            }
-
-            if (!Array.isArray(data) || data.length === 0) {
-                alert('JSON must be an array with at least one sentence.');
-                return;
-            }
-
-            for (const item of data) {
-                if (!item.verb || !item.sentence || !item.answer || !item.translation) {
-                    alert('Each item must have: verb, sentence, answer, translation');
-                    return;
-                }
-                if (!item.sentence.includes('{{blank}}')) {
-                    alert('Each sentence must contain the {{blank}} placeholder.');
-                    return;
-                }
-            }
-
-            customQuizData = shuffleArray(data).slice(0, 3);
-            closeAddQuizModal();
-            renderCustomQuiz();
-        }
-
-        function renderCustomQuiz() {
-            customQuizChecked = false;
-            const content = document.getElementById('customQuizContent');
-            const msg = document.getElementById('customQuizMsg');
-            msg.textContent = '';
-            msg.className = 'msg-area';
-
-            let html = '';
-            customQuizData.forEach((item, index) => {
-                const parts = item.sentence.split('{{blank}}');
-                html += `<div class="custom-quiz-sentence" data-index="${index}">
-                    <div class="sentence-verb">${item.verb}</div>
-                    <div class="sentence-text">
-                        <span>${parts[0]}</span>
-                        <input type="text" class="blank-input" data-index="${index}" data-answer="${item.answer}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" placeholder="..." />
-                        <span>${parts[1] || ''}</span>
-                    </div>
-                    <div class="sentence-translation">${item.translation}</div>
-                </div>`;
-            });
-
-            content.innerHTML = html;
-
-            const inputs = content.querySelectorAll('.blank-input');
-            inputs.forEach(input => {
-                input.addEventListener('input', checkCustomQuizInputsFilled);
-                input.addEventListener('click', handleCustomQuizInputClick);
-            });
-
-            document.getElementById('btnCheckCustomQuiz').disabled = true;
-            document.getElementById('customQuizModal').classList.add('open');
-        }
-
-        function checkCustomQuizInputsFilled() {
-            const inputs = document.querySelectorAll('#customQuizContent .blank-input');
-            let allFilled = true;
-            inputs.forEach(input => {
-                if (input.value.trim() === '') {
-                    allFilled = false;
-                }
-            });
-            document.getElementById('btnCheckCustomQuiz').disabled = !allFilled;
-        }
-
-        function handleCustomQuizInputClick(e) {
-            if (!customQuizChecked) return;
-            const input = e.target;
-            if (input.classList.contains('incorrect')) {
-                const correctAnswer = input.dataset.answer;
-                if (input.value.trim().toLowerCase() === correctAnswer.toLowerCase()) {
-                    input.value = input.dataset.userAnswer || '';
-                } else {
-                    input.dataset.userAnswer = input.value;
-                    input.value = correctAnswer;
-                }
-            }
-        }
-
-        function checkCustomQuizAnswers() {
-            if (customQuizChecked) return;
-            customQuizChecked = true;
-
-            const inputs = document.querySelectorAll('#customQuizContent .blank-input');
-            let allCorrect = true;
-
-            inputs.forEach(input => {
-                const userAnswer = input.value.trim();
-                const correctAnswer = input.dataset.answer;
-                input.dataset.userAnswer = userAnswer;
-
-                if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-                    input.classList.remove('incorrect');
-                    input.classList.add('correct');
-                    input.readOnly = true;
-                } else {
-                    input.classList.remove('correct');
-                    input.classList.add('incorrect');
-                    allCorrect = false;
-                }
-            });
-
-            const msg = document.getElementById('customQuizMsg');
-            if (allCorrect) {
-                msg.textContent = '\u2713 Perfect! All answers correct!';
-                msg.className = 'msg-area success';
-                vibrate(CONFIG.VIBRATE_SUCCESS);
-            } else {
-                msg.textContent = '\u2717 Some incorrect \u2014 click on a wrong answer to toggle and see the correct one.';
-                msg.className = 'msg-area error';
-                vibrate(CONFIG.VIBRATE_ERROR);
-            }
-
-            document.getElementById('btnCheckCustomQuiz').disabled = true;
-        }
-
-        function closeCustomQuiz() {
-            document.getElementById('customQuizModal').classList.remove('open');
-            customQuizData = [];
-            customQuizChecked = false;
-        }
-
-        document.getElementById('btnAddQuiz').addEventListener('click', openAddQuizModal);
-        document.getElementById('btnCancelQuiz').addEventListener('click', closeAddQuizModal);
-        document.getElementById('btnCopyJson').addEventListener('click', copyJsonTemplate);
-        document.getElementById('btnLoadQuiz').addEventListener('click', loadCustomQuiz);
-        document.getElementById('btnCheckCustomQuiz').addEventListener('click', checkCustomQuizAnswers);
-        document.getElementById('btnCloseCustomQuiz').addEventListener('click', closeCustomQuiz);
-
-        document.getElementById('addQuizModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('addQuizModal')) closeAddQuizModal();
-        });
-        document.getElementById('customQuizModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('customQuizModal')) closeCustomQuiz();
-        });
-
-        // ─── INIT ────────────────────────────────────────────────────────────
-        const app = {
-            init() {
-                createParticles();
-                loadState();
-                renderStats();
-
-                if (mastered.size >= VERBS.length) {
-                    const h2 = document.getElementById('splashScreen').querySelector('h2');
-                    const p = document.getElementById('splashScreen').querySelector('p');
-                    if (h2) h2.textContent = '\uD83C\uDFC6 Welcome Back!';
-                    if (p) p.textContent = `You've mastered all ${VERBS.length} verbs! Review them or reset your progress.`;
-                }
-            }
-        };
-
-        app.init();
+function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = Math.random() * 100 + '%'; p.style.animationDuration = (8 + Math.random() * 12) + 's'; p.style.animationDelay = (Math.random() * 10) + 's'; p.style.width = p.style.height = (2 + Math.random() * 3) + 'px'; container.appendChild(p); }
+}
+loadThemes(); createParticles(); renderThemesList();

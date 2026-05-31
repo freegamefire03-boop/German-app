@@ -79,16 +79,6 @@ function addWordKeysToActiveTheme(germanWords) {
 function showFlashcardView() {
   document.getElementById('themeSelectView').classList.remove('active');
   document.getElementById('flashcardView').classList.add('active');
-  if (typeof loadTimer === 'function') {
-    loadTimer();
-    if (!timerState.completed && !timerState.running) {
-      startTimer();
-    } else if (timerState.running) {
-      clearInterval(timerInterval);
-      timerInterval = setInterval(timerTick, 1000);
-      if (timerTickCb) timerTickCb(getRemainingSeconds());
-    }
-  }
 }
 
 function showThemeSelect() {
@@ -1160,14 +1150,6 @@ document.getElementById('wmBackBtn').addEventListener('click', () => {
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────
-const timerPill = document.getElementById('timerPill');
-if (timerPill) {
-  timerTickCb = (remaining) => {
-    const display = getTimerDisplay();
-    timerPill.textContent = '\u23F1 ' + display;
-    timerPill.style.color = remaining <= 120 ? 'var(--orange)' : (remaining <= 60 ? 'var(--rose)' : '');
-  };
-}
 
 (async () => {
   loadThemes();
