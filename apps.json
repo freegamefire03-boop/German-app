@@ -22,5 +22,13 @@
     "file": "apps/cases/",
     "icon": "♂",
     "color": "#2cbf0b"
+  },
+  {
+    "id": "qcm",
+    "title": "Deutsch QCM",
+    "description": "Multiple choice quiz — choose the right answer",
+    "file": "apps/QCM/",
+    "icon": "❓",
+    "color": "#FF6B35"
   }
 ]

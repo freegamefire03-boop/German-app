@@ -1,4 +1,4 @@
-const CACHE = 'hub-v2';
+const CACHE = 'hub-v3';
 
 const ASSETS = [
   '/',
@@ -22,6 +22,9 @@ const ASSETS = [
   '/apps/cases/js/landing.js',
   '/apps/cases/js/script.js',
   '/apps/cases/data/themes.json',
+  '/apps/QCM/index.html',
+  '/apps/QCM/css/style.css',
+  '/apps/QCM/js/app.js',
   'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap'
 ];
 
