@@ -1,83 +1,37 @@
-const CACHE = 'hub-v3';
-
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/apps.json',
-  '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png',
-  '/shared/js/config.js',
-  '/shared/js/timer.js',
-  '/shared/data/words.json',
-  '/apps/flashcards/index.html',
-  '/apps/flashcards/css/style.css',
-  '/apps/flashcards/js/app.js',
-  '/apps/verbs/index.html',
-  '/apps/verbs/css/style.css',
-  '/apps/verbs/js/app.js',
-  '/apps/cases/index.html',
-  '/apps/cases/quiz.html',
-  '/apps/cases/css/style.css',
-  '/apps/cases/js/landing.js',
-  '/apps/cases/js/script.js',
-  '/apps/cases/data/themes.json',
-  '/apps/QCM/index.html',
-  '/apps/QCM/css/style.css',
-  '/apps/QCM/js/app.js',
-  'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap'
+const CACHE_NAME = 'german-app-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './manifest.json',
+  './sw.js',
+  './app.js',
+  './style.css',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
-const OFFLINE_PAGE = '/index.html';
-
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS).catch(() => {}))
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-
-self.addEventListener('fetch', e => {
-  const request = e.request;
-
-  if (request.mode === 'navigate') {
-    e.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_PAGE))
-    );
-    return;
-  }
-
-  e.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(request).then(response => {
-        if (response && response.status === 200 && request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(request, clone));
-        }
-        return response;
-      }).catch(() => {
-        if (cached) return cached;
-        return new Response('Offline', {
-          headers: { 'Content-Type': 'text/plain' }
-        });
-      });
-    })
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request, { ignoreSearch: true })
+      .then(response => response || fetch(event.request))
   );
 });
