@@ -117,6 +117,10 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().catch(() => {});
+}
+
 loadApps();
 </script>
 </body>
