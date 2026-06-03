@@ -44,6 +44,12 @@
   .update-bar.show{transform:translateY(0)}
   .update-bar button{background:#fff;color:var(--violet);border:none;border-radius:10px;padding:10px 20px;font-weight:800;font-size:.85rem;cursor:pointer;font-family:'Nunito',sans-serif;min-height:44px;display:flex;align-items:center;justify-content:center}
   .update-bar button:active{opacity:.8}
+  #updateBtn{position:fixed;bottom:20px;right:20px;z-index:3000;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:rgba(255,255,255,.35);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .22s cubic-bezier(.4,0,.2,1);font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transparent;padding:0;line-height:1}
+  #updateBtn:active{transform:scale(.9);background:var(--surface2);color:#fff}
+  #updateBtn.checking{pointer-events:none;opacity:.5;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #updateBtn.toast{color:var(--mint);border-color:var(--mint);pointer-events:none;animation:none}
+  #updateBtn.toast.fade{opacity:0;transition:opacity .6s}
 </style>
 </head>
 <body>
@@ -60,6 +66,7 @@
   <div class="hub-footer">deutsch lernen · progress saved locally per app</div>
 </div>
 
+<button id="updateBtn" aria-label="Check for updates">↻</button>
 <script src="shared/js/config.js"></script>
 <script>
 async function loadApps() {
@@ -85,6 +92,8 @@ async function loadApps() {
 
 if ('serviceWorker' in navigator) {
   let swRegistration = null;
+  let updateCheckPending = false;
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').then(reg => {
       swRegistration = reg;
@@ -92,8 +101,13 @@ if ('serviceWorker' in navigator) {
         const newSW = reg.installing;
         newSW.addEventListener('statechange', () => {
           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            const bar = document.getElementById('updateBar');
-            if (bar) bar.classList.add('show');
+            if (updateCheckPending) {
+              updateCheckPending = false;
+              newSW.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+              const bar = document.getElementById('updateBar');
+              if (bar) bar.classList.add('show');
+            }
           }
         });
       });
@@ -115,6 +129,30 @@ if ('serviceWorker' in navigator) {
     refreshing = true;
     window.location.reload();
   });
+
+  const updateBtn = document.getElementById('updateBtn');
+  if (updateBtn) {
+    updateBtn.addEventListener('click', () => {
+      if (!swRegistration) return;
+      updateCheckPending = true;
+      updateBtn.classList.add('checking');
+      swRegistration.update().catch(() => {});
+      setTimeout(() => {
+        if (!updateBtn.classList.contains('checking')) return;
+        updateCheckPending = false;
+        updateBtn.classList.remove('checking');
+        updateBtn.classList.add('toast');
+        updateBtn.textContent = '✓';
+        setTimeout(() => {
+          updateBtn.classList.add('fade');
+          setTimeout(() => {
+            updateBtn.classList.remove('toast', 'fade');
+            updateBtn.textContent = '↻';
+          }, 600);
+        }, 1200);
+      }, 3000);
+    });
+  }
 }
 
 if (navigator.storage && navigator.storage.persist) {
