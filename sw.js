@@ -53,28 +53,22 @@ self.addEventListener('message', e => {
 });
 
 self.addEventListener('fetch', e => {
-  const request = e.request;
-
-  if (request.mode === 'navigate') {
-    e.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_PAGE))
-    );
-    return;
-  }
-
   e.respondWith(
-    caches.match(request).then(cached => {
+    caches.match(e.request).then(cached => {
       if (cached) return cached;
 
-      return fetch(request).then(response => {
-        if (response && response.status === 200 && request.method === 'GET') {
+      return fetch(e.request).then(response => {
+        if (response && response.ok && e.request.method === 'GET') {
           const clone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(request, clone));
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
         }
         return response;
       }).catch(() => {
-        if (cached) return cached;
+        if (e.request.mode === 'navigate') {
+          return caches.match(OFFLINE_PAGE);
+        }
         return new Response('Offline', {
+          status: 503,
           headers: { 'Content-Type': 'text/plain' }
         });
       });
