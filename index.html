@@ -10,7 +10,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Deutsch">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:#0D0C14;--surface:#16141F;--surface2:#1E1C2A;
@@ -90,7 +89,7 @@ async function loadApps() {
   }
 }
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   let swRegistration = null;
   let updateCheckPending = false;
 

@@ -1,34 +1,33 @@
 const CACHE = 'hub-v3';
 
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/apps.json',
-  '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png',
-  '/shared/js/config.js',
-  '/shared/js/timer.js',
-  '/shared/data/words.json',
-  '/apps/flashcards/index.html',
-  '/apps/flashcards/css/style.css',
-  '/apps/flashcards/js/app.js',
-  '/apps/verbs/index.html',
-  '/apps/verbs/css/style.css',
-  '/apps/verbs/js/app.js',
-  '/apps/cases/index.html',
-  '/apps/cases/quiz.html',
-  '/apps/cases/css/style.css',
-  '/apps/cases/js/landing.js',
-  '/apps/cases/js/script.js',
-  '/apps/cases/data/themes.json',
-  '/apps/QCM/index.html',
-  '/apps/QCM/css/style.css',
-  '/apps/QCM/js/app.js',
-  'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap'
+  './',
+  './index.html',
+  './manifest.json',
+  './apps.json',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './shared/js/config.js',
+  './shared/js/timer.js',
+  './shared/data/words.json',
+  './apps/flashcards/index.html',
+  './apps/flashcards/css/style.css',
+  './apps/flashcards/js/app.js',
+  './apps/verbs/index.html',
+  './apps/verbs/css/style.css',
+  './apps/verbs/js/app.js',
+  './apps/cases/index.html',
+  './apps/cases/quiz.html',
+  './apps/cases/css/style.css',
+  './apps/cases/js/landing.js',
+  './apps/cases/js/script.js',
+  './apps/cases/data/themes.json',
+  './apps/QCM/index.html',
+  './apps/QCM/css/style.css',
+  './apps/QCM/js/app.js'
 ];
 
-const OFFLINE_PAGE = '/index.html';
+const OFFLINE_PAGE = './index.html';
 
 self.addEventListener('install', e => {
   e.waitUntil(
