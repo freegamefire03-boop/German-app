@@ -1,0 +1,67 @@
+diff --git a/apps/flashcards/index.html b/apps/flashcards/index.html
+index 1a2b3c4..5d6e7f8 100644
+--- a/apps/flashcards/index.html
++++ b/apps/flashcards/index.html
+@@ -145,7 +145,10 @@
+               <span class="card-article-inline art-der" id="cardArticleInline">der</span>
+               <span class="card-word" id="cardWord">—</span>
+             </div>
+-            <div class="card-pronunciation" id="cardPronun">—</div>
++            <div class="card-plural" id="cardPlural" style="font-size:1.4em; font-weight:700; color:#222; margin:8px 0 4px; text-align:center;"></div>
++            <button id="speakCornerBtn" class="speak-corner" onclick="event.preventDefault(); event.stopPropagation(); speakCurrentWord();" ontouchstart="event.preventDefault(); event.stopPropagation(); speakCurrentWord();" style="position:absolute; top:15px; right:15px; width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.95); border:2px solid #e5e7eb; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; font-size:1.6em; cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:manipulation; z-index:20;">🔊</button>
+             <div class="card-hint">tap to reveal →</div>
+           </div>
+           <div class="card-face card-back">
+diff --git a/apps/flashcards/js/app.js b/apps/flashcards/js/app.js
+index 9a8b7c6..5e4f3d2 100644
+--- a/apps/flashcards/js/app.js
++++ b/apps/flashcards/js/app.js
+@@ -18,6 +18,15 @@ const LS_ACTIVE_THEME  = 'deutsch_active_theme';
+ let themes        = [];
+ let activeThemeId = null;
+ 
++// TTS Function
++function speakGerman(text) {
++  if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'de-DE'; u.rate = 0.9; window.speechSynthesis.speak(u); }
++}
++function speakCurrentWord() {
++  const w = document.getElementById('cardWord').textContent;
++  if (w && w !== '—') speakGerman(w);
++}
++
+ function loadThemes() {
+   try { themes = JSON.parse(localStorage.getItem(LS_THEMES) || '[]'); } catch(e) { themes = []; }
+   activeThemeId = localStorage.getItem(LS_ACTIVE_THEME) || null;
+@@ -128,6 +137,7 @@ function renderThemeSelectList() {
+         <div class="ts-desc">${count} words \u00B7 ${mastered} mastered</div>
+       </div>
+       <div style="display:flex;align-items:center;gap:10px; z-index:10;">
++        <button class="theme-del-btn" ontouchstart="event.preventDefault(); event.stopPropagation();" onclick="event.preventDefault(); event.stopPropagation(); if(confirm('Delete \\'${escHtml(t.name)}\\'?')) deleteTheme('${t.id}')" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; border-radius:10px; padding:10px 14px; font-size:1.3em; cursor:pointer; min-width:48px; min-height:48px; display:flex; align-items:center; justify-content:center; user-select:none; -webkit-user-select:none; touch-action:manipulation;">🗑️</button>
+         <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">\u270E</button>
+         <div class="ts-arrow">\u203A</div>
+       </div>
+@@ -259,7 +269,7 @@ function render() {
+   artFront.className = artClass;
+ 
+   document.getElementById('cardWord').textContent        = word.german;
+-  document.getElementById('cardPronun').textContent      = word.pronunciation ? '[ ' + word.pronunciation + ' ]' : '';
++  document.getElementById('cardPlural').textContent      = word.plural ? 'Plural: ' + word.plural : '';
+   document.getElementById('cardTranslation').textContent = word.english;
+   document.getElementById('cardNumber').textContent      = '#' + (idx + 1);
+   document.getElementById('cardNumberBack').textContent  = '#' + (idx + 1);
+@@ -714,6 +724,7 @@ function genderAnswer(chosen) {
+     }
+ 
+     vibrate(CONFIG.VIBRATE_SUCCESS);
++    setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
+     btns.forEach(b => {
+       if (b.textContent.trim() === chosen) {
+         b.style.background = 'rgba(0,229,195,0.18)';
+@@ -866,6 +877,7 @@ function pluralAnswer() {
+     }
+ 
+     vibrate(CONFIG.VIBRATE_SUCCESS);
++    setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
+ 
+   } else {
+     quizSessionWrong++;
