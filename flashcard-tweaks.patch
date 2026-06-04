@@ -1,0 +1,59 @@
+diff --git a/apps/flashcards/index.html b/apps/flashcards/index.html
+index 93ebc8c..a1b2c3d 100644
+--- a/apps/flashcards/index.html
++++ b/apps/flashcards/index.html
+@@ -144,9 +144,10 @@
+           <div class="card-face card-front">
+             <div class="card-header">
+               <span class="card-article-inline art-der" id="cardArticleInline">der</span>
+               <span class="card-word" id="cardWord">—</span>
+             </div>
+-            <div class="card-plural" id="cardPlural" style="font-size: 0.9em; color: #888; margin-top: 4px; text-align: center;"></div>
+-            <div class="card-pronunciation" id="cardPronun" style="cursor: pointer;">—</div>
++            <div class="card-plural" id="cardPlural" style="font-size: 1.2em; font-weight: 600; color: #444; margin-top: 8px; text-align: center;"></div>
++            <button id="speakBtn" class="speak-corner-btn" onclick="event.stopPropagation(); speakCurrentWord()" style="position: absolute; top: 12px; right: 12px; font-size: 1.5em; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">🔊</button>
+             <div class="card-hint">tap to reveal →</div>
+           </div>
+           <div class="card-face card-back">
+diff --git a/apps/flashcards/js/app.js b/apps/flashcards/js/app.js
+index 4b7ffcb..8c9d0e1 100644
+--- a/apps/flashcards/js/app.js
++++ b/apps/flashcards/js/app.js
+@@ -28,6 +28,11 @@ function speakGerman(text) {
+   }
+ }
+ 
++function speakCurrentWord() {
++  const word = document.getElementById('cardWord').textContent;
++  if (word && word !== '—') speakGerman(word);
++}
++
+ function loadThemes() {
+   try { themes = JSON.parse(localStorage.getItem(LS_THEMES) || '[]'); } catch(e) { themes = []; }
+   activeThemeId = localStorage.getItem(LS_ACTIVE_THEME) || null;
+@@ -140,7 +145,7 @@ function renderThemeSelectList() {
+         <div class="ts-desc">${count} words \u00B7 ${mastered} mastered</div>
+       </div>
+       <div style="display:flex;align-items:center;gap:8px">
+-        <button class="ts-manage-btn" onclick="event.stopPropagation();if(confirm('Delete theme \'${escHtml(t.name)}\'?'))deleteTheme('${t.id}')" title="Delete theme" style="color:#FB7185">🗑️</button>
++        <button class="ts-delete-btn" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); event.preventDefault(); if(confirm('Delete theme \\'${escHtml(t.name)}\\'?')) deleteTheme('${t.id}')" title="Delete theme" style="background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 8px; padding: 8px 12px; font-size: 1.2em; cursor: pointer; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px;">🗑️</button>
+         <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">\u270E</button>
+         <div class="ts-arrow">\u203A</div>
+       </div>
+@@ -271,15 +276,7 @@ function render() {
+   artFront.className = artClass;
+ 
+   document.getElementById('cardWord').textContent        = word.german;
+-  const pluralEl = document.getElementById('cardPlural');
+-  if (pluralEl) pluralEl.textContent = word.plural ? 'Plural: ' + word.plural : '';
+-  const pronunEl = document.getElementById('cardPronun');
+-  const safeGerman = escHtml(word.german).replace(/'/g, "\\'");
+-  if (word.pronunciation) {
+-    pronunEl.innerHTML = '[ ' + escHtml(word.pronunciation) + ' ] <span class="speak-btn" onclick="event.stopPropagation();speakGerman(\'' + safeGerman + '\')" style="cursor:pointer;margin-left:8px;">🔊</span>';
+-  } else {
+-    pronunEl.innerHTML = '<span class="speak-btn" onclick="event.stopPropagation();speakGerman(\'' + safeGerman + '\')" style="cursor:pointer;">🔊 Listen</span>';
+-  }
++  document.getElementById('cardPlural').textContent = word.plural ? 'Plural: ' + word.plural : '';
+   document.getElementById('cardTranslation').textContent = word.english;
+   document.getElementById('cardNumber').textContent      = '#' + (idx + 1);
+   document.getElementById('cardNumberBack').textContent  = '#' + (idx + 1);
