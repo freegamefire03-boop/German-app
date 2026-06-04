@@ -697,6 +697,79 @@
     background: rgba(167,139,250,0.1);
   }
 
+  /* ── Swipe-to-delete theme rows ─────────────────────────── */
+  .ts-swipe-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .ts-swipe-wrapper .ts-swipeable {
+    position: relative;
+    z-index: 1;
+    will-change: transform;
+    margin-bottom: 0;
+    border-radius: 20px;
+  }
+  .ts-swipe-wrapper .ts-swipeable:active { transform: none; }
+  .ts-delete-bg {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 90px;
+    background: linear-gradient(160deg, #c62828, #e53935);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    z-index: 0;
+    border-radius: 0 20px 20px 0;
+  }
+  .ts-delete-bg:active { filter: brightness(1.15); }
+  .td-icon  { font-size: 1.5rem; line-height: 1; }
+  .td-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* ── Corner sound button on flashcard ───────────────────── */
+  .card-sound-btn {
+    position: absolute;
+    top: 14px; left: 16px;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,107,53,0.15);
+    color: var(--orange);
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+    z-index: 2;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card-sound-btn:active {
+    transform: scale(0.88);
+    background: rgba(255,107,53,0.35);
+  }
+
+  /* ── Plural form on flashcard (bigger) ──────────────────── */
+  .card-plural {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 1.5px;
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+    min-height: 1.5em;
+  }
+
   .ts-create-card {
     border-style: dashed;
     border-color: rgba(255,255,255,0.1);

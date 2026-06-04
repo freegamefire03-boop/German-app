@@ -133,16 +133,21 @@ function renderThemeSelectList() {
     const mastered = vocab
       .map((w, i) => ({ w, i }))
       .filter(({ w, i }) => t.wordKeys.includes(w.german) && passed.has(i)).length;
-    html += `<div class="ts-card" onclick="selectTheme('${t.id}')">
-      <div class="ts-icon">\uD83C\uDFF7\uFE0F</div>
-      <div class="ts-info">
-        <div class="ts-title">${escHtml(t.name)}</div>
-        <div class="ts-desc">${count} words \u00B7 ${mastered} mastered</div>
+    html += `<div class="ts-swipe-wrapper" id="swipe_${t.id}">
+      <div class="ts-delete-bg" onclick="handleDeleteTheme('${t.id}')">
+        <span class="td-icon">\uD83D\uDDD1\uFE0F</span>
+        <span class="td-label">Delete</span>
       </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button class="ts-manage-btn" onclick="event.stopPropagation();if(confirm('Delete theme \'${escHtml(t.name)}\'?'))deleteTheme('${t.id}')" title="Delete theme" style="color:#FB7185">🗑️</button>
-        <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">\u270E</button>
-        <div class="ts-arrow">\u203A</div>
+      <div class="ts-card ts-swipeable" id="card_${t.id}" onclick="selectTheme('${t.id}')">
+        <div class="ts-icon">\uD83C\uDFF7\uFE0F</div>
+        <div class="ts-info">
+          <div class="ts-title">${escHtml(t.name)}</div>
+          <div class="ts-desc">${count} words \u00B7 ${mastered} mastered</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">\u270E</button>
+          <div class="ts-arrow">\u203A</div>
+        </div>
       </div>
     </div>`;
   });
@@ -152,6 +157,7 @@ function renderThemeSelectList() {
   }
 
   list.innerHTML = html;
+  initAllSwipes();
 }
 
 function escHtml(s) {
@@ -159,6 +165,83 @@ function escHtml(s) {
   d.textContent = s;
   return d.innerHTML;
 }
+
+// ─── SWIPE-TO-DELETE ──────────────────────────────────────────────────
+let openSwipeCard = null;
+
+function handleDeleteTheme(id) {
+  deleteTheme(id);
+  renderThemeSelectList();
+}
+
+function initSwipeToDelete(wrapperEl) {
+  const card = wrapperEl.querySelector('.ts-swipeable');
+  if (!card) return;
+  const DELETE_WIDTH = 90;
+  const THRESHOLD    = 40;
+  let startX = 0, startY = 0, isDragging = false, isOpen = false, swipedFar = false;
+
+  card.addEventListener('touchstart', e => {
+    // Close any other open swipe card
+    if (openSwipeCard && openSwipeCard !== card) {
+      openSwipeCard.style.transition = 'transform 0.25s ease';
+      openSwipeCard.style.transform  = 'translateX(0)';
+      openSwipeCard = null;
+    }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    swipedFar = false;
+    isDragging = true;
+    card.style.transition = 'none';
+  }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dy) > Math.abs(dx) + 8) { isDragging = false; return; }
+    let x = isOpen ? Math.min(0, Math.max(-DELETE_WIDTH, -DELETE_WIDTH + dx))
+                   : Math.min(0, Math.max(-DELETE_WIDTH, dx));
+    card.style.transform = `translateX(${x}px)`;
+    if (Math.abs(dx) > 8) swipedFar = true;
+  }, { passive: true });
+
+  card.addEventListener('touchend', e => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    card.style.transition = 'transform 0.25s ease';
+    if (!isOpen && dx < -THRESHOLD) {
+      card.style.transform = `translateX(-${DELETE_WIDTH}px)`;
+      isOpen = true;
+      openSwipeCard = card;
+    } else if (isOpen && dx > THRESHOLD) {
+      card.style.transform = 'translateX(0)';
+      isOpen = false;
+      openSwipeCard = null;
+    } else {
+      card.style.transform = isOpen ? `translateX(-${DELETE_WIDTH}px)` : 'translateX(0)';
+    }
+  }, { passive: true });
+
+  // Block click/selectTheme if the user swiped
+  card.addEventListener('click', e => {
+    if (swipedFar) { e.stopPropagation(); swipedFar = false; }
+  }, true);
+}
+
+function initAllSwipes() {
+  document.querySelectorAll('.ts-swipe-wrapper').forEach(w => initSwipeToDelete(w));
+}
+
+// Close open swipe card when tapping elsewhere
+document.addEventListener('touchstart', e => {
+  if (openSwipeCard && !openSwipeCard.closest('.ts-swipe-wrapper').contains(e.target)) {
+    openSwipeCard.style.transition = 'transform 0.25s ease';
+    openSwipeCard.style.transform  = 'translateX(0)';
+    openSwipeCard = null;
+  }
+}, { passive: true });
 
 // ─── MODAL ────────────────────────────────────────────────────────────
 function openCreateModal(autoName = '') {
@@ -272,13 +355,15 @@ function render() {
 
   document.getElementById('cardWord').textContent        = word.german;
   const pluralEl = document.getElementById('cardPlural');
-  if (pluralEl) pluralEl.textContent = word.plural ? 'Plural: ' + word.plural : '';
+  if (pluralEl) pluralEl.textContent = word.plural ? 'Pl.: ' + word.plural : '';
   const pronunEl = document.getElementById('cardPronun');
-  const safeGerman = escHtml(word.german).replace(/'/g, "\\'");
-  if (word.pronunciation) {
-    pronunEl.innerHTML = '[ ' + escHtml(word.pronunciation) + ' ] <span class="speak-btn" onclick="event.stopPropagation();speakGerman(\'' + safeGerman + '\')" style="cursor:pointer;margin-left:8px;">🔊</span>';
-  } else {
-    pronunEl.innerHTML = '<span class="speak-btn" onclick="event.stopPropagation();speakGerman(\'' + safeGerman + '\')" style="cursor:pointer;">🔊 Listen</span>';
+  if (pronunEl) pronunEl.innerHTML = '';
+
+  // Corner sound button
+  const soundBtn = document.getElementById('cardSoundBtn');
+  if (soundBtn) {
+    const german = word.german;
+    soundBtn.onclick = (e) => { e.stopPropagation(); speakGerman(german); };
   }
   document.getElementById('cardTranslation').textContent = word.english;
   document.getElementById('cardNumber').textContent      = '#' + (idx + 1);
