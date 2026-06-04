@@ -18,6 +18,17 @@ const LS_ACTIVE_THEME  = 'deutsch_active_theme';
 let themes        = [];
 let activeThemeId = null;
 
+
+function speakGerman(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'de-DE';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
 function loadThemes() {
   try { themes = JSON.parse(localStorage.getItem(LS_THEMES) || '[]'); } catch(e) { themes = []; }
   activeThemeId = localStorage.getItem(LS_ACTIVE_THEME) || null;
@@ -129,6 +140,7 @@ function renderThemeSelectList() {
         <div class="ts-desc">${count} words \u00B7 ${mastered} mastered</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
+        <button class="ts-manage-btn" onclick="event.stopPropagation();if(confirm('Delete theme \'${escHtml(t.name)}\'?'))deleteTheme('${t.id}')" title="Delete theme" style="color:#FB7185">🗑️</button>
         <button class="ts-manage-btn" onclick="event.stopPropagation();openWordManage('${t.id}')" title="Manage words">\u270E</button>
         <div class="ts-arrow">\u203A</div>
       </div>
@@ -259,7 +271,15 @@ function render() {
   artFront.className = artClass;
 
   document.getElementById('cardWord').textContent        = word.german;
-  document.getElementById('cardPronun').textContent      = word.pronunciation ? '[ ' + word.pronunciation + ' ]' : '';
+  const pluralEl = document.getElementById('cardPlural');
+  if (pluralEl) pluralEl.textContent = word.plural ? 'Plural: ' + word.plural : '';
+  const pronunEl = document.getElementById('cardPronun');
+  const safeGerman = escHtml(word.german).replace(/'/g, "\\'");
+  if (word.pronunciation) {
+    pronunEl.innerHTML = '[ ' + escHtml(word.pronunciation) + ' ] <span class="speak-btn" onclick="event.stopPropagation();speakGerman(\'' + safeGerman + '\')" style="cursor:pointer;margin-left:8px;">🔊</span>';
+  } else {
+    pronunEl.innerHTML = '<span class="speak-btn" onclick="event.stopPropagation();speakGerman(\'' + safeGerman + '\')" style="cursor:pointer;">🔊 Listen</span>';
+  }
   document.getElementById('cardTranslation').textContent = word.english;
   document.getElementById('cardNumber').textContent      = '#' + (idx + 1);
   document.getElementById('cardNumberBack').textContent  = '#' + (idx + 1);
@@ -714,6 +734,7 @@ function genderAnswer(chosen) {
     }
 
     vibrate(CONFIG.VIBRATE_SUCCESS);
+    setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
     btns.forEach(b => {
       if (b.textContent.trim() === chosen) {
         b.style.background = 'rgba(0,229,195,0.18)';
@@ -866,6 +887,7 @@ function pluralAnswer() {
     }
 
     vibrate(CONFIG.VIBRATE_SUCCESS);
+    setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
 
   } else {
     quizSessionWrong++;
