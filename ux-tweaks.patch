@@ -1,0 +1,54 @@
+diff --git a/apps/flashcards/js/script.js b/apps/flashcards/js/script.js
+--- a/apps/flashcards/js/script.js
++++ b/apps/flashcards/js/script.js
+@@ -1,5 +1,6 @@
+ // Flashcard answer validation
+ function handleAnswer(selected) {
+     const isCorrect = selected === currentCard.answer;
+     if (isCorrect) {
+         showFeedback('correct');
++        setTimeout(() => nextCard(), 400);
+     } else {
+         showFeedback('wrong');
+     }
+ }
+diff --git a/apps/flashcards/css/style.css b/apps/flashcards/css/style.css
+--- a/apps/flashcards/css/style.css
++++ b/apps/flashcards/css/style.css
+@@ -1,3 +1,33 @@
++/* 🔧 Fix unclickable theme delete icon */
++.theme-delete-btn, .delete-theme-icon, [class*="delete"][class*="theme"] {
++    pointer-events: auto !important;
++    cursor: pointer !important;
++    z-index: 50 !important;
++    position: relative !important;
++}
++
++/* 🔊 Move pronunciation to bottom-right, use sound icon, hide text */
++.pronunciation-wrapper, .pronunciation-container, [class*="pronunciation"] {
++    position: absolute !important;
++    bottom: 12px !important;
++    right: 12px !important;
++    display: flex !important;
++    align-items: center !important;
++}
++
++.pronunciation-text, [class*="pronunciation"] span, [class*="pronunciation"] p {
++    display: none !important;
++}
++
++.pronunciation-icon, [class*="pronunciation"] button, [class*="pronunciation"] i {
++    font-size: 1.6rem !important;
++    background: none !important;
++    border: none !important;
++    padding: 4px !important;
++}
++
++/* 🔤 Make plural form bigger & obvious, but smaller than main word */
++.plural-form, .word-plural, [class*="plural"] {
++    font-size: 1.15em !important;
++    font-weight: 600 !important;
++    color: #444 !important;
++    margin-top: 6px !important;
++    display: block !important;
++}
