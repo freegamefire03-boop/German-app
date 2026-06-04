@@ -252,10 +252,10 @@ function render() {
   const scene = document.getElementById('cardScene');
   scene.classList.remove('flipped');
 
-  const artClass = 'card-article-inline art-' + word.article.toLowerCase();
+  const artClass = 'card-article-inline ' + (word.article ? 'art-' + word.article.toLowerCase() : 'art-none');
 
   const artFront = document.getElementById('cardArticleInline');
-  artFront.textContent = word.article;
+  artFront.textContent = word.article || '—';
   artFront.className = artClass;
 
   document.getElementById('cardWord').textContent        = word.german;
@@ -613,7 +613,9 @@ function buildPool(masteredSet) {
 }
 
 function updateQuizStats(masteredSet) {
-  const inPool = passed.size - masteredSet.size;
+  const activeIndices = getActiveIndices();
+  const passedInTheme = activeIndices.filter(i => passed.has(i)).length;
+  const inPool = passedInTheme - masteredSet.size;
   document.getElementById('qStatPool').textContent     = Math.max(0, inPool);
   document.getElementById('qStatMastered').textContent = masteredSet.size;
   document.getElementById('qStatCorrect').textContent  = quizSessionCorrect;
@@ -684,6 +686,10 @@ function genderAnswer(chosen) {
 
   const word    = vocab[genderCurrent];
   if (!word) return;
+  if (!word.article) {
+    renderGenderQuiz();
+    return;
+  }
   const correct = word.article.toLowerCase();
   const isRight = chosen === correct;
 
@@ -865,7 +871,6 @@ function pluralAnswer() {
     quizSessionWrong++;
     card.classList.add('wrong');
     reveal.classList.add('show', 'wrong-plural');
-    reveal.classList.remove('wrong-plural');
     feedback.textContent = `\u2717  CORRECT: die ${word.plural}`;
     feedback.className   = 'quiz-feedback show wrong-text';
     input.style.borderColor = 'rgba(251,113,133,0.6)';

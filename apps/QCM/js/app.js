@@ -657,7 +657,7 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
     if (exists) { skipped++; return; }
 
     existing.push({
-      id: 'q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      id: 'q_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '_' + added,
       german: item.german,
       english: item.english,
       question: item.question || '',

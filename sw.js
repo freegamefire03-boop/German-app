@@ -1,6 +1,6 @@
 // ─── CACHE CONFIG ─────────────────────────────────────────────────────────────
 // Bump this version string whenever you push new content to force a cache refresh
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME    = `deutsch-lernen-${CACHE_VERSION}`;
 
 // Every file the app needs to work offline.
@@ -12,22 +12,40 @@ const PRECACHE_URLS = [
   './apps.json',
   './manifest.json',
 
-  // ── Shared JS ──
+  // ── Shared ──
   './shared/js/config.js',
+  './shared/data/words.json',
 
   // ── Icons ──
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
 
-  // ── Sub-apps (add the index.html of every app you have) ──
+  // ── Flashcards ──
   './apps/flashcards/',
   './apps/flashcards/index.html',
+  './apps/flashcards/js/app.js',
+  './apps/flashcards/css/style.css',
+
+  // ── Verbs ──
   './apps/verbs/',
   './apps/verbs/index.html',
+  './apps/verbs/js/app.js',
+  './apps/verbs/css/style.css',
+
+  // ── Cases ──
   './apps/cases/',
   './apps/cases/index.html',
+  './apps/cases/quiz.html',
+  './apps/cases/js/landing.js',
+  './apps/cases/js/script.js',
+  './apps/cases/css/style.css',
+  './apps/cases/data/themes.json',
+
+  // ── QCM ──
   './apps/QCM/',
   './apps/QCM/index.html',
+  './apps/QCM/js/app.js',
+  './apps/QCM/css/style.css',
 ];
 
 // ─── INSTALL: pre-cache everything ────────────────────────────────────────────

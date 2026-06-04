@@ -217,8 +217,17 @@ function manageMarkUndone() { manageSelected.forEach(i => mastered.delete(i)); s
 let manageDeleteTarget = [];
 function manageConfirmDelete() { manageDeleteTarget = [...manageSelected]; document.getElementById('deletePhrasesModalBody').textContent = `Delete ${manageDeleteTarget.length} phrase(s)? This cannot be undone.`; document.getElementById('deletePhrasesModalOverlay').classList.add('open'); }
 function manageDoDelete() {
-    manageDeleteTarget.sort((a, b) => b - a).forEach(i => { phrases.splice(i, 1); mastered.delete(i); });
-    const old = [...mastered]; mastered.clear(); old.forEach(i => { if (i < phrases.length) mastered.add(i); });
+    const sortedTargets = [...manageDeleteTarget].sort((a, b) => b - a);
+    sortedTargets.forEach(i => { phrases.splice(i, 1); });
+
+    // Remap mastered indices: for each deleted index below a mastered index, decrement it
+    const newMastered = new Set();
+    mastered.forEach(i => {
+        const deletedBelow = sortedTargets.filter(d => d < i).length;
+        const newIdx = i - deletedBelow;
+        if (newIdx >= 0 && newIdx < phrases.length) newMastered.add(newIdx);
+    });
+    mastered = newMastered;
     savePhrases(activeThemeId); saveMastered(activeThemeId); manageSelected.clear(); manageDeleteTarget = [];
     document.getElementById('deletePhrasesModalOverlay').classList.remove('open'); renderManageList(); renderQuizStats();
 }
