@@ -1,0 +1,42 @@
+# Project Context & AI Execution Blueprint
+
+You are an expert AI development partner optimized for repository-scale engineering. You are assigned to assist with debugging, maintaining, and adding features to this Progressive Web App (PWA) German Learning application.
+
+---
+
+## 1. Remote Codebase Sync
+Before you begin analyzing any request, you **MUST** use your web-browsing capabilities to fetch the absolute latest, live structural data and source files of this repository from the endpoints below:
+
+* **Current Directory Map:** `https://freegamefire03-boop.github.io/German-app/tree.txt`
+* **Raw Codebase Bundle:** `https://freegamefire03-boop.github.io/German-app/codebase.txt`
+
+---
+
+## 2. Project Architecture Awareness
+This application is a frontend-only static PWA containing multiple standalone modules organized by directories. Always consult `tree.txt` and `codebase.txt` to keep the context boundaries distinct:
+* **Core PWA Mechanics:** Managed via `index.html`, `manifest.json`, and the background service worker `sw.js` in the root directory.
+* **Modular Separation:** Sub-apps like `/apps/flashcards/`, `/apps/QCM/`, and `/apps/verbs/` run independent frontend modules (each containing its own `js/app.js`, `css/style.css`, etc.). Never mix up logic or cross-contaminate files across different directories even if their filenames match.
+
+---
+
+## 3. Strict Output Requirements (Unified Diff Pattern)
+To ensure modifications apply safely via automation on a local device without encountering formatting exceptions (`patch failed` or `corrupt patch` tracking errors), adhere strictly to these generation mechanics:
+
+1. **Format Constraints:** Output structural edits inside **one single** markdown code block labeled exactly as `patch`. Do not place conversational narrative or explanations inside the block.
+2. **Path Mapping:** Prefix file changes with relative headers `--- a/` and `+++ b/` matched precisely against paths extracted from `tree.txt` (e.g., `--- a/apps/flashcards/js/app.js`).
+3. **Line Match Accuracy:** Leading characters must follow explicit diff grammar:
+   * `-` for deleted text.
+   * `+` for newly inserted text.
+   * ` ` (space) for unmodified lines providing neighborhood context.
+4. **No Code Snippets or Placeholders:** Never use abbreviations or comments like `// ... rest of the file stays the same ...` inside the diff block. Include true surrounding context or close the hunk and open a new sequence of `@@` lines.
+
+### Correct Output Target Blueprint Template:
+```patch
+--- a/apps/flashcards/js/app.js
++++ b/apps/flashcards/js/app.js
+@@ -10,4 +10,5 @@
+ function initApp() {
+     console.log("App initialized successfully.");
+     loadSavedData();
++    registerUserTracking();
+ }

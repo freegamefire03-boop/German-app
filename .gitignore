@@ -10,3 +10,4 @@ TASKS/
 *.py
 !tree.txt
 !codebase.txt
+!patchdocumentation.txt
