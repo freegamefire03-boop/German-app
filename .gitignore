@@ -8,3 +8,5 @@ TASKS/
 *.patch
 *.txt
 *.py
+!tree.txt
+!codebase.txt

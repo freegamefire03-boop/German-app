@@ -466,27 +466,37 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
   }
 
   const newWords = [];
-  const duplicateWords = [];
+  const sameThemeDups = [];
+  const crossThemeDups = [];
+
+  const activeTheme = activeThemeId ? themes.find(t => t.id === activeThemeId) : null;
 
   validItems.forEach(item => {
-    const exists = vocab.some(v => v.german === item.german);
-    if (exists) {
-      duplicateWords.push(item.german);
-    } else {
+    const existsIdx = vocab.findIndex(v => v.german === item.german);
+    if (existsIdx === -1) {
       newWords.push(item);
+    } else if (activeTheme && activeTheme.wordKeys.includes(item.german)) {
+      sameThemeDups.push(item.german);
+    } else {
+      crossThemeDups.push(item.german);
     }
   });
 
-  if (duplicateWords.length > 0) {
-    pendingImport = { validItems, newWords, duplicateWords };
-    showDuplicateModal(duplicateWords, (action, progressAction) => {
+  if (crossThemeDups.length > 0) {
+    pendingImport = { newWords, crossThemeDups };
+    showDuplicateModal(crossThemeDups, (action, progressAction) => {
       processImportAfterDecision(pendingImport, action, progressAction);
       pendingImport = null;
     });
     return;
   }
 
-  processImportAfterDecision({ validItems, newWords, duplicateWords: [] }, 'include', 'keep');
+  if (newWords.length === 0) {
+    showMsg(msg, 'All words already exist in this theme.', 'info');
+    return;
+  }
+
+  processImportAfterDecision({ newWords, crossThemeDups: [] }, 'include', 'keep');
 });
 
 function showDuplicateModal(duplicates, callback) {
@@ -538,7 +548,7 @@ function showDuplicateModal(duplicates, callback) {
 }
 
 function processImportAfterDecision(importData, dupAction, progressAction) {
-  const { validItems, newWords, duplicateWords } = importData;
+  const { newWords, crossThemeDups } = importData;
   let added = 0;
   const wordsAddedToTheme = [];
 
@@ -554,8 +564,8 @@ function processImportAfterDecision(importData, dupAction, progressAction) {
     wordsAddedToTheme.push(item.german);
   });
 
-  if (dupAction === 'include' && duplicateWords.length > 0) {
-    duplicateWords.forEach(gWord => {
+  if (dupAction === 'include' && crossThemeDups.length > 0) {
+    crossThemeDups.forEach(gWord => {
       wordsAddedToTheme.push(gWord);
 
       if (progressAction === 'reset') {
@@ -571,25 +581,25 @@ function processImportAfterDecision(importData, dupAction, progressAction) {
     });
   }
 
-  if (wordsAddedToTheme.length > 0 && !(dupAction === 'skip' && duplicateWords.length > 0 && newWords.length === 0)) {
+  if (wordsAddedToTheme.length > 0 && !(dupAction === 'skip' && crossThemeDups.length > 0 && newWords.length === 0)) {
     addWordKeysToActiveTheme(wordsAddedToTheme);
   }
 
   const msg = document.getElementById('msgImport');
   if (added === 0 && dupAction === 'skip') {
-    showMsg(msg, `\u26A0\uFE0F Skipped ${duplicateWords.length} duplicate word${duplicateWords.length !== 1 ? 's' : ''}.`, 'info');
+    showMsg(msg, `\u26A0\uFE0F Skipped ${crossThemeDups.length} duplicate word${crossThemeDups.length !== 1 ? 's' : ''}.`, 'info');
     return;
   }
 
-  if (added > 0 || (dupAction === 'include' && duplicateWords.length > 0)) {
+  if (added > 0 || (dupAction === 'include' && crossThemeDups.length > 0)) {
     saveState();
     buildQueue();
     render();
     document.getElementById('jsonInput').value = '';
     const themeNote = activeThemeId ? ' & added to theme' : '';
     let msgText = `\u2713 Added ${added} new word${added !== 1 ? 's' : ''}`;
-    if (dupAction === 'include' && duplicateWords.length > 0) {
-      msgText += ` + referenced ${duplicateWords.length} existing word${duplicateWords.length !== 1 ? 's' : ''}`;
+    if (dupAction === 'include' && crossThemeDups.length > 0) {
+      msgText += ` + referenced ${crossThemeDups.length} existing word${crossThemeDups.length !== 1 ? 's' : ''}`;
       if (progressAction === 'reset') msgText += ' (progress reset)';
     }
     msgText += themeNote + '!';
