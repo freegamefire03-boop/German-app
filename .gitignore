@@ -5,3 +5,5 @@ github auth key.txt
 desktop.ini
 Thumbs.db
 TASKS/
+*.patch
+*.txt
