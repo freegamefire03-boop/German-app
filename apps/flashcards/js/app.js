@@ -444,6 +444,8 @@ function next(repeat = false) {
 
 // ─── IMPORT JSON ──────────────────────────────────────────────────────
 document.getElementById('btnImportJson').addEventListener('click', () => {
+  let pendingImport = null;
+
   const raw = document.getElementById('jsonInput').value.trim();
   const msg = document.getElementById('msgImport');
   if (!raw) { showMsg(msg, 'Paste JSON first.', 'error'); return; }
@@ -463,36 +465,137 @@ document.getElementById('btnImportJson').addEventListener('click', () => {
     return;
   }
 
-  let added = 0;
-  const newGermanWords = [];
+  const newWords = [];
+  const duplicateWords = [];
+
   validItems.forEach(item => {
     const exists = vocab.some(v => v.german === item.german);
-    if (!exists) {
-      vocab.push({
-        german: item.german,
-        english: item.english,
-        article: item.article || '',
-        pronunciation: item.pronunciation || '',
-        plural: item.plural || ''
-      });
-      added++;
+    if (exists) {
+      duplicateWords.push(item.german);
+    } else {
+      newWords.push(item);
     }
-    newGermanWords.push(item.german);
   });
 
-  if (added === 0) {
-    showMsg(msg, 'All words already exist in vocabulary.', 'info');
+  if (duplicateWords.length > 0) {
+    pendingImport = { validItems, newWords, duplicateWords };
+    showDuplicateModal(duplicateWords, (action, progressAction) => {
+      processImportAfterDecision(pendingImport, action, progressAction);
+      pendingImport = null;
+    });
     return;
   }
 
-  addWordKeysToActiveTheme(newGermanWords);
-  saveState();
-  buildQueue();
-  render();
-  document.getElementById('jsonInput').value = '';
-  const themeNote = activeThemeId ? ' & added to theme' : '';
-  showMsg(msg, `\u2713 Added ${added} new word${added !== 1 ? 's' : ''}${themeNote}!`, 'success');
+  processImportAfterDecision({ validItems, newWords, duplicateWords: [] }, 'include', 'keep');
 });
+
+function showDuplicateModal(duplicates, callback) {
+  const modal = document.getElementById('dupModal');
+  const countMsg = document.getElementById('dupCountMsg');
+  const preview = document.getElementById('dupWordPreview');
+  const dupToggle = document.getElementById('dupActionToggle');
+  const progressToggle = document.getElementById('progressActionToggle');
+  const progressRow = document.getElementById('progressToggleRow');
+
+  countMsg.textContent = `Found ${duplicates.length} word${duplicates.length !== 1 ? 's' : ''} that already exist in your vocabulary:`;
+
+  const previewList = duplicates.slice(0, 10).map(w => `\u2022 ${escHtml(w)}`).join('<br>');
+  preview.innerHTML = previewList + (duplicates.length > 10 ? `<br><em>...and ${duplicates.length - 10} more</em>` : '');
+
+  dupToggle.checked = false;
+  progressToggle.checked = false;
+  progressRow.classList.add('disabled');
+
+  dupToggle.onchange = () => {
+    if (dupToggle.checked) {
+      progressRow.classList.remove('disabled');
+    } else {
+      progressRow.classList.add('disabled');
+      progressToggle.checked = false;
+    }
+  };
+
+  const onConfirm = () => {
+    const action = dupToggle.checked ? 'include' : 'skip';
+    const progressAction = progressToggle.checked ? 'reset' : 'keep';
+    modal.classList.remove('open');
+    callback(action, progressAction);
+
+    dupToggle.onchange = null;
+    document.getElementById('dupConfirm').onclick = null;
+    document.getElementById('dupCancel').onclick = null;
+  };
+
+  document.getElementById('dupConfirm').onclick = onConfirm;
+  document.getElementById('dupCancel').onclick = () => {
+    modal.classList.remove('open');
+    showMsg(document.getElementById('msgImport'), 'Import cancelled.', 'info');
+    document.getElementById('dupConfirm').onclick = null;
+    document.getElementById('dupCancel').onclick = null;
+  };
+
+  modal.classList.add('open');
+}
+
+function processImportAfterDecision(importData, dupAction, progressAction) {
+  const { validItems, newWords, duplicateWords } = importData;
+  let added = 0;
+  const wordsAddedToTheme = [];
+
+  newWords.forEach(item => {
+    vocab.push({
+      german: item.german,
+      english: item.english,
+      article: item.article || '',
+      pronunciation: item.pronunciation || '',
+      plural: item.plural || ''
+    });
+    added++;
+    wordsAddedToTheme.push(item.german);
+  });
+
+  if (dupAction === 'include' && duplicateWords.length > 0) {
+    duplicateWords.forEach(gWord => {
+      wordsAddedToTheme.push(gWord);
+
+      if (progressAction === 'reset') {
+        const idx = vocab.findIndex(v => v.german === gWord);
+        if (idx !== -1) {
+          passed.delete(idx);
+          delete genderProgress[idx];
+          genderMastered.delete(idx);
+          delete pluralProgress[idx];
+          pluralMastered.delete(idx);
+        }
+      }
+    });
+  }
+
+  if (wordsAddedToTheme.length > 0 && !(dupAction === 'skip' && duplicateWords.length > 0 && newWords.length === 0)) {
+    addWordKeysToActiveTheme(wordsAddedToTheme);
+  }
+
+  const msg = document.getElementById('msgImport');
+  if (added === 0 && dupAction === 'skip') {
+    showMsg(msg, `\u26A0\uFE0F Skipped ${duplicateWords.length} duplicate word${duplicateWords.length !== 1 ? 's' : ''}.`, 'info');
+    return;
+  }
+
+  if (added > 0 || (dupAction === 'include' && duplicateWords.length > 0)) {
+    saveState();
+    buildQueue();
+    render();
+    document.getElementById('jsonInput').value = '';
+    const themeNote = activeThemeId ? ' & added to theme' : '';
+    let msgText = `\u2713 Added ${added} new word${added !== 1 ? 's' : ''}`;
+    if (dupAction === 'include' && duplicateWords.length > 0) {
+      msgText += ` + referenced ${duplicateWords.length} existing word${duplicateWords.length !== 1 ? 's' : ''}`;
+      if (progressAction === 'reset') msgText += ' (progress reset)';
+    }
+    msgText += themeNote + '!';
+    showMsg(msg, msgText, 'success');
+  }
+}
 
 // ─── EXPORT / IMPORT PROGRESS ─────────────────────────────────────────
 document.getElementById('btnExport').addEventListener('click', () => {

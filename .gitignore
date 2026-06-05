@@ -7,3 +7,4 @@ Thumbs.db
 TASKS/
 *.patch
 *.txt
+*.py

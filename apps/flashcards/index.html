@@ -100,6 +100,38 @@
     <div class="wm-word-list" id="wmWordList"></div>
   </div>
 
+  <!-- Duplicate Warning Modal -->
+  <div id="dupModal" class="modal">
+    <div class="modal-content">
+      <h3>⚠️ Duplicate Words Detected</h3>
+      <p id="dupCountMsg"></p>
+      <div id="dupWordPreview" class="dup-preview"></div>
+      
+      <div class="dup-action-row">
+        <span class="toggle-label">⏭️ Skip</span>
+        <label class="switch">
+          <input type="checkbox" id="dupActionToggle">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">➕ Include</span>
+      </div>
+      
+      <div class="dup-action-row progress-toggle disabled" id="progressToggleRow">
+        <span class="toggle-label">✅ Keep progress</span>
+        <label class="switch">
+          <input type="checkbox" id="progressActionToggle">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label">🔄 Reset progress</span>
+      </div>
+      
+      <div class="modal-actions">
+        <button id="dupCancel" class="btn-secondary">Cancel Import</button>
+        <button id="dupConfirm" class="btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+
   <div id="flashcardView">
 
     <div class="header">
@@ -226,6 +258,32 @@
   </div>
 
 </div>
+
+<style>
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+  background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center; }
+.modal.open { display:flex; }
+.modal-content { background:#1a1a2e; border-radius:12px; padding:20px; max-width:480px; 
+  width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+.dup-preview { max-height:120px; overflow-y:auto; background:#16213e; 
+  border-radius:8px; padding:10px; margin:12px 0; font-size:0.9em; }
+.dup-action-row { display:flex; align-items:center; justify-content:center; gap:12px; margin:14px 0; }
+.toggle-label { font-size:0.9em; user-select:none; }
+.switch { position:relative; display:inline-block; width:48px; height:24px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0;
+  background:#4b5563; transition:.3s; border-radius:24px; }
+.slider:before { position:absolute; content:""; height:18px; width:18px; left:3px;
+  bottom:3px; background:#fff; transition:.3s; border-radius:50%; }
+.switch input:checked + .slider { background:#7c3aed; }
+.switch input:checked + .slider:before { transform:translateX(24px); }
+.progress-toggle.disabled { opacity:0.35; pointer-events:none; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+.btn-primary { background:#7c3aed; color:white; border:none; padding:10px 20px; 
+  border-radius:8px; cursor:pointer; }
+.btn-secondary { background:#4b5563; color:white; border:none; padding:10px 20px; 
+  border-radius:8px; cursor:pointer; }
+</style>
 
 <script src="../../shared/js/config.js"></script>
 <script src="js/app.js"></script>
