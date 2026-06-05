@@ -683,6 +683,9 @@ let pluralProgress = {};
 let pluralMastered = new Set();
 let pluralCurrent  = null;
 
+let autoSkipGenderTimer = null;
+let autoSkipPluralTimer = null;
+
 function loadQuizState() {
   const gp = localStorage.getItem(LS_GENDER_PROGRESS);
   const gm = localStorage.getItem(LS_GENDER_MASTERED);
@@ -745,6 +748,8 @@ function renderActiveQuiz() {
 }
 
 function renderGenderQuiz() {
+  clearTimeout(autoSkipGenderTimer);
+  autoSkipGenderTimer = null;
   updateQuizStats(genderMastered);
   const area = document.getElementById('quizCardArea');
 
@@ -819,7 +824,7 @@ function genderAnswer(chosen) {
     }
 
     vibrate(CONFIG.VIBRATE_SUCCESS);
-    setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
+    autoSkipGenderTimer = setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
     btns.forEach(b => {
       if (b.textContent.trim() === chosen) {
         b.style.background = 'rgba(0,229,195,0.18)';
@@ -855,6 +860,8 @@ function genderAnswer(chosen) {
 }
 
 function renderPluralQuiz() {
+  clearTimeout(autoSkipPluralTimer);
+  autoSkipPluralTimer = null;
   updateQuizStats(pluralMastered);
   const area = document.getElementById('quizCardArea');
 
@@ -972,7 +979,7 @@ function pluralAnswer() {
     }
 
     vibrate(CONFIG.VIBRATE_SUCCESS);
-    setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
+    autoSkipPluralTimer = setTimeout(() => { document.getElementById('quizNextBtn').click(); }, 1000);
 
   } else {
     quizSessionWrong++;
