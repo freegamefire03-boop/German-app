@@ -1,50 +1,78 @@
-# Deutsch Lernen — German Flashcards PWA
+# Deutsch Lernen — German Learning App
 
-A German vocabulary flashcard app with a der/die/das gender quiz. Works fully offline and can be installed on your home screen.
+A German vocabulary, verb conjugation, and grammar learning application. Available as both a **PWA** (web) and a **native Kotlin Android APK**.
 
-## Files
+## Status
+Active development
 
+## Features
+- **Flashcards** — vocabulary deck with gender (der/die/das) and plural quizzes, spaced repetition, word management
+- **Verbs (Chronos)** — verb conjugation practice with 30 essential verbs
+- **QCM** — multiple-choice vocabulary quiz with topic-based pools
+- **Cases** — sentence-level article selection for Nominativ, Akkusativ, Dativ, Genitiv
+
+## Platforms
+
+### PWA (Web)
 ```
-index.html      ← the app
-manifest.json   ← PWA manifest
-sw.js           ← service worker (offline support)
-icon-192.png    ← app icon
-icon-512.png    ← app icon (large)
+index.html         ← hub / launcher
+manifest.json      ← PWA manifest
+sw.js              ← service worker (offline cache)
+apps.json          ← sub-app registry
+apps/              ← sub-applications (flashcards, verbs, QCM, cases)
+shared/            ← shared config, utilities, word data
 ```
 
-## Deploy to GitHub Pages (step by step)
-
-1. Create a new GitHub repository (e.g. `deutsch-lernen`)
-2. Push all 5 files to the `main` branch:
+No build step. Serve with any HTTP server:
 
 ```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/deutsch-lernen.git
-git push -u origin main
+python -m http.server 8080
 ```
 
-3. Go to your repo → **Settings** → **Pages**
-4. Under *Source*, select **Deploy from a branch** → `main` → `/ (root)`
-5. Hit **Save** — GitHub will give you a URL like `https://your-username.github.io/deutsch-lernen`
+### Kotlin Android APK
+```
+GermanApp/         ← Android project root
+  app/
+    src/main/      ← Kotlin source, resources, manifest
+    build.gradle.kts
+  build.gradle.kts
+  gradlew.bat
+```
 
-## Add to Home Screen
+Build with:
+```bash
+cd GermanApp
+gradlew.bat assembleDebug
+```
 
-**iPhone (Safari):**
-1. Open the GitHub Pages URL in Safari
-2. Tap the Share button (box with arrow)
-3. Tap "Add to Home Screen"
-4. Tap "Add"
+APK output: `GermanApp/app/build/outputs/apk/debug/app-debug.apk`
 
-**Android (Chrome):**
-1. Open the URL in Chrome
-2. Tap the three-dot menu
-3. Tap "Add to Home Screen" or "Install App"
+## Tech Stack
+- **PWA:** Vanilla HTML / CSS / JavaScript, Service Worker, localStorage
+- **Android:** Kotlin, Room database, Navigation Component, Material Design 3, ViewBinding, LiveData, Coroutines, kapt
 
-## Notes
+## Data
+- Pre-seeded with 220+ vocabulary words across 18 themes
+- 30 German verbs with full present tense conjugations
+- 60+ quiz questions across 8 topic pools
+- 65+ case examples covering all 4 grammatical cases
+- All data stored locally (no network required)
 
-- All progress is saved in your browser's `localStorage` — it persists across sessions
-- The app works fully offline after the first load (service worker caches everything)
-- Flashcard mastery and quiz mastery are tracked separately
+## Project Structure
+```
+/
+├── index.html           ← PWA entry point
+├── manifest.json
+├── sw.js
+├── apps/                ← PWA sub-applications
+├── shared/              ← PWA shared code
+├── GermanApp/           ← Kotlin Android project
+│   ├── gradlew.bat
+│   ├── app/
+│   │   └── src/main/java/com/germanapp/
+│   │       ├── data/    ← Room DB, DAOs, models, seed data
+│   │       ├── ui/      ← Hub, Flashcards, Verbs, QCM, Cases
+│   │       └── util/
+│   └── build.gradle.kts
+└── README.md
+```

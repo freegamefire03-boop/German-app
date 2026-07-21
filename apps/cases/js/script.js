@@ -2,7 +2,7 @@
 //  THEME LOADER
 // ═══════════════════════════════════════════════════════════════
 
-const DEFAULT_ARTICLES = ['A', 'B', 'C', 'D'];
+const DEFAULT_ARTICLES = ['der', 'die', 'das', 'den', 'dem'];
 
 let allThemes = [];
 
@@ -91,15 +91,6 @@ let currentEx = null;
 let answeredFlag = false;
 let currentTheme = null;
 let initializing = false;
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 function vibrate(pattern) {
   if (navigator.vibrate) navigator.vibrate(pattern);

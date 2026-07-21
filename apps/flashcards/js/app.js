@@ -325,13 +325,6 @@ function buildQueue() {
   currentIndex = 0;
 }
 
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
 // ─── RENDER ───────────────────────────────────────────────────────────
 function render() {
   updateStats();
@@ -740,13 +733,6 @@ function resetPassed() {
   saveState();
   buildQueue();
   render();
-}
-
-// ─── UTIL ─────────────────────────────────────────────────────────────
-function showMsg(el, text, type) {
-  el.textContent = text;
-  el.className = 'msg show ' + type;
-  setTimeout(() => { el.classList.remove('show'); }, 3500);
 }
 
 // ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────────
@@ -1388,7 +1374,7 @@ document.getElementById('wmBackBtn').addEventListener('click', () => {
   await loadState();
   loadQuizState();
   renderThemeSelectList();
-  sessionStats = { wordsPassed: 0, genderMastered: 0, pluralMastered: 0 };
+  let sessionStats = { wordsPassed: 0, genderMastered: 0, pluralMastered: 0 };
   if (activeThemeId) {
     buildQueue();
     render();

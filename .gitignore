@@ -1,13 +1,45 @@
+# secrets / env
+.env
+.env.*
+*.key
+*.pem
+*token*
+*secret*
+github auth key.txt
+
+# OS / editor
+desktop.ini
+Thumbs.db
+.DS_Store
+*.log
+
+# project artifacts
 TASK.txt
 AGENTS.md
 SESSION_LOG.md
-github auth key.txt
-desktop.ini
-Thumbs.db
 TASKS/
 *.patch
 *.txt
 *.py
-!tree.txt
-!codebase.txt
-!patchdocumentation.txt
+
+# Android build
+/gradle/
+.gradle/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+.cxx/
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+
+GermanApp/.gradle/
+GermanApp/local.properties
+GermanApp/.idea/
+GermanApp/*.iml
+GermanApp/captures/
+GermanApp/.externalNativeBuild/
+GermanApp/app/build/
